@@ -9,3 +9,5 @@ obj = geometry.CSTAirfoil(linspace(0, 1, 100)');
 % typing obj.plot() after running. These are dynamic calls to the object
 % and can proove indispensible when asking for data or storing history
 % of optimizations
+
+% Test Text from Visual Studio Code
