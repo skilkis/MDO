@@ -4,5 +4,8 @@
 # Simulink Autosave Files
 .autosave
 
+# MATLAB .asv files
+.asv
+
 # Simulink Cache Files
 controller/slprj
