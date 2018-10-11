@@ -1,63 +1,85 @@
 
 classdef Planform
     
-    properties
-        S_1     %Quarter chord sweep of first trapezoid[rad]
-        S_2     %Quarter chord weep of second trapezoid[rad]
-        C_r     %Root chord of first trapezoid[m]
-        tau     %Taper ratio[-]
-        b       %Wing span(total)[m]
-        g = 4.47      %Straight part of the trailing edge[m]
+    properties(Constant)
+        Cr = 7.6863;     %Root chord[m]
+        Sweep =25*pi/180;  %Quarter chord sweep angle[rad]
+        tau = 0.24;    %Taper ratio(Ct/Cr)[-]
+        b = 33.91;      %Wing span(total)[m]
+        gamma = 8.3402  %Straight TE length of the first trapezoid(set)[m]
+    end
+    properties(Dependent)
+        Chords          %Root, mid and tip chord in order[m]
+        Coords          %Coordinates of root, mid and tip chord LE(x,y,z)[m]
+        MAC             %Mean aerodynamic chord[m]
+        S               %Wing planform area[m^2]
+        
     end
     
-    properties(Dependent, SetAccess = private)
-        C_m     %Chord length at the end of the first trapezoid[m]
-        C_t     %Tip chord[m]
-        S       %Wing planform surface area[m^2]
-        AR      %Wing aspect ratio
-        MAC
-    end
     
     methods
-        function P = set.C_r(P,cr)
-            if isnumeric(cr) && cr>0
-                P.C_r = cr;
-            else
-                error('Invalid Root Chord');
-            end
+        function a = get.S(obj)
+            %Function for calculating the wing planform area
+            cr = obj.Cr;
+            g = obj.gamma;
+            s = obj.Sweep;
+            B = obj.b;
+            t = obj.tau;
+            
+            a = g*(2*cr - (4/3)*g*tan(s)) + (0.5*B-g)*((1+t)*cr-(4/3)*...
+                g*tan(s));
         end
         
-        function P = set.S_1(P,s1)
-            if isnumeric(s1) && s1>0 && s1<0.5*pi
-                P.S_1 = s1;
-            else
-                error('Invalid First Sweep Angle');
-            end
+        function b = get.Chords(obj)
+            %Function for calculating the various wing chords
+            b(1) = obj.Cr;
+            b(2) = obj.Cr - (4/3)*obj.gamma*tan(obj.Sweep);
+            b(3) = obj.tau*obj.Cr;
         end
         
-        function P = set.S_2(P,s2)
-            if isnumeric(s2) && s2>0 && s2<0.5*pi
-                P.S_2 = s2;
-            else
-                error('Invalid Second Sweep Angle');
-            end
+        function c = get.Coords(obj)
+            %Function for calculating the coordinates of the chord leading
+            %edges
+            x0 = 0;
+            y0 = 0;
+            z0 = 0;
+            x1 = 0.25*obj.Cr + obj.gamma*tan(obj.Sweep);
+            y1 = obj.gamma;
+            z1 = 0;
+            x2 = 0.25*obj.Cr + 0.5*obj.b*tan(obj.Sweep);
+            y2 = 0.5*obj.b;
+            z2 = 0;
+            
+            c = [x0, y0, z0;
+                x1, y1, z1;
+                x2, y2, z2];
         end
         
-        function P = set.tau(P,t)
-            if isnumeric(t) && t>0
-                P.tau = t;
-            else
-                error('Invalid Taper Ratio')
-            end
+        function d = get.MAC(obj)
+            %Function for calculating the mean aerodynamic chord
+            cr = obj.Cr;
+            g = obj.gamma;
+            s = obj.Sweep;
+            B = obj.b;
+            t = obj.tau;
+            cm = cr - (4/3)*g*tan(s);
+            ct = t*cr;
+            
+            a = g*(2*cr - (4/3)*g*tan(s)) + (0.5*B-g)*((1+t)*cr-(4/3)*...
+                g*tan(s));
+            
+            C1 = (1/(4*tan(s)))*(cr^3 -(cr-(4/3)*tan(s)*g)^3);
+            C2 = (0.5*B - g)*(ct^3)/(3*(1-(ct/cm))*cm);
+            d = 2*(C1 + C2)/a;
+            
+            
         end
         
-        function P = set.b(P,b)
-            if isnumeric(b) && b>0 
-                P.b = b;
-            else
-                error('Invalid Wing Span')
-            end
-        end
+        
+        
+        
+        
+       
         
         
     end
