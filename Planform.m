@@ -1,19 +1,33 @@
 
 classdef Planform
+    %Class responsible for calculating the various geometry properties of
+    %the wing planform. Gamma is set to a fixed value
     
-    properties(Constant)
-        Cr = 7.3834;%7.6863;     %Root chord[m]
-        Sweep = 25*pi/180;  %Quarter chord sweep angle[rad]
-        tau = 0.2002;    %Taper ratio(Ct/Cr)[-]
+
+    properties
+        %The properties in this list are variables. Their default values
+        %correspond to the A320-200.
+        
+        Cr = 7.6863;     %Root chord[m]
+        Sweep =25*pi/180;  %Quarter chord sweep angle[rad]
+        tau = 0.24;    %Taper ratio(Ct/Cr)[-]
         b = 33.91;      %Wing span(total)[m]
-        gamma = 6.0134;%8.3402  %Straight TE length of the first trapezoid(set)[m]
-        t_1 = 0;
-        t_2 = 0;
-        t_3 = 0;
-        fs = 0.25       %Front spar position(of second trapezoid(set)
-        rs = 0.75       %Rear spar position(of second trapezoid(set)
-    end 
+        
+        
+    end
+    properties(SetAccess = 'private')
+        %Since this property is set, it has been set as private access.
+        
+        gamma = 8.3402  %Straight TE length of the first trapezoid[m]
+        fs = 0.25       %Front spar position of second trapezoid
+        rs = 0.75       %Rear spar position of second trapezoid
+    end
+    
+
     properties(Dependent)
+        %These properties result from the input variables and can be used
+        %as geometry inputs for the analysis blocks.
+        
         Chords          %Root, mid and tip chord in order[m]
         Coords          %Coordinates of root, mid and tip chord LE(x,y,z)[m]
         Twists
@@ -80,7 +94,6 @@ classdef Planform
             C2 = (0.5*B - g)*(cm^2)*(1 - (ct/cm)^3)/(3*(1-(ct/cm)));
             d = 2*(C1 + C2)/a;
             
-            
         end
         function e = get.Twists(obj)
             e = [obj.t_1, obj.t_2, obj.t_3];
@@ -123,57 +136,5 @@ classdef Planform
     end
 end
 
-        
-        
-% x = [34.10, 6.07, 25*pi/180, -25*pi/180, 0.247, 4.47];
-% 
-% b = x(1);
-% Cr = x(2);
-% S1 = x(3);
-% S2 = x(4);
-% tau = x(5);
-% g = x(6);
-% 
-% Cm = Cr-(4*g/3)*tan(S1);
-% Ct = tau*Cr;
-% 
-% A = g*tan(S1) - 0.25*Cm;
-% B = g*tan(S1) + (0.5*b - g)*tan(S2) - 0.25*Ct;
-% C = 3*Cr/4;
-% D = g*tan(S1) + (0.5*b-g)*tan(S2) +(3*Ct/4);
-% 
-% 
-% Le_1 = @(y) (((Cr - Cm)/(4*g)) + tan(S1)).*y - 0.25*Cr;
-% Le_2 = @(y) ((A-B).*y + g*B -0.5*b*A)./(g - 0.5*b);
-% Te_1 = @(y) (3*Cr/4)*ones(1,length(y));
-% Te_2 = @(y) ((C-D).*y + g*D - 0.5*b*C)./(g - 0.5*b);
-% 
-% y1 = linspace(0, g, 20);
-% y2 = linspace(g, 0.5*b, 20);
-% 
-% wline = 2;
-% figure
-% plot([0, 0], [-Cr/4, 3*Cr/4],'LineWidth',wline)
-% hold on
-% plot([g, g], [A, C],'LineWidth',wline)
-% hold on
-% plot([0.5*b 0.5*b],[B,D],'LineWidth',wline)
-% hold on
-% plot([0, g], [0, g*tan(S1)],'LineWidth',wline)
-% hold on
-% plot([g, 0.5*b], [g*tan(S1), g*tan(S1) + (0.5*b-g)*tan(S2)],'LineWidth',wline)
-% hold on
-% plot(y1, Le_1(y1),'LineWidth',wline)
-% hold on
-% plot(y1, Te_1(y1),'LineWidth',wline)
-% hold on
-% plot(y2, Le_2(y2),'LineWidth',wline)
-% hold on
-% plot(y2, Te_2(y2),'LineWidth',wline)
-% 
-% legend('Root chord', 'Mid chord', 'Tip chord', 'First quarter chord'...
-%     ,'Second quarter chord', 'First leading edge','First trailing edge'...
-%     ,'Second leading edge','Second trailing edge','Location','southeast')
-% 
-
+     
 
