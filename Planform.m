@@ -8,17 +8,18 @@ classdef Planform
         %The properties in this list are variables. Their default values
         %correspond to the A320-200.
         
-        Cr = 7.6863;     %Root chord[m]
+        Cr = 7.3834;     %Root chord[m]
         Sweep =25*pi/180;  %Quarter chord sweep angle[rad]
-        tau = 0.24;    %Taper ratio(Ct/Cr)[-]
+        tau = 0.2002;    %Taper ratio(Ct/Cr)[-]
         b = 33.91;      %Wing span(total)[m]
-        
+        t_r = 0;        %Twist angle values for root(r) and tip(t)
+        t_t = 0;
         
     end
     properties(SetAccess = 'private')
         %Since this property is set, it has been set as private access.
         
-        gamma = 8.3402  %Straight TE length of the first trapezoid[m]
+        gamma = 6.0134  %Straight TE length of the first trapezoid[m]
         fs = 0.25       %Front spar position of second trapezoid
         rs = 0.75       %Rear spar position of second trapezoid
     end
@@ -96,7 +97,7 @@ classdef Planform
             
         end
         function e = get.Twists(obj)
-            e = [obj.t_1, obj.t_2, obj.t_3];
+            e = [obj.t_r, obj.t_r - (obj.gamma/obj.b)*(obj.t_r - obj.t_t), obj.t_t];
         end
         function f = get.eta(obj)
             f = [0, obj.gamma/(0.5*obj.b), 1];
