@@ -8,6 +8,7 @@ classdef Aircraft
         M_cruise        % Cruise Mach Number
         S_wet           % Aircraft Wetted Area
         S_ref           % Reference Wing-planform area
+        Cfe             % Skin-Friction Coefficient
         
         
     end
