@@ -30,7 +30,7 @@ classdef Validators
                 if isempty(data) > 0
                     valid = 1;
                 end
-            else
+                else
                 fclose(fid);
                 error('%s is not a valid airfoil file', filename)
             end
@@ -69,7 +69,7 @@ classdef Validators
             else
                 valid = false;
             end
-        end
+       end
     end
 end
 
