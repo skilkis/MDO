@@ -1,4 +1,5 @@
-classdef CSTAirfoil < geometry.Airfoil
+% classdef CSTAirfoil < geometry.Airfoil
+classdef CSTAirfoil
 %RESPONSIBLE FOR BLAH BLAH
 
    properties (SetAccess = private)
