@@ -331,7 +331,11 @@ class XDSM(object):
             if cleanup:
                 for ext in ['aux', 'fdb_latexmk', 'fls', 'log']:
                     f_name = '{}.{}'.format(file_name, ext)
-                    if os.path.exists(f_name):
-                        os.remove(f_name)
+                    f_path = os.path.join(os.getcwd(), 'static', f_name)
+                    try:
+                        os.remove(f_path)
+                    except OSError:
+                        pass
+
             if auto_launch:
                 wb.open(os.path.join(directory, '{}.pdf'.format(file_name)))
