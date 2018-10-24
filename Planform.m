@@ -18,7 +18,8 @@ classdef Planform
         t_t = -0.56;        %Twist angle at tip
         
     end
-    properties(SetAccess = 'private')
+
+    properties (SetAccess = 'private')
         %Since this property is set, it has been set as private access.
         
         gamma = 6.0134  %Straight TE length of the first trapezoid[m]
@@ -28,7 +29,7 @@ classdef Planform
     end
     
 
-    properties(Dependent)
+    properties (Dependent)
         %These properties result from the input variables and can be used
         %as geometry inputs for the analysis blocks.
         
