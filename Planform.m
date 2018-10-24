@@ -22,8 +22,8 @@ classdef Planform
         %Since this property is set, it has been set as private access.
         
         gamma = 6.0134  %Straight TE length of the first trapezoid[m]
-        fs = 0.1937       %Front spar position of second trapezoid
-        rs = 0.6801       %Rear spar position of second trapezoid
+        fs = 0.2;%0.1937       %Front spar position of second trapezoid
+        rs = 0.7255;%0.6801       %Rear spar position of second trapezoid
         D_f = 3.95        %Fuselage diameter
     end
     
