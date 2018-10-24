@@ -1,35 +1,40 @@
-MTOW = 78000;
-MZF = 60500;
-nmax = 2.5;
-P = Planform;
+%Script capable of calculating the wing weight using EMWET, as well as
+%calculating the available fuel volume in the wing tanks and center tank.
 
-S = P.S;
-b = P.b;
+MTOW = 78000;   %Maximum take-off weight[kg]. For now obtained from literature
+MZF = 60500;    %Maximum zero fuel weight[kg]
+nmax = 2.5;     %Maximum load factor, as specified in assignment
+P = Planform;   %Using the Planform class to obtain wing geometry
 
-XR = P.Coords(1,:);
-XM = P.Coords(2,:);
-Xt = P.Coords(3,:);
+S = P.S;        %Wing planform area[m^2]
+b = P.b;        %Wing span[m]
 
-Cr = P.Chords(1);
-Cm = P.Chords(2);
-Ct = P.Chords(3);
+XR = P.Coords(1,:);  %Coordinates of the root chord leading edge [x, y, z]
+XM = P.Coords(2,:);  %Coordinates of the kink chord leading edge [x, y, z]
+Xt = P.Coords(3,:);  %Coordinates of the tip chord leading edge [x, y, z]
 
-FS_r = P.fs_r;
-RS_r = P.rs_r;
-FS_m = P.fs;
-RS_m = P.rs;
-FS_t = P.fs;
-RS_t = P.rs;
+Cr = P.Chords(1);   %Root chord length[m]
+Cm = P.Chords(2);   %Kink chord length[m]
+Ct = P.Chords(3);   %Tip chord length[m]
 
-D_f = 3.95;
-W_e = 2359;
+FS_r = P.fs_r;      %Root chord front spar chordwise location
+RS_r = P.rs_r;      %Root chord rear spar chordwise location
+FS_m = P.fs;        %Mid chord front spar chordwise location
+RS_m = P.rs;        %Mid chord rear spar chordwise location
+FS_t = P.fs;        %Tip chord front spar chordwise location
+RS_t = P.rs;        %Tip chord rear spar chordwise location
 
-E = 7.10185e+010;
-rho = 2795.68;
-Y_t = 4.8265e+008;
-Y_c = 4.6886e+008;
-RP = 0.5;
+D_f = P.D_f;        %Fuselage diameter[m]
+W_e = 2359;         %Engine weight[kg]
 
+% Material characteristics were obtained from the tutorial example
+E = 7.10185e+010;   %E-modulus aluminium[Pa]
+rho = 2795.68;      %Density[kg/m^3]
+Y_t = 4.8265e+008;  %Tensile yield stress[Pa]
+Y_c = 4.6886e+008;  %Compressive yield stress[Pa]
+RP = 0.5;           %Rib pitch[m]
+
+%Constructing the the init file using the planform parameters and weights
 fid = fopen('A320.init','wt');
 fprintf(fid, '%g %g\n', MTOW, MZF);
 fprintf(fid, '%g\n', nmax);
@@ -50,6 +55,8 @@ fprintf(fid, '%g %g %g %g\n',E, rho, Y_t, Y_c);
 fprintf(fid, '%g %g\n',0.96, 0.7);
 fprintf(fid, '%d', 1);
 
+%Writing the aifoil files, based on the NACA23015, but in the future they
+%should be constructed using the Bernstein coefficients.
 fid = fopen('NACA23010.dat','wt');
 fid2 = fopen('NACA23012.dat','wt');
 data = importdata('NACA23015.dat');
@@ -57,6 +64,8 @@ for i = 1:length(data(:,1))
     fprintf(fid,'%g %g\n',data(i,1),(2/3)*data(i,2));
     fprintf(fid2,'%g %g\n',data(i,1),(0.12/0.15)*data(i,2));
 end
+
+%Initiating EMWET and writing a diary file
 tic;
 diary EMWET_stuff.txt
 
