@@ -1,4 +1,4 @@
-from pyXDSM.pyxdsm.XDSM import XDSM
+from XDSM.pyXDSM.pyxdsm.XDSM import XDSM
 
 #
 opt = 'Optimization'
