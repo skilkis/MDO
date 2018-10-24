@@ -1,4 +1,4 @@
-classdef (Abstract) Airfoil
+classdef (Abstract) Airfoil < handle
     %AIRFOIL Parent-class setting required properties
     
     properties (Abstract, SetAccess = private)
@@ -10,20 +10,25 @@ classdef (Abstract) Airfoil
     
     methods (Abstract)
         plot(obj)
+        scale(obj, chord, thickness)
     end
-%     
-%     methods
-%         function obj = Airfoil(inputArg1,inputArg2)
-%             %AIRFOIL Construct an instance of this class
-%             %   Detailed explanation goes here
-%             obj.Property1 = inputArg1 + inputArg2;
-%         end
-%         
-%         function outputArg = method1(obj,inputArg)
-%             %METHOD1 Summary of this method goes here
-%             %   Detailed explanation goes here
-%             outputArg = obj.Property1 + inputArg;
-%         end
-%     end
 end
+    
+%     methods
+%          function scale_thickness(obj, t_over_c)
+%             upper_spline = spline(obj.x_upper, obj.y_upper);
+%             lower_spline = spline(obj.x_lower, obj.y_lower);
+%             
+%             % Objective Function used to find the current thickness
+%             f = @(x) -(ppval(upper_spline, x) - ppval(lower_spline, x));
+%             
+%             % Normalized maximum thickness value and location
+%             [x_max, t_max] = fminbnd(f, 0.0, 1.0);
+%             
+%             current_thickness = -t_max;
+%             ratio = t_over_c / current_thickness;
+%             
+%             obj.y_upper = obj.y_upper * (ratio / 2);
+%             obj.y_lower = obj.y_lower * (ratio / 2);
+%         end
 
