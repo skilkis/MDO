@@ -13,15 +13,16 @@ classdef Planform
         S2 = 27.285*pi/180;
         tau = 0.2002;    %Taper ratio(Ct/Cr)[-]
         b = 33.91;      %Wing span(total)[m]
-        t_r = 0;        %Twist angle values for root(r) and tip(t)
-        t_t = 0;
+        t_r = 4.82;        %Twist angle value for root
+        t_k = 0.62;        %Twist angle at kink
+        t_t = -0.56;        %Twist angle at tip
         
     end
     properties(SetAccess = 'private')
         %Since this property is set, it has been set as private access.
         
         gamma = 6.0134  %Straight TE length of the first trapezoid[m]
-        fs = 0.1990       %Front spar position of second trapezoid
+        fs = 0.1937       %Front spar position of second trapezoid
         rs = 0.6801       %Rear spar position of second trapezoid
         D_f = 3.95        %Fuselage diameter
     end
@@ -60,7 +61,7 @@ classdef Planform
         function b = get.Chords(obj)
             %Function for calculating the various wing chords
             b(1) = obj.Cr;
-            b(2) = obj.Cr - (4/3)*obj.gamma*tan(obj.S1) + 0.05;
+            b(2) = obj.Cr - (4/3)*obj.gamma*tan(obj.S1) - 0.02;
             b(3) = obj.tau*obj.Cr;
         end
         
@@ -99,7 +100,7 @@ classdef Planform
             
         end
         function e = get.Twists(obj)
-            e = [obj.t_r, obj.t_r - (obj.gamma/obj.b)*(obj.t_r - obj.t_t), obj.t_t];
+            e = [obj.t_r, obj.t_k, obj.t_t];
         end
         function f = get.eta(obj)
             f = [0, obj.gamma/(0.5*obj.b), 1];

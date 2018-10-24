@@ -19,16 +19,7 @@ classdef Validators
             else
                 valid = 0;
             end
-        end
-       
-        function valid = positive(input)
-            if isnumerical(input) && input>0
-                valid = 1;
-            else
-                valid = 0;
-            end
-        end
-        
+       end
     end
 end
 

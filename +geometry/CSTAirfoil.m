@@ -1,9 +1,9 @@
-classdef CSTAirfoil
+classdef CSTAirfoil < geometry.Airfoil
 %RESPONSIBLE FOR BLAH BLAH
 
-   properties
-      x_upper   % x coordinates of upper-surface points
-      x_lower   % y coordinates of upper-surface points
+   properties (SetAccess = private)
+      x_upper   % x coordinates of upper-surface points (column vector)
+      x_lower   % y coordinates of upper-surface points (column vector)
       A_upper   % Upper surface Bernstein Coefficients
       A_lower   % Lower surface Bernstein coefficients
       N1        % LE Class Function value
@@ -13,11 +13,12 @@ classdef CSTAirfoil
    properties (Dependent, SetAccess = private) % Only can set by itself
        classValues  % Class Function values w/ fields 'upper' and 'lower'
        shapeValues  % Shape Function values w/ fields 'upper' and 'lower'
-       y_upper      % y coordinate of upper-surface points
-       y_lower      % y coordinate of lower-surface points
+       y_upper      % y coordinate of upper-surface points (column vector)
+       y_lower      % y coordinate of lower-surface points (column vector)
    end
    
    methods
+      %% Class Constructor
       function obj = CSTAirfoil(x_upper, varargin)
             %CLASS CONSTRUCTOR!
             
@@ -30,7 +31,8 @@ classdef CSTAirfoil
             % Ability to add validator functions for
             p = inputParser; % Analyzes passed arguments
             addRequired(p, 'x_upper', @geometry.Validators.isvector)
-            addOptional(p, 'x_lower', x_upper);
+            addOptional(p, 'x_lower', x_upper, ...
+                @geometry.Validators.isvector);
             addOptional(p, 'A_upper', A_upper, ...
                 @geometry.Validators.isvector);
             addOptional(p, 'A_lower', A_lower, ...
@@ -49,6 +51,7 @@ classdef CSTAirfoil
         
       end
       
+      % Dependent Attribute Getters
       function value = get.classValues(obj)
             % Localizing variables for clarity
             x_u = obj.x_upper;
@@ -75,24 +78,22 @@ classdef CSTAirfoil
           value = obj.classValues.lower .* obj.shapeValues.lower;
       end
       
-      function plot(obj)
+      function handle = plot(obj)
           figure('Name', inputname(1))
           hold on; grid minor
           plot(obj.x_upper, obj.classValues.upper .* obj.shapeValues.upper)
           plot(obj.x_lower, obj.classValues.lower .* obj.shapeValues.lower)
-          xlabel('Normalized Chord (x/c)')
-          ylabel('Normalized Thickness (t/c)')
           axis([min(obj.x_upper), max(obj.x_upper),...
-                -max(obj.x_upper) * 1.0, max(obj.x_upper)*1.0])
+                -max(obj.x_upper) * 0.5, max(obj.x_upper)*0.5])
+          legend('Upper Surface', 'Lower Surface')
+          xlabel('Normalized Chord Location (x/c)','Color','k');
+          ylabel('Normalized Chord-Normal Location (y/c)','Color','k');
+          title('CSTAirfoil Geometry')
+          handle = gcf();
       end
    end
    methods (Static)
-      function obj = loadobj(s)
-          obj.A_upper = s;
-          disp('I Loaded')
-      end
-      
-      function classValue = classFunction(x, N1, N2)
+     function classValue = classFunction(x, N1, N2)
           classValue = (x.^N1).*(1-x).^N2;
       end
       
