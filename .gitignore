@@ -1,15 +1,12 @@
 # PyCharm Project Folder & Compiled Files
 .idea/
-.pyc
+*.pyc
 
 # Simulink Autosave Files
-.autosave
+*.autosave
 
 # MATLAB .asv files
-.asv
-
-# Simulink Cache Files
-controller/slprj
+*.asv
 
 # Misc. Built LaTeX Files
 XDSM/figures/static
