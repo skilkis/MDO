@@ -339,3 +339,20 @@ class XDSM(object):
 
             if auto_launch:
                 wb.open(os.path.join(directory, '{}.pdf'.format(file_name)))
+
+    @staticmethod
+    def math(tex):
+        """ Encapsulates input tex string in math environment $$. Works for iterables
+
+        :param str or list[str] or tuple[str] tex: tex_str that needs to be placed in math environment
+        :rtype: str or list[str] or tuple[str]
+        """
+        _math = r'${}$'
+        if isinstance(tex, str):
+            return _math.format(tex)
+        elif isinstance(tex, (tuple, list)):
+            return map(lambda t: _math.format(t), tex)
+        else:
+            raise TypeError("Provided input '{}' of type '{}' is invalid".format(input, type(input)))
+
+
