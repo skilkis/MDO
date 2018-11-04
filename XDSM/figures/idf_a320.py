@@ -25,12 +25,12 @@ x.add_system('L', comp, ('1:', 'Loads'))
 x.add_system('P', comp, ('1:', 'Performance'))
 
 # Objective Function:
-x.add_system('obj', func, ('2: Objective', r'$f(W_f) = - W_F$'))
+x.add_system('obj', func, ('2: Objective', r'$f(W_f) = - W_f$'))
 
 # Constraints:
 x.add_system('fuel', func, ('2: Ineq. Constraint', r'$\frac{W_f}{\rho_f} - V_t \leq 0$'))
-x.add_system('wing', func, ('2: Ineq. Constraint', r'$\frac{W_\text{TO}\left(\mathbf{x}\right)}'
-                                                   r'{S\left(\mathbf{x}\right)} - \left(\frac{W_\text{TO}}{S}\right)^'
+x.add_system('wing', func, ('2: Ineq. Constraint', r'$\frac{W_\text{TO}\left(\overline{x}\right)}'
+                                                   r'{S\left(\overline{x}\right)} - \left(\frac{W_\text{TO}}{S}\right)^'
                                                    r'{\left(0\right)} \leq 0$'))
 x.add_system('spar', func, ('2: Ineq. Constraint', r'$FS_\text{fus,min} - FS_\text{fus} \leq 0$'))
 x.add_system('G_load', func, ('2: Consistency', r'$\sum_{i=1}^{N}\sum_{y=0}^{b/2}\left('
@@ -43,12 +43,12 @@ x.add_input('opt', (r'$\zero{\Lambda_1}, \zero{\Lambda_2}, \zero{b}, \zero{c_r},
                     r'$\zero{A_\text{root}}, \zero{A_\text{tip}}, \zero{\beta_\text{root}},$',
                     r'$\zero{\beta_\text{kink}}, \zero{\beta_\text{tip}}, \zero{\hat{A}_L}, \zero{\hat{A}_M},$',
                     r'$\zero{\hat{N_L}}, \zero{\hat{N_M}}, \zero{\hat{W}_w}, \zero{\hat{W}_f}, \zero{\hat{C}_{D_w}}$'))
-x.add_input('A', (r'$W_{A\text{-}W}, h_c, M_c, d_\text{TE}$', r'$a_c, \rho_c, v_c, N_1, N_2, g$'))
+x.add_input('A', (r'$W_{A\text{-}W}, h_c, M_c, d_\text{TE}$', r'$a_c, \rho_c, \mu_c, N_1, N_2, g$'))
 x.add_input('S', (r'$W_{A\text{-}W}, W_e, \eta_\text{max}, FS, RS,$', r'$\rho_c, N_1, N_2, D_\text{fus}, d_\text{rib},'
                                                                       r' d_\text{TE}$',
                   r'$E_\text{al}, \sigma_\text{y,c}, \sigma_\text{y,t}, \rho_\text{al} $'))
-x.add_input('L', (r'$W_{A\text{-}W}, \eta_\text{max}, h_c,$', r'$M_c, a_c, \rho_c, v_c$', r'$N_1, N_2, g, '
-                                                                                          r'd_\text{TE}$'))
+x.add_input('L', (r'$W_{A\text{-}W}, \eta_\text{max}, h_c,$', r'$M_c, a_c, \rho_c, \mu_c$', r'$N_1, N_2, g, '
+                                                                                            r'd_\text{TE}$'))
 x.add_input('P', (r'$W_{A\text{-}W}, d_\text{TE}, R_c,$', r'$\rho_c, V_c, C_T$'))
 x.add_input('fuel', r'$\rho_f$')
 x.add_input('wing', (r'$W_{A\text{-}W}, d_\text{TE},$', r'$\left(\frac{W_\text{TO}}{S}\right)^{\left(0\right)}$'))
@@ -85,8 +85,8 @@ x.connect('P', 'G', r'2: $W_f$')
 
 # Feedback
 x.connect('obj', 'opt', r'3: $f$')
-x.connect('G_load', 'opt', r'3: $c_\text{load}$')
-x.connect('G', 'opt', r'3: $c_{i\ldots N}$')
+x.connect('G_load', 'opt', r'3: $h_\text{load}$')
+x.connect('G', 'opt', r'3: $h_{i\ldots N}$')
 x.connect('fuel', 'opt', r'3: $g_\text{fuel}$')
 x.connect('wing', 'opt', r'3: $g_\text{wing}$')
 x.connect('spar', 'opt', r'3: $g_\text{spar}$')

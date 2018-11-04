@@ -3,8 +3,10 @@ clc
 clear all
 close all
 
-obj = geometry.CSTAirfoil(linspace(0, 1, 100)');
-
+tic;
+ord = geometry.AirfoilReader();
+airfoil = geometry.FittedAirfoil(ord);
+toc;
 % To see the power of classes try accessing the plot method by
 % typing obj.plot() after running. These are dynamic calls to the object
 % and can proove indispensible when asking for data or storing history

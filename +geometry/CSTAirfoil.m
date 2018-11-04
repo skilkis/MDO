@@ -2,6 +2,8 @@
 classdef CSTAirfoil
 %RESPONSIBLE FOR BLAH BLAH
 
+
+
    properties (SetAccess = private)
       x_upper   % x coordinates of upper-surface points (column vector)
       x_lower   % y coordinates of upper-surface points (column vector)
@@ -78,6 +80,10 @@ classdef CSTAirfoil
       function value = get.y_lower(obj)
           value = obj.classValues.lower .* obj.shapeValues.lower;
       end
+      
+%{
+
+%}
       
       function handle = plot(obj)
           figure('Name', inputname(1))
