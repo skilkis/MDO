@@ -25,7 +25,7 @@ FS_t = P.fs;        %Tip chord front spar chordwise location
 RS_t = P.rs;        %Tip chord rear spar chordwise location
 
 D_f = P.D_f;        %Fuselage diameter[m]
-W_e = 2359;         %Engine weight[kg]
+W_e = 2327;         %Engine weight[kg]
 
 % Material characteristics were obtained from the tutorial example
 E = 7.10185e+010;   %E-modulus aluminium[Pa]
