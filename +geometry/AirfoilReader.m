@@ -27,15 +27,13 @@ classdef AirfoilReader < geometry.Airfoil
             %   Detailed explanation goes here
             %CLASS CONSTRUCTOR!
             filename = 'naca23015.dat';
-            % Ability to add validator functions for
+
             p = inputParser; % Analyzes passed arguments
             addOptional(p, 'filename', filename,...
                         @geometry.Validators.validAirfoilData)
             parse(p, varargin{:});
             
             obj.filename = p.Results.filename;
-%             obj.update_data()
-%             obj.update_points()
         end
         
         %% Callable Methods
@@ -74,72 +72,8 @@ classdef AirfoilReader < geometry.Airfoil
             obj.y_lower = obj.y_lower * ratio;
         end
         
-%         function CSTAirfoil = makeCST(obj)
-%             CSTstruct.A_upper = +geometry.CSTAirfoil()
-%         end
-
-        %% Dependent Property Getters
-%         function value = get.name(obj)
-%             %GETTER of public property `name`
-%             % Retrieves and formats name from airfoil filename
-%             split_filename = strsplit(obj.filename, '.dat');
-%             value = upper(char(split_filename{1, 1}));
-%         end
-%         
-%         function value = get.data(obj)
-%             %GETTER of private attribute `data`
-%             % Matrix of Airfoil coordinates (1st row = x, 2nd row = y)
-%             fid = fopen([pwd '\data\airfoil\' obj.filename], 'r');
-%             fgetl(fid); % Removing header from the opened airfoil
-%             value = fscanf(fid, '\t%g\t%g', [2 Inf]);            
-%             fclose(fid);
-%         end
-%         
-%         function value = get.le_index(obj)
-%             %GETTER of private attribute `le_index`
-%               %Obtains the index of the leading edge point (where x = 0)
-%             idx = find(obj.data(1,:) == 0);
-%             if length(idx) ~= 1
-%                 error(['Airfoil file is corrupted, contains multiple'...
-%                        'LE points'])
-%             else
-%                 value = idx;
-%             end
-%         end
-%         
-%         function value = get.x_upper(obj)
-%             %GETTER of attribute x_upper
-%             %   Extracts x coordinates of the upper_surface and reverses it
-%             value = flip(obj.data(1, 1:obj.le_index))';
-%         end
-%         
-%         function value = get.x_lower(obj)
-%             %GETTER of attribute x_lower
-%             %   Extracts x coordinates of the upper_surface
-%             value = obj.data(1, obj.le_index:end)';
-%         end
-%         
-%         function value = get.y_upper(obj)
-%             %GETTER of attribute y_upper
-%             %   Extracts y coordinates of the upper_surface and reverses it
-%             value = flip(obj.data(2, 1:obj.le_index))';
-%         end
-%         
-%         function value = get.y_lower(obj)
-%             %GETTER of attribute y_lower
-%             %   Extracts y coordinates of the upper_surface
-%             value = obj.data(2, obj.le_index:end)';
-%         end
-%         
-        %% Dependent Property Setters
-%         function obj = set.y_upper(obj, value)
-%             obj.y_upper = value;
-%         end
-%         
-%         function obj = set.y_lower(obj, value)
-%             obj.y_lower = value;
-%         end
-
+        %% Private Methods
+        % TODO make this private
         function update_points(obj)
             %GETTER of private attribute `le_index`
               %Obtains the index of the leading edge point (where x = 0)
@@ -174,8 +108,7 @@ classdef AirfoilReader < geometry.Airfoil
             obj.filename = value;
             obj.update_name();
             obj.update_data();
-            obj.update_points()
-            disp('I updated')
+            obj.update_points();
         end
     end
 end

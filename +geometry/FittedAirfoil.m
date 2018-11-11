@@ -1,9 +1,9 @@
-classdef FittedAirfoil
+classdef FittedAirfoil < geometry.Airfoil
     %FITTEDAIRFOIL Takes input airfoil coordinates and returns a CSTAirfoil
     %   Inputs: Airfoil, Optional: n_variables, optimize_class
     
 %     properties (GetAccess = private)
-    properties
+    properties (SetAccess = private)
         x_upper         % Input x ordinates of upper surface
         x_lower         % Input x ordinates of lower surface
         y_upper         % Input y ordinates of upper surface
@@ -13,10 +13,7 @@ classdef FittedAirfoil
         x0              % Initial design vector
         ub              % Design vector upper bound
         lb              % Design vector lpper bound
-    end
-    
-    properties (Dependent, SetAccess = 'private')
-        CSTAirfoil
+        CSTAirfoil      % Fitted CSTAirfoil
     end
     
     methods
@@ -28,7 +25,7 @@ classdef FittedAirfoil
             
             % Default Values
             n_variables = 6; % Number of Bernstein Coef. per surface
-            optimize_class = false; % Toggles if class function should be optimized
+            optimize_class = false; % Optimize Class Function?
 
             % Ability to add validator functions for
             p = inputParser; % Analyzes passed arguments
@@ -65,10 +62,12 @@ classdef FittedAirfoil
             lb(end-1) = 0.0; lb(end) = 0.0;
             
             obj.ub = ub; obj.lb = lb; % Assigning to property
+
+            % Running Fitting Operation on Load
+            obj.fitCSTAirfoil();
         end
 
-        %% Dependent Property Getter
-        function value = get.CSTAirfoil(obj)
+        function fitCSTAirfoil(obj)
         % Runs fmincon with the design vector/bounds from the class
         % constructor. Settings for fmincon can be changed below:
             options = optimset('Display', 'iter', 'Algorithm', 'sqp');
@@ -78,13 +77,18 @@ classdef FittedAirfoil
                                          obj.x0, [],[],[],[], ...
                                          obj.lb, obj.ub, [], ...
                                          options);
-            value = obj.parseDesignVector(x_final);
-
+            obj.CSTAirfoil = obj.parseDesignVector(x_final);
         end
         
+        function plot(obj)
+            %TODO Implement plotting function to view error
+        end
+        
+        function obj = scale(obj, chord, thickness)
+            %TODO implement scaling function on fitted airfoil
         %% Minimization Helper and Objective Functions
         function my_CSTAirfoil = parseDesignVector(obj, x)
-        % Parses the design vector into a CSTObjective
+        % Parses the design vector and instantiates a CSTAirfoil
 
             n = obj.n_variables;
             if obj.optimize_class
@@ -99,7 +103,6 @@ classdef FittedAirfoil
                                                     obj.x_lower,...
                                                     Au, Al);
             end
-
         end
         
         function error = cst_objective(obj, x)

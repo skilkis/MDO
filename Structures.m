@@ -4,7 +4,7 @@
 MTOW = 78000;   %Maximum take-off weight[kg]. For now obtained from literature
 MZF = 60500;    %Maximum zero fuel weight[kg]
 nmax = 2.5;     %Maximum load factor, as specified in assignment
-P = Planform;   %Using the Planform class to obtain wing geometry
+P = Planform(); %Using the Planform class to obtain wing geometry
 
 S = P.S;        %Wing planform area[m^2]
 b = P.b;        %Wing span[m]

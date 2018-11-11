@@ -1,25 +1,24 @@
 % classdef CSTAirfoil < geometry.Airfoil
-classdef CSTAirfoil
+classdef CSTAirfoil < geometry.Airfoil
 %RESPONSIBLE FOR BLAH BLAH
 
-
-
-   properties (SetAccess = private)
-      x_upper   % x coordinates of upper-surface points (column vector)
-      x_lower   % y coordinates of upper-surface points (column vector)
-      A_upper   % Upper surface Bernstein Coefficients
-      A_lower   % Lower surface Bernstein coefficients
-      N1        % LE Class Function value
-      N2        % TE Class Function value
-   end
+    properties (SetAccess = private)
+        x_upper   % x coordinates of upper-surface points (column vector)
+        x_lower   % y coordinates of upper-surface points (column vector)
+        A_upper   % Upper surface Bernstein Coefficients
+        A_lower   % Lower surface Bernstein coefficients
+        N1        % LE Class Function value
+        N2        % TE Class Function value
+        y_upper   % y coordinate of upper-surface points (column vector)
+        y_lower   % y coordinate of lower-surface points (column vector)
+    end
+    
+    properties (SetAccess = private, GetAccess = private)
+        classValues  % Class Function values w/ fields 'upper' and 'lower'
+        shapeValues  % Shape Function values w/ fields 'upper' and 'lower'
+    end
    
-   properties (Dependent, SetAccess = private) % Only can set by itself
-       classValues  % Class Function values w/ fields 'upper' and 'lower'
-       shapeValues  % Shape Function values w/ fields 'upper' and 'lower'
-       y_upper      % y coordinate of upper-surface points (column vector)
-       y_lower      % y coordinate of lower-surface points (column vector)
-   end
-   
+    
    methods
       %% Class Constructor
       function obj = CSTAirfoil(x_upper, varargin)
@@ -51,39 +50,40 @@ classdef CSTAirfoil
             obj.A_lower = p.Results.A_lower;
             obj.N1 = p.Results.N1;
             obj.N2 = p.Results.N2;
-        
+
+            % Calculating Output
+            obj.fetchClassValues();
+            obj.fetchShapeValues();
+            obj.fetchYValues();
       end
       
       % Dependent Attribute Getters
-      function value = get.classValues(obj)
+      function fetchClassValues(obj)
             % Localizing variables for clarity
             x_u = obj.x_upper;
             x_l = obj.x_lower;
             
             value.upper = obj.classFunction(x_u, obj.N1, obj.N2);
             value.lower = -obj.classFunction(x_l, obj.N1, obj.N2);
+
+            obj.classValues = value;
       end
       
-      function value = get.shapeValues(obj)
+      function fetchShapeValues(obj)
             % Localizing variables for clarity
             x_u = obj.x_upper;
             x_l = obj.x_lower;
             
             value.upper = obj.shapeFunction(x_u, obj.A_upper);
             value.lower = obj.shapeFunction(x_l, obj.A_lower);
-      end
-      
-      function value = get.y_upper(obj)
-          value = obj.classValues.upper .* obj.shapeValues.upper;    
-      end
-      
-      function value = get.y_lower(obj)
-          value = obj.classValues.lower .* obj.shapeValues.lower;
-      end
-      
-%{
 
-%}
+            obj.shapeValues = value;
+      end
+      
+      function fetchYValues(obj)
+          obj.y_upper = obj.classValues.upper .* obj.shapeValues.upper;
+          obj.y_lower = obj.classValues.lower .* obj.shapeValues.lower;    
+      end
       
       function handle = plot(obj)
           figure('Name', inputname(1))
@@ -98,7 +98,13 @@ classdef CSTAirfoil
           title('CSTAirfoil Geometry')
           handle = gcf();
       end
+
+      function output = scale(obj, chord, thickness)
+          % TODO implement scaling functionality for a CSTAirfoil
+        output = 'test';
+      end
    end
+
    methods (Static)
      function classValue = classFunction(x, N1, N2)
           classValue = (x.^N1).*(1-x).^N2;

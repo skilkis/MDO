@@ -1,4 +1,3 @@
-
 classdef Planform
     %Class responsible for calculating the various geometry properties of
     %the wing planform. Gamma is set to a fixed value
@@ -8,21 +7,21 @@ classdef Planform
         %The properties in this list are variables. Their default values
         %correspond to the A320-200.
         
-        Cr = 7.3834;     %Root chord[m]
-        S1 = 31.87*pi/180;  %Quarter chord sweep angle[rad]
-        S2 = 27.285*pi/180;
-        tau = 0.2002;    %Taper ratio(Ct/Cr)[-]
-        b = 33.91;      %Wing span(total)[m]
-        t_r = 4.82;        %Twist angle value for root
-        t_k = 0.62;        %Twist angle at kink
-        t_t = -0.56;        %Twist angle at tip
+        Cr = 7.3834;        % Root chord [m]
+        S1 = 31.87*pi/180;  % Inboard Quarter chord sweep angle [rad]
+        S2 = 27.285*pi/180; % Outboard Quarter chord sweep angle [rad]
+        tau = 0.2002;       % Taper ratio(Ct/Cr) [-]
+        b = 33.91;          % Wing span(total) [m]
+        t_r = 4.82;         % Twist angle value for root [deg]
+        t_k = 0.62;         % Twist angle at kink [deg]
+        t_t = -0.56;        % Twist angle at tip [deg]
         
     end
 
     properties (SetAccess = 'private')
         %Since this property is set, it has been set as private access.
         
-        gamma = 6.0134  %Straight TE length of the first trapezoid[m]
+        gamma = 6.0134%Straight TE length of the first trapezoid[m]
         fs = 0.2;%0.1937       %Front spar position of second trapezoid
         rs = 0.7255;%0.6801       %Rear spar position of second trapezoid
         D_f = 3.95        %Fuselage diameter
@@ -137,15 +136,6 @@ classdef Planform
             g = (Rs/(crf*(B-2*g)))*(cm*(B-df)-ct*(2*g-df)) + (g-df/2)*(...
                 tan(s1)-tan(s2));
         end
-        
-        
-        
-        
-        
-        
-       
-        
-        
     end
 end
 

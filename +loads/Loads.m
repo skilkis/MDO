@@ -22,15 +22,15 @@ classdef Loads
     end
         
     properties(SetAccess = 'private')
-    h = 11248;          %Cruise altitude[m]
-    V_c = 231.5;        %Cruise speed[m/s]
-    rho = 0.589;        %Cruise altitude air density[kg m^-3]
-%       W_pl = 17670;       %Design payload weight[kg]
-    g = 9.81;           %Acceleration due to gravity[ms^-2]
-    v = 8*10^(-6);       %Viscosity of air at 215 K[m^2s^-1]
-    W_aw = 38400;       %Aircraft less wing weight[kg]
-    W_f0 = 23330;       %A320-200 design fuel weight[kg]
-    W_w0 = 9600;        %A320-200 wing weight[kg]
+    h = 11248;          % Cruise altitude[m]
+    V_c = 231.5;        % Cruise speed[m/s]
+    rho = 0.589;        % Cruise altitude air density[kg m^-3]
+%       W_pl = 17670;   % Design payload weight[kg]
+    g = 9.81;           % Acceleration due to gravity[ms^-2]
+    v = 8*10^(-6);      % Viscosity of air at 215 K[m^2s^-1]
+    W_aw = 38400;       % Aircraft less wing weight[kg]
+    W_f0 = 23330;       % A320-200 design fuel weight[kg]
+    W_w0 = 9600;        % A320-200 wing weight[kg]
     A_r0 = [0.2081    0.2645   0.1419     0.2872  0.1349  0.2845...
     -0.1230   -0.1419     -0.1727     -0.1080     -0.1503     -0.1197];
     %Tip chord Bernstein coefficients
@@ -66,7 +66,7 @@ classdef Loads
     AC.Wing.Airfoils = [obj.A_r;obj.A_t];
     AC.Aero.rho = obj.rho;
     AC.Aero.alt = obj.h;
-    AC.Aero.M = obj.V_c/sqrt(1.4*287*215.038);
+    AC.Aero.M = obj.V_c/sqrt(1.4*287.05*215.038);
     AC.Aero.Re = obj.V_c*obj.MAC/obj.v;
     AC.Aero.V = obj.V_c;
     AC.Aero.CL = C_L;

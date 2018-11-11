@@ -1,0 +1,236 @@
+{Undefined function or variable 'EMWET'.
+
+Error in <a href="matlab:matlab.internal.language.introspective.errorDocCallback('Structures', 'D:\My Documents\MATLAB\MDO\Structures.m', 72)" style="font-weight:bold">Structures</a> (<a href="matlab: opentoline('D:\My Documents\MATLAB\MDO\Structures.m',72,0)">line 72</a>)
+EMWET A320
+} 
+clc
+clear all
+load('D:\My Documents\MATLAB\MDO\data\aircraft\A320.mat')
+Structures
+{Undefined function or variable 'EMWET'.
+
+Error in <a href="matlab:matlab.internal.language.introspective.errorDocCallback('Structures', 'D:\My Documents\MATLAB\MDO\Structures.m', 72)" style="font-weight:bold">Structures</a> (<a href="matlab: opentoline('D:\My Documents\MATLAB\MDO\Structures.m',72,0)">line 72</a>)
+EMWET A320
+} 
+clc
+clear all
+close all
+load('D:\My Documents\MATLAB\MDO\data\aircraft\A320.mat')
+Planform
+
+ans = 
+
+  <a href="matlab:helpPopup Planform" style="font-weight:bold">Planform</a> with properties:
+
+        Cr: 7.3834
+        S1: 0.5562
+        S2: 0.4762
+       tau: 0.2002
+         b: 33.9100
+       t_r: 4.8200
+       t_k: 0.6200
+       t_t: -0.5600
+     gamma: 6.0134
+        fs: 0.2000
+        rs: 0.7255
+       D_f: 3.9500
+    Chords: [7.3834 2.3785 1.4782]
+    Coords: [3x3 double]
+    Twists: [4.8200 0.6200 -0.5600]
+       MAC: 4.3460
+         S: 122.3696
+       eta: [0 0.3547 1]
+      fs_r: 0.5158
+      rs_r: 0.7472
+
+295e6
+
+ans =
+
+   295000000
+
+70.1e9
+
+ans =
+
+   7.0100e+10
+
+template
+load('A320.mat')
+Planform
+
+ans = 
+
+  <a href="matlab:helpPopup Planform" style="font-weight:bold">Planform</a> with properties:
+
+        Cr: 7.3834
+        S1: 0.5562
+        S2: 0.4762
+       tau: 0.2002
+         b: 33.9100
+       t_r: 4.8200
+       t_k: 0.6200
+       t_t: -0.5600
+     gamma: 6.0134
+        fs: 0.2000
+        rs: 0.7255
+       D_f: 3.9500
+    Chords: [7.3834 2.3785 1.4782]
+    Coords: [3x3 double]
+    Twists: [4.8200 0.6200 -0.5600]
+       MAC: 4.3460
+         S: 122.3696
+       eta: [0 0.3547 1]
+      fs_r: 0.5158
+      rs_r: 0.7472
+
+aircraft.Aircraft
+{Not enough input arguments.
+
+Error in <a href="matlab:matlab.internal.language.introspective.errorDocCallback('aircraft.Aircraft', 'D:\My Documents\MATLAB\MDO\+aircraft\Aircraft.m', 57)" style="font-weight:bold">aircraft.Aircraft</a> (<a href="matlab: opentoline('D:\My Documents\MATLAB\MDO\+aircraft\Aircraft.m',57,0)">line 57</a>)
+            parse(args, name);
+} 
+unitest
+{Error using <a href="matlab:matlab.internal.language.introspective.errorDocCallback('aircraft.Aircraft', 'D:\My Documents\MATLAB\MDO\+aircraft\Aircraft.m', 65)" style="font-weight:bold">aircraft.Aircraft</a> (<a href="matlab: opentoline('D:\My Documents\MATLAB\MDO\+aircraft\Aircraft.m',65,0)">line 65</a>)
+Input .dat file is corrupted, some fieldscould not be updated
+
+Error in <a href="matlab:matlab.internal.language.introspective.errorDocCallback('unitest', 'D:\My Documents\MATLAB\MDO\unitest.m', 6)" style="font-weight:bold">unitest</a> (<a href="matlab: opentoline('D:\My Documents\MATLAB\MDO\unitest.m',6,0)">line 6</a>)
+ac = aircraft.Aircraft('A320');
+} 
+opentoline('D:\My Documents\MATLAB\MDO\+aircraft\Aircraft.m',65,0)
+template
+template
+Structures
+{Undefined function or variable 'EMWET'.
+
+Error in <a href="matlab:matlab.internal.language.introspective.errorDocCallback('Structures', 'D:\My Documents\MATLAB\MDO\Structures.m', 72)" style="font-weight:bold">Structures</a> (<a href="matlab: opentoline('D:\My Documents\MATLAB\MDO\Structures.m',72,0)">line 72</a>)
+EMWET A320
+} 
+clc
+clear all
+unitest
+{Error using <a href="matlab:matlab.internal.language.introspective.errorDocCallback('aircraft.Aircraft', 'D:\My Documents\MATLAB\MDO\+aircraft\Aircraft.m', 65)" style="font-weight:bold">aircraft.Aircraft</a> (<a href="matlab: opentoline('D:\My Documents\MATLAB\MDO\+aircraft\Aircraft.m',65,0)">line 65</a>)
+Input .dat file is corrupted, some fields could not be updated
+
+Error in <a href="matlab:matlab.internal.language.introspective.errorDocCallback('unitest', 'D:\My Documents\MATLAB\MDO\unitest.m', 6)" style="font-weight:bold">unitest</a> (<a href="matlab: opentoline('D:\My Documents\MATLAB\MDO\unitest.m',6,0)">line 6</a>)
+ac = aircraft.Aircraft('A320');
+} 
+opentoline('D:\My Documents\MATLAB\MDO\+aircraft\Aircraft.m',65,0)
+structures.initWriter
+{Not enough input arguments.
+
+Error in <a href="matlab:matlab.internal.language.introspective.errorDocCallback('structures.initWriter', 'D:\My Documents\MATLAB\MDO\+structures\initWriter.m', 4)" style="font-weight:bold">structures.initWriter</a> (<a href="matlab: opentoline('D:\My Documents\MATLAB\MDO\+structures\initWriter.m',4,0)">line 4</a>)
+i = inputStruct;
+} 
+unitest
+{Error using <a href="matlab:matlab.internal.language.introspective.errorDocCallback('aircraft.Aircraft', 'D:\My Documents\MATLAB\MDO\+aircraft\Aircraft.m', 65)" style="font-weight:bold">aircraft.Aircraft</a> (<a href="matlab: opentoline('D:\My Documents\MATLAB\MDO\+aircraft\Aircraft.m',65,0)">line 65</a>)
+Input .dat file is corrupted, some fields could not be updated
+
+Error in <a href="matlab:matlab.internal.language.introspective.errorDocCallback('unitest', 'D:\My Documents\MATLAB\MDO\unitest.m', 6)" style="font-weight:bold">unitest</a> (<a href="matlab: opentoline('D:\My Documents\MATLAB\MDO\unitest.m',6,0)">line 6</a>)
+ac = aircraft.Aircraft('A320');
+} 
+unitest
+{Error using <a href="matlab:matlab.internal.language.introspective.errorDocCallback('error')" style="font-weight:bold">error</a>
+Function is not defined for 'cell' inputs.
+
+Error in <a href="matlab:matlab.internal.language.introspective.errorDocCallback('aircraft.Aircraft', 'D:\My Documents\MATLAB\MDO\+aircraft\Aircraft.m', 65)" style="font-weight:bold">aircraft.Aircraft</a> (<a href="matlab: opentoline('D:\My Documents\MATLAB\MDO\+aircraft\Aircraft.m',65,0)">line 65</a>)
+                error(['Input .dat file is corrupted, %s '...
+
+Error in <a href="matlab:matlab.internal.language.introspective.errorDocCallback('unitest', 'D:\My Documents\MATLAB\MDO\unitest.m', 6)" style="font-weight:bold">unitest</a> (<a href="matlab: opentoline('D:\My Documents\MATLAB\MDO\unitest.m',6,0)">line 6</a>)
+ac = aircraft.Aircraft('A320');
+} 
+matlab.internal.language.introspective.errorDocCallback('error')
+help error
+ <strong>error</strong>  Display message and abort function.
+    <strong>error</strong>(MSGID, ERRMSG, V1, V2, ...) displays a descriptive message
+    ERRMSG when the currently-running program encounters an error
+    condition. Depending on how the program code responds to the error,
+    MATLAB then either enters a catch block to handle the error condition,
+    or exits the program.
+ 
+    MSGID is a unique message identifier string that MATLAB attaches to the
+    error message to better identify the source of the error (see MESSAGE
+    IDENTIFIERS, below). 
+ 
+    ERRMSG is a character string that informs the user about the cause of
+    the error and can also suggest how to correct the faulty condition. 
+    The ERRMSG string may include predefined escape sequences, such as 
+    \n for newline, and conversion specifiers, such as %d for a decimal 
+    number.
+ 
+    Inputs V1, V2, etc. represent values or substrings that are to
+    replace conversion specifiers used in the ERRMSG string. The format 
+    is the same as that used with the SPRINTF function.
+ 
+    <strong>error</strong>(ERRMSG, V1, V2, ...) reports an error without including a 
+    message identifier in the error report.
+ 
+    <strong>error</strong>(ERRMSG) is the same as the above syntax, except that the ERRMSG
+    string contains no conversion specifiers, no escape sequences, and no
+    substitution value (V1, V2, ...) arguments.
+ 
+    <strong>error</strong>(MSGSTRUCT) reports the error using fields stored in the scalar
+    structure MSGSTRUCT. This structure can contain these fields:
+ 
+        message    - Error message string
+        identifier - See MESSAGE IDENTIFIERS, below
+        stack      - Struct similar to the output of the DBSTACK function
+   
+    If MSGSTRUCT is an empty structure, no action is taken and <strong>error</strong>
+    returns without exiting the program. If you do not specify the
+    stack, the <strong>error</strong> function determines it from the current file and line.
+  
+    MESSAGE IDENTIFIERS
+    A message identifier is a string of the form
+  
+        [component:]component:mnemonic
+  
+    that enables MATLAB to identify with a specific error. The string
+    consists of one or more COMPONENT fields followed by a single
+    MNEMONIC field. All fields are separated by colons. Here is an
+    example identifier that has 2 components and 1 mnemonic.
+  
+        'myToolbox:myFunction:fileNotFound'
+  
+    The COMPONENT and MNEMONIC fields must begin with an 
+    upper or lowercase letter which is then followed by alphanumeric  
+    or underscore characters. 
+  
+    The COMPONENT field specifies a broad category under which 
+    various errors can be generated. The MNEMONIC field is a string 
+    normally used as a tag related to the particular message.
+  
+    From the command line, you can obtain the message identifier for an 
+    error that has been issued using the MException.last function. 
+ 
+    See also <a href="matlab:help MException">MException</a>, <a href="matlab:help MException/throw">MException/throw</a>, <a href="matlab:help try">try</a>, <a href="matlab:help catch">catch</a>, <a href="matlab:help sprintf">sprintf</a>, <a href="matlab:help dbstop">dbstop</a>,
+             <a href="matlab:help errordlg">errordlg</a>, <a href="matlab:help warning">warning</a>, <a href="matlab:help disp">disp</a>, <a href="matlab:help dbstack">dbstack</a>.
+
+    <a href="matlab:doc error">Reference page for error</a>
+
+unitest
+name
+base_airfoil
+h_c
+M_c
+a_c
+V_c
+rho_c
+mu_c
+R_c
+W_aw
+{Error using <a href="matlab:matlab.internal.language.introspective.errorDocCallback('aircraft.Aircraft', 'D:\My Documents\MATLAB\MDO\+aircraft\Aircraft.m', 66)" style="font-weight:bold">aircraft.Aircraft</a> (<a href="matlab: opentoline('D:\My Documents\MATLAB\MDO\+aircraft\Aircraft.m',66,0)">line 66</a>)
+Input .dat file is corrupted, D_fus could not be updated
+
+Error in <a href="matlab:matlab.internal.language.introspective.errorDocCallback('unitest', 'D:\My Documents\MATLAB\MDO\unitest.m', 6)" style="font-weight:bold">unitest</a> (<a href="matlab: opentoline('D:\My Documents\MATLAB\MDO\unitest.m',6,0)">line 6</a>)
+ac = aircraft.Aircraft('A320');
+} 
+unitest
+{Error using <a href="matlab:matlab.internal.language.introspective.errorDocCallback('aircraft.Aircraft', 'D:\My Documents\MATLAB\MDO\+aircraft\Aircraft.m', 65)" style="font-weight:bold">aircraft.Aircraft</a> (<a href="matlab: opentoline('D:\My Documents\MATLAB\MDO\+aircraft\Aircraft.m',65,0)">line 65</a>)
+Input .dat file is corrupted, D_fus could not be updated
+
+Error in <a href="matlab:matlab.internal.language.introspective.errorDocCallback('unitest', 'D:\My Documents\MATLAB\MDO\unitest.m', 6)" style="font-weight:bold">unitest</a> (<a href="matlab: opentoline('D:\My Documents\MATLAB\MDO\unitest.m',6,0)">line 6</a>)
+ac = aircraft.Aircraft('A320');
+} 
+unitest
+{Error using <a href="matlab:matlab.internal.language.introspective.errorDocCallback('aircraft.Aircraft', 'D:\My Documents\MATLAB\MDO\+aircraft\Aircraft.m', 65)" style="font-weight:bold">aircraft.Aircraft</a> (<a href="matlab: opentoline('D:\My Documents\M
