@@ -1,7 +1,9 @@
-classdef Aircraft
+classdef Aircraft < handle
     %AIRCRAFT Base-Class of a generic Aircraft.
     % Defines the inputs and methods necessary set-up an initial design 
     % condition for the optimizer.
+    
+    % TODO consider removing
     
     properties (SetAccess = private)
         % List of all design parameters, these are not subject to change
@@ -20,6 +22,7 @@ classdef Aircraft
         
         % Aircraft Weights
         W_aw            % Aircraft Less Wing Weight [kg]
+        W_zf            % Zero-Fuel Weight [kg]
 %         W_e             % Empty Weight [kg]
         
         % Geometric Parameters
@@ -44,6 +47,13 @@ classdef Aircraft
         rho_f           % Fuel Density (Kerosene) [kg/m^3]
         C_T             % Thrust Specific Fuel Consumption
         M_mo            % Maximum Operating Mach Number [-]
+        fuel_limits     % Span-wise Fuel Tank Limits (Root, Tip)
+
+        % Planform Object of the Current Aircraft
+        planform = geometry.Planform()
+        
+        % Aircraft Airfoils
+        airfoils
     end
     
     methods
@@ -57,14 +67,35 @@ classdef Aircraft
             parse(args, name);
             obj.name = args.Results.name;
             data = load([pwd '\data\aircraft\' obj.name '.mat']);
+            
+            % Reading properties from data
+            exclude = {'planform'; 'airfoils'}; % Exclude list
             try
                 for field=fieldnames(obj)'
-                    obj.(field{:}) = data.(field{:});
+                    if ~any(strcmp(exclude, field{:}))
+                        obj.(field{:}) = data.(field{:});
+                    end
                 end
             catch
                 error(['Input .dat file is corrupted, %s '...
                        'could not be updated'], field{:})
             end
+
+            obj.planform = geometry.Planform();
+            obj.getAirfoils();
+        end
+        
+        function getAirfoils(obj)
+            root_airfoil = geometry.AirfoilReader([obj.base_airfoil...
+                                                   '.dat']);
+            root_fit = geometry.FittedAirfoil(root_airfoil);
+%             root_cst = root_fit.CSTAirfoil;
+
+            tip_airfoil = root_fit.scale(1.0, 0.1);
+%             tip_cst = tip_airfoil.CSTAirfoil;
+            
+            obj.airfoils.root = root_fit;
+            obj.airfoils.tip = tip_airfoil;
         end
     end
 end

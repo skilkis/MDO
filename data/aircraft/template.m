@@ -5,7 +5,7 @@ close all
 %% Allows one to quickly configure an Aircraft .mat file for the optimizer
 
 name = 'A320';                  % Aircraft Name w/o File-Extension [-]
-base_airfoil = 'naca_23015';    % Base Airfoil Name [-]
+base_airfoil = 'naca23015';    % Base Airfoil Name [-]
 
 % Cruise Parameters
 h_c = 11248;                    % Cruise Altitude [m]
@@ -18,6 +18,7 @@ R_c = 5000.4;                   % Design Cruise Range [km]
 
 % Aircraft Weights
 W_aw = 38400;                   % Aircraft Less Wing Weight [kg]
+W_zf = 65000;                   % Maximum Zero-Fuel Weight [kg]
 % W_e = [];                     % Empty Weight [kg]
 
 % Geometric Parameters
@@ -42,6 +43,7 @@ eta_max = 2.5;                  % Maximum Load Factor [-]
 rho_f = 840;                    % Fuel Density (Kerosene) [kg/m^3]
 C_T = [];                       % Thrust Specific Fuel Consumption
 M_mo = 0.82;                    % Maximum Operating Mach Number [-]
+fuel_limits = [0.1, 0.85];      % Allowable Fuel-Tank Span (Root, Tip)
 
 %% Saving
 save(name)

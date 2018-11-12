@@ -112,7 +112,7 @@ classdef Planform
             ct = obj.Chords(3);
             g = obj.gamma;
             B = obj.b;
-            df = obj.D_f;
+            df = obj.D_fus;
             s1 = obj.S1;
             s2 = obj.S2;
             Fs = obj.fs;
@@ -127,7 +127,7 @@ classdef Planform
             ct = obj.Chords(3);
             g = obj.gamma;
             B = obj.b;
-            df = obj.D_f;
+            df = obj.D_fus;
             s1 = obj.S1;
             s2 = obj.S2;
             Rs = obj.rs;

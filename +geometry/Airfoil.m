@@ -9,8 +9,64 @@ classdef (Abstract) Airfoil < handle
     end
     
     methods (Abstract)
-        plot(obj)
         scale(obj, chord, thickness)
+    end
+    
+    methods
+        function handle = plot(obj)            
+            figure('Name', obj.name);
+            hold on; grid on; grid minor;
+            plot(obj.x_upper, obj.y_upper)
+            plot(obj.x_lower, obj.y_lower)
+            chord = max([obj.x_upper; obj.x_lower]);
+            axis([0, chord, -0.5 * chord, 0.5 * chord])
+            hold off;
+            xlabel('Normalized Chord Location (x/c)','Color','k');
+            ylabel('Normalized Chord-Normal Location (y/c)','Color','k');
+            legend('Upper Surface', 'Lower Surface')
+            title(sprintf('%s Geometry', obj.name))
+            handle = gcf();
+        end
+        
+        function copy_obj = copy(obj)
+        %Makes a fast object copy utilizing the MATLAB ByteStream
+            try
+                % R2010b or newer - directly in memory (faster)
+                objByteArray = getByteStreamFromArray(obj);
+                copy_obj = getArrayFromByteStream(objByteArray);
+            catch
+                % R2010a or earlier - serialize via temp file (slower)
+                fname = tempname([pwd '\temp\']);
+                save(fname, 'obj');
+                newObj = load(fname);
+                copy_obj = newObj.obj;
+                delete(fname);
+            end
+        end
+        
+        function write(obj, filepath)
+            % Writes an Airfoil .dat file where the order of points is from
+            % TE -> Upper Surface -> LE -> Lower Surface -> TE
+            
+            x_max = max([obj.x_upper; obj.x_lower]);
+            if x_max <= 1.0
+                ratio = x_max^-1;
+                x_u = obj.x_upper * ratio;
+                x_l = obj.x_lower * ratio;
+                y_u = obj.y_upper * ratio;
+                y_l = obj.y_lower * ratio;
+                data = [flipud(x_u), flipud(y_u); ...
+                        x_l(2:end), y_l(2:end)];
+            else
+                data = [flipud(obj.x_upper), flipud(obj.y_upper); ...
+                        obj.x_lower(2:end), obj.y_lower(2:end)];
+            end
+            fid = fopen(filepath, 'w');
+                for i = 1:length(data)
+                    fprintf(fid, '%.10f %.10f\n', data(i,1), data(i,2));
+                end
+            fclose(fid);
+        end
     end
 end
     

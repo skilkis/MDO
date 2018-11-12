@@ -37,22 +37,7 @@ classdef AirfoilReader < geometry.Airfoil
         end
         
         %% Callable Methods
-        function handle = plot(obj)            
-            figure('Name', obj.name);
-            hold on; grid on; grid minor;
-            plot(obj.x_upper, obj.y_upper)
-            plot(obj.x_lower, obj.y_lower)
-            chord = max([obj.x_upper; obj.x_lower]);
-            axis([0, chord, -0.5 * chord, 0.5 * chord])
-            hold off;
-            xlabel('Normalized Chord Location (x/c)','Color','k');
-            ylabel('Normalized Chord-Normal Location (y/c)','Color','k');
-            legend('Upper Surface', 'Lower Surface')
-            title(sprintf('%s Geometry', obj.name))
-            handle = gcf();
-        end
-        
-        function scale(obj, chord, thickness)
+        function scaled = scale(obj, chord, thickness)
             upper_spline = spline(obj.x_upper, obj.y_upper);
             lower_spline = spline(obj.x_lower, obj.y_lower);
             
@@ -66,10 +51,11 @@ classdef AirfoilReader < geometry.Airfoil
             current_thickness = -obj.t_max;
             ratio = thickness / current_thickness;
             
-            obj.x_upper = obj.x_upper * chord;
-            obj.x_lower = obj.x_lower * chord;
-            obj.y_upper = obj.y_upper * ratio;
-            obj.y_lower = obj.y_lower * ratio;
+            scaled = obj.copy();            
+            scaled.x_upper = obj.x_upper * chord;
+            scaled.x_lower = obj.x_lower * chord;
+            scaled.y_upper = obj.y_upper * chord * ratio;
+            scaled.y_lower = obj.y_lower * chord * ratio;
         end
         
         %% Private Methods

@@ -18,7 +18,7 @@ classdef FittedAirfoil < geometry.Airfoil
     
     methods
         %% Class Constructor
-        function obj = FittedAirfoil(ordStruct, varargin)
+        function obj = FittedAirfoil(airfoil_in, varargin)
             %FITTEDAIRFOIL Construct an instance of this class
             %   Detailed explanation goes here
             %CLASS CONSTRUCTOR!
@@ -29,19 +29,19 @@ classdef FittedAirfoil < geometry.Airfoil
 
             % Ability to add validator functions for
             p = inputParser; % Analyzes passed arguments
-            addRequired(p, 'ordStruct', @geometry.Validators.validAirfoil)
+            addRequired(p, 'airfoil_in', @geometry.Validators.validAirfoil)
             addOptional(p, 'n_variables', n_variables, ...
                         @geometry.Validators.isInteger);
             addOptional(p, 'optimize_class', optimize_class, ...
                         @islogical) % TODO make sure this is a new validator for boolean
 
-            parse(p, ordStruct, varargin{:});
+            parse(p, airfoil_in, varargin{:});
             
             % Setting Properties from Input
-            obj.x_upper = p.Results.ordStruct.x_upper;
-            obj.x_lower = p.Results.ordStruct.x_lower;
-            obj.y_upper = p.Results.ordStruct.y_upper;
-            obj.y_lower = p.Results.ordStruct.y_lower;
+            obj.x_upper = p.Results.airfoil_in.x_upper;
+            obj.x_lower = p.Results.airfoil_in.x_lower;
+            obj.y_upper = p.Results.airfoil_in.y_upper;
+            obj.y_lower = p.Results.airfoil_in.y_lower;
             obj.n_variables = p.Results.n_variables;
             obj.optimize_class = p.Results.optimize_class;
 
@@ -70,22 +70,48 @@ classdef FittedAirfoil < geometry.Airfoil
         function fitCSTAirfoil(obj)
         % Runs fmincon with the design vector/bounds from the class
         % constructor. Settings for fmincon can be changed below:
-            options = optimset('Display', 'iter', 'Algorithm', 'sqp');
-            
-            disp('Performing CST Airfoil Fitting');
-            [x_final, ~, ~, ~] = fmincon(@obj.cst_objective, ...
-                                         obj.x0, [],[],[],[], ...
-                                         obj.lb, obj.ub, [], ...
-                                         options);
+            tic;
+            options = optimset('Display', 'off', 'Algorithm', 'sqp');
+            [x_final, error, ~, ~] = fmincon(@obj.cst_objective, ...
+                                             obj.x0, [],[],[],[], ...
+                                             obj.lb, obj.ub, [], ...
+                                             options);
+            t=toc;
+            fprintf('CST Airfoil Fitting took: %.5f [s], Error: %e\n',...
+                    t, error)
             obj.CSTAirfoil = obj.parseDesignVector(x_final);
         end
         
-        function plot(obj)
-            %TODO Implement plotting function to view error
+        function handle = plot(obj)            
+            figure('Name', inputname(1))
+            hold on; grid on; grid minor;
+            plot(obj.x_upper, obj.y_upper)
+            plot(obj.x_lower, obj.y_lower)
+            chord = max([obj.x_upper; obj.x_lower]);
+            axis([0, chord, -0.5 * chord, 0.5 * chord])
+            hold off;
+            xlabel('Normalized Chord Location (x/c)','Color','k');
+            ylabel('Normalized Chord-Normal Location (y/c)','Color','k');
+            legend('Upper Surface', 'Lower Surface', 'CST Upper',...
+                   'CST Lower')
+            title(sprintf('%s Object Geometry', inputname(1)),...
+                  'Interpreter', 'none')
+            handle = gcf();
         end
         
-        function obj = scale(obj, chord, thickness)
-            %TODO implement scaling function on fitted airfoil
+        function scaled = scale(obj, chord, thickness)
+            scaled = obj.copy();
+            scaled.CSTAirfoil = obj.CSTAirfoil.scale(thickness);
+            
+            % Obtaining Chord Ratio
+            ratio = thickness / obj.CSTAirfoil.t_max;
+            
+            scaled.x_upper = obj.x_upper * chord;
+            scaled.x_lower = obj.x_lower * chord;
+            scaled.y_upper = obj.y_upper * chord * ratio;
+            scaled.y_lower = obj.y_lower * chord * ratio;
+        end
+        
         %% Minimization Helper and Objective Functions
         function my_CSTAirfoil = parseDesignVector(obj, x)
         % Parses the design vector and instantiates a CSTAirfoil

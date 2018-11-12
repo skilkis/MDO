@@ -11,6 +11,8 @@ classdef CSTAirfoil < geometry.Airfoil
         N2        % TE Class Function value
         y_upper   % y coordinate of upper-surface points (column vector)
         y_lower   % y coordinate of lower-surface points (column vector)
+        x_max     % x location of maximum thickness
+        t_max     % Normalized maximum thickness (t/c)
     end
     
     properties (SetAccess = private, GetAccess = private)
@@ -88,8 +90,8 @@ classdef CSTAirfoil < geometry.Airfoil
       function handle = plot(obj)
           figure('Name', inputname(1))
           hold on; grid minor
-          plot(obj.x_upper, obj.classValues.upper .* obj.shapeValues.upper)
-          plot(obj.x_lower, obj.classValues.lower .* obj.shapeValues.lower)
+          plot(obj.x_upper, obj.y_upper)
+          plot(obj.x_lower, obj.y_lower)
           axis([min(obj.x_upper), max(obj.x_upper),...
                 -max(obj.x_upper) * 0.5, max(obj.x_upper)*0.5])
           legend('Upper Surface', 'Lower Surface')
@@ -99,9 +101,27 @@ classdef CSTAirfoil < geometry.Airfoil
           handle = gcf();
       end
 
-      function output = scale(obj, chord, thickness)
-          % TODO implement scaling functionality for a CSTAirfoil
-        output = 'test';
+      function scaled = scale(obj, thickness)
+            upper_func = @(x) obj.classFunction(x, obj.N1, obj.N2) * ...
+                              obj.shapeFunction(x, obj.A_upper);
+            lower_func = @(x) -obj.classFunction(x, obj.N1, obj.N2) * ...
+                               obj.shapeFunction(x, obj.A_lower);
+            
+            % Objective Function used to find the current thickness
+            f = @(x) -(upper_func(x) - lower_func(x));
+            
+            % Normalized maximum thickness value and location
+            [obj.x_max, obj.t_max] = fminbnd(f, 0.0, 1.0);
+            obj.t_max = -obj.t_max; % Reverting thickness value;
+            
+            %  Extablishing thikcness scaling ratio
+            ratio = thickness / obj.t_max;
+            
+            scaled = obj.copy();            
+            scaled.y_upper = obj.y_upper * ratio;
+            scaled.y_lower = obj.y_lower * ratio;
+            scaled.A_upper = obj.A_upper * ratio;
+            scaled.A_lower = obj.A_lower * ratio;
       end
    end
 
