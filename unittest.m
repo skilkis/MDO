@@ -42,41 +42,4 @@ assert(all((x.init .* x.vector) == x.init), 'Design Vector Corrupted');
 
 %% Creating a EMWET Worker and Running
 s = structures.Structures(x, ac);
-
-% root_fit.write([current_path '\' s.EMWET_input.airfoils.root.name '.dat'])
-% tip_airfoil.write([current_path '\' s.EMWET_input.airfoils.tip.name '.dat'])
-
-% s.write_init();
-
-
-%% Testing EMWET
-
-working_dir = cd;
-cd(current_path)
-eval(sprintf('EMWET %s', ac.name))
-cd(working_dir);
-
-%% Testing EMWET Parsing
-filename = [current_path '\A320.weight'];
-fid = fopen(filename, 'r');
-idx = 1;
-
-n_lines = utilities.linecount(filename);
-data_idx = 5; % Line index where EMWET output data starts
-data = zeros(n_lines - data_idx, 6);
-while ~feof(fid)
-    line = fgetl(fid);
-    if idx == 1
-        split_header = strsplit(line, '(kg) ');
-        W_w = str2double(split_header{:, 2}); % Obtaining Wing Weight
-    elseif idx >= data_idx && ischar(line)
-        cell_line = strsplit(line,' ');
-        data_line = cellfun(@(x) str2double(x), cell_line(1, 2:end));
-        data(idx - (data_idx - 1), :) = data_line;
-    end
-    idx = idx + 1;
-end
-fclose(fid);
-
-half_span = data(:, 1); chord = data(:, 2); t_u = data(:, 3);
-t_l = data(:, 4); t_fs = data(:, 5); t_rs = data(:, 6);
+assert(~isempty(fieldnames(s.EMWET_output)), 'EMWET Output Not Recieved')
