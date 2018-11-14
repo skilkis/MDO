@@ -17,6 +17,7 @@ classdef FittedAirfoil < geometry.Airfoil
         CSTAirfoil      % Fitted CSTAirfoil
     end
     
+    
     methods
         %% Class Constructor
         function obj = FittedAirfoil(airfoil_in, varargin)
@@ -90,31 +91,34 @@ classdef FittedAirfoil < geometry.Airfoil
         function handle = plot(obj)            
             figure('Name', inputname(1))
             hold on; grid on; grid minor;
-            % Plotting CSTAirfoil Values
-            plot(obj.x_upper, obj.CSTAirfoil.y_upper)
-            plot(obj.x_lower, obj.CSTAirfoil.y_lower)
             % Plotting Original Airfoil Ordinates
-            plot(obj.x_upper, obj.airfoil_in.y_upper)
-            plot(obj.x_lower, obj.airfoil_in.y_lower)
-            chord = max([obj.x_upper; obj.x_lower]);
+            plot(obj.x_upper, obj.y_upper, 'DisplayName', 'Upper Surface')
+            plot(obj.x_lower, obj.y_lower, 'DisplayName', 'Lower Surface')
+            % Plotting CSTAirfoil Values
+            chord = max([obj.x_upper; obj.x_lower]) - ...
+                    min([obj.x_upper; obj.x_lower]);
+            plot(obj.x_upper, obj.CSTAirfoil.y_upper * chord,...
+                'DisplayName', 'CST Upper')
+            plot(obj.x_lower, obj.CSTAirfoil.y_lower * chord,...
+                'DisplayName', 'CST Lower')
             axis([0, chord, -0.5 * chord, 0.5 * chord])
             hold off;
             xlabel('Normalized Chord Location (x/c)','Color','k');
             ylabel('Normalized Chord-Normal Location (y/c)','Color','k');
-            legend('Upper Surface', 'Lower Surface', 'CST Upper',...
-                   'CST Lower')
+            legend()
             title(sprintf('%s Object Geometry', inputname(1)),...
                   'Interpreter', 'none')
             handle = gcf();
         end
         
         function scaled = scale(obj, chord, thickness)
+            % Avoids having to re-fit to new points by scaling geometry
             scaled = obj.copy();
             scaled.CSTAirfoil = obj.CSTAirfoil.scale(thickness);
             scaled.airfoil_in = obj.airfoil_in.scale(chord, thickness);
             
-            % Obtaining Chord Ratio
-            ratio = thickness / obj.CSTAirfoil.t_max;
+            % Obtaining Thickness Ratio
+            ratio = thickness / obj.airfoil_in.t_max;
             
             scaled.x_upper = obj.x_upper * chord;
             scaled.x_lower = obj.x_lower * chord;

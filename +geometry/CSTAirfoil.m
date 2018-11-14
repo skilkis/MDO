@@ -114,10 +114,10 @@ classdef CSTAirfoil < geometry.Airfoil
             [obj.x_max, obj.t_max] = fminbnd(f, 0.0, 1.0);
             obj.t_max = -obj.t_max; % Reverting thickness value;
             
-            %  Extablishing thikcness scaling ratio
+            %  Establishing thickness scaling ratio
             ratio = thickness / obj.t_max;
             
-            scaled = obj.copy();            
+            scaled = obj.copy(); scaled.t_max = thickness;            
             scaled.y_upper = obj.y_upper * ratio;
             scaled.y_lower = obj.y_lower * ratio;
             scaled.A_upper = obj.A_upper * ratio;

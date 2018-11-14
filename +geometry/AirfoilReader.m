@@ -37,7 +37,7 @@ classdef AirfoilReader < geometry.Airfoil
         end
         
         %% Callable Methods
-        function scaled = scale(obj, chord, thickness)
+        function scaled = scale(obj, chord, thickness)            
             upper_spline = spline(obj.x_upper, obj.y_upper);
             lower_spline = spline(obj.x_lower, obj.y_lower);
             
@@ -51,7 +51,7 @@ classdef AirfoilReader < geometry.Airfoil
             current_thickness = -obj.t_max;
             ratio = thickness / current_thickness;
             
-            scaled = obj.copy();            
+            scaled = obj.copy(); scaled.t_max = thickness;            
             scaled.x_upper = obj.x_upper * chord;
             scaled.x_lower = obj.x_lower * chord;
             scaled.y_upper = obj.y_upper * chord * ratio;

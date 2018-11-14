@@ -86,13 +86,15 @@ classdef Aircraft < handle
         end
         
         function getAirfoils(obj)
-            root_airfoil = geometry.AirfoilReader([obj.base_airfoil...
+            c_r = obj.planform.Chords(1);
+            c_t = obj.planform.Chords(end);
+            import_airfoil = geometry.AirfoilReader([obj.base_airfoil...
                                                    '.dat']);
-            root_fit = geometry.FittedAirfoil(root_airfoil);
-%             root_cst = root_fit.CSTAirfoil;
+            root_fit = geometry.FittedAirfoil(import_airfoil)...
+                .scale(c_r, 0.5); % TODO thickness should be thickness specified by planform
 
-            tip_airfoil = root_fit.scale(1.0, 0.1);
-%             tip_cst = tip_airfoil.CSTAirfoil;
+            % TODO fix scaling of tip airfoil
+%             tip_airfoil = root_fit.scale(c_t, 0.1); % TODO change this to thickness specified by planform
             
             obj.airfoils.root = root_fit;
             obj.airfoils.tip = tip_airfoil;
