@@ -50,7 +50,7 @@ classdef Aircraft < handle
         fuel_limits     % Span-wise Fuel Tank Limits (Root, Tip)
 
         % Planform Object of the Current Aircraft
-        planform = geometry.Planform()
+        planform
         
         % Aircraft Airfoils
         airfoils
@@ -81,7 +81,7 @@ classdef Aircraft < handle
                        'could not be updated'], field{:})
             end
 
-            obj.planform = geometry.Planform();
+%             obj.planform = geometry.Planform();
             obj.getAirfoils();
         end
         

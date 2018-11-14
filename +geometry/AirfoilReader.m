@@ -48,8 +48,8 @@ classdef AirfoilReader < geometry.Airfoil
             [obj.x_max, obj.t_max] = fminbnd(f, 0.0, 1.0);
             
             %  Extablishing thikcness scaling ratio
-            current_thickness = -obj.t_max;
-            ratio = thickness / current_thickness;
+            obj.t_max = -obj.t_max;
+            ratio = thickness / obj.t_max;
             
             scaled = obj.copy(); scaled.t_max = thickness;            
             scaled.x_upper = obj.x_upper * chord;

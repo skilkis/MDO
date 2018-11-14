@@ -2,19 +2,24 @@ clc
 clear all
 close all
 
-%% Test Aircraft Initialization
-ac = aircraft.Aircraft('A320');
+% %% Test Aircraft Initialization
+% ac = aircraft.Aircraft('A320');
 
 %% Testing Airfoil Fitting
-root_airfoil = geometry.AirfoilReader([ac.base_airfoil '.dat']);
+root_airfoil = geometry.AirfoilReader('naca23015.dat');
 root_fit = geometry.FittedAirfoil(root_airfoil);
 root_cst = root_fit.CSTAirfoil;
+
+disp(root_fit.CSTAirfoil.A_upper)
 
 % Visual Verification of Fitting Process
 root_fit.plot()
 
-tip_airfoil = root_fit.scale(1.0, 0.1);
+tip_airfoil = root_fit.scale(2.0, 0.1);
+
+disp(tip_airfoil.CSTAirfoil.A_upper)
 tip_cst = tip_airfoil.CSTAirfoil;
+tip_airfoil.plot()
 
 %% Testing Design Vector
 A_root = [root_cst.A_upper', -root_cst.A_lower'];
