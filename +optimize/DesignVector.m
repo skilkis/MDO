@@ -55,6 +55,37 @@ classdef DesignVector < dynamicprops & handle
             obj.history = [obj.history, obj.vector];
             obj.vector = vector;
         end
+        
+        function history = fetch_history(obj, varargin)
+            % Fetches the history of the design vector from obj.history
+            % and returns either the normalized or unormalized result
+            % depending on user input
+            %
+            % Return Normalized History (Default behavior w/o argument):
+            % obj.fetch_history('normalized', true)
+            %
+            % Return Proper History
+            % obj.fetch_history('normalized', false)
+            % 
+            % Usage w/o arguments returns normalized history
+            % obj.fetch_history()
+            
+            %Parsing arguments
+            arg = inputParser; % Analyzes passed arguments
+            addOptional(arg, 'normalized', true, @islogical);
+            parse(arg, varargin{:});
+            normalized = arg.Results.normalized;
+            
+            % Fetching desired history
+            fetched_array = [obj.history, obj.vector];
+            if normalized
+                history = fetched_array;
+            else
+                history = fetched_array .* obj.init;
+            end
+        end
+            
+            
 
     %  function obj = DesignVector(data, keys)
     %      if nargin == 0
