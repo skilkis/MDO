@@ -18,14 +18,12 @@ classdef Aerodynamics
         Chords;
         Coords;
         Twists;
-        C_dwing;
         S;
         MAC;
         AC;
         Res;
         C_dw;
-        L_distr;
-        M_distr;
+        
     end
  %% Set parameters   
     properties(SetAccess = 'private')
