@@ -40,6 +40,8 @@ x.update(x.vector * 0.8);
 
 assert(all((x.init .* x.vector) == x.init), 'Design Vector Corrupted');
 
+history = x.fetch_history('normalized', true); % Checking history of vector
+
 %% Creating a EMWET Worker and Running
 s = structures.Structures(x, ac);
 assert(~isempty(fieldnames(s.EMWET_output)), 'EMWET Output Not Recieved')
