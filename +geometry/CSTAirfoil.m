@@ -66,7 +66,7 @@ classdef CSTAirfoil < geometry.Airfoil
             x_l = obj.x_lower;
             
             value.upper = obj.classFunction(x_u, obj.N1, obj.N2);
-            value.lower = -obj.classFunction(x_l, obj.N1, obj.N2);
+            value.lower = obj.classFunction(x_l, obj.N1, obj.N2);
 
             obj.classValues = value;
       end
@@ -104,7 +104,7 @@ classdef CSTAirfoil < geometry.Airfoil
       function scaled = scale(obj, thickness)
             upper_func = @(x) obj.classFunction(x, obj.N1, obj.N2) * ...
                               obj.shapeFunction(x, obj.A_upper);
-            lower_func = @(x) -obj.classFunction(x, obj.N1, obj.N2) * ...
+            lower_func = @(x) obj.classFunction(x, obj.N1, obj.N2) * ...
                                obj.shapeFunction(x, obj.A_lower);
             
             % Objective Function used to find the current thickness
@@ -122,6 +122,10 @@ classdef CSTAirfoil < geometry.Airfoil
             scaled.y_lower = obj.y_lower * ratio;
             scaled.A_upper = obj.A_upper * ratio;
             scaled.A_lower = obj.A_lower * ratio;
+      end
+      
+      function y_at_length(x)
+          
       end
    end
 

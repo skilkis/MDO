@@ -13,6 +13,7 @@ classdef FittedAirfoil < geometry.Airfoil
         x0              % Initial design vector
         ub              % Design vector upper bound
         lb              % Design vector lpper bound
+        airfoil_in      % Input Airfoil
         CSTAirfoil      % Fitted CSTAirfoil
     end
     
@@ -33,11 +34,12 @@ classdef FittedAirfoil < geometry.Airfoil
             addOptional(p, 'n_variables', n_variables, ...
                         @geometry.Validators.isInteger);
             addOptional(p, 'optimize_class', optimize_class, ...
-                        @islogical) % TODO make sure this is a new validator for boolean
+                        @islogical)
 
             parse(p, airfoil_in, varargin{:});
             
             % Setting Properties from Input
+            obj.airfoil_in = p.Results.airfoil_in;
             obj.x_upper = p.Results.airfoil_in.x_upper;
             obj.x_lower = p.Results.airfoil_in.x_lower;
             obj.y_upper = p.Results.airfoil_in.y_upper;
@@ -55,11 +57,14 @@ classdef FittedAirfoil < geometry.Airfoil
             end
 
             % Setting Bounds on design Vector
-            ub = ones(1, length(obj.x0)) * Inf;
-            ub(end-1) = 1.0; ub(end) = 1.0;
-            
+            ub = ones(1, length(obj.x0)) * Inf;            
             lb = ones(1, length(obj.x0)) * -Inf;
-            lb(end-1) = 0.0; lb(end) = 0.0;
+            
+            % Limiting class function values
+            if obj.optimize_class
+                ub(end-1) = 1.0; ub(end) = 1.0;
+                lb(end-1) = 0.0; lb(end) = 0.0;
+            end
             
             obj.ub = ub; obj.lb = lb; % Assigning to property
 
@@ -85,8 +90,12 @@ classdef FittedAirfoil < geometry.Airfoil
         function handle = plot(obj)            
             figure('Name', inputname(1))
             hold on; grid on; grid minor;
-            plot(obj.x_upper, obj.y_upper)
-            plot(obj.x_lower, obj.y_lower)
+            % Plotting CSTAirfoil Values
+            plot(obj.x_upper, obj.CSTAirfoil.y_upper)
+            plot(obj.x_lower, obj.CSTAirfoil.y_lower)
+            % Plotting Original Airfoil Ordinates
+            plot(obj.x_upper, obj.airfoil_in.y_upper)
+            plot(obj.x_lower, obj.airfoil_in.y_lower)
             chord = max([obj.x_upper; obj.x_lower]);
             axis([0, chord, -0.5 * chord, 0.5 * chord])
             hold off;
@@ -102,6 +111,7 @@ classdef FittedAirfoil < geometry.Airfoil
         function scaled = scale(obj, chord, thickness)
             scaled = obj.copy();
             scaled.CSTAirfoil = obj.CSTAirfoil.scale(thickness);
+            scaled.airfoil_in = obj.airfoil_in.scale(chord, thickness);
             
             % Obtaining Chord Ratio
             ratio = thickness / obj.CSTAirfoil.t_max;
