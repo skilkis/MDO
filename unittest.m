@@ -14,8 +14,8 @@ tip_airfoil = root_fit.scale(1.0, 0.1);
 tip_cst = tip_airfoil.CSTAirfoil;
 
 %% Testing Design Vector
-A_root = [root_cst.A_upper', root_cst.A_lower'];
-A_tip = [tip_cst.A_upper', tip_cst.A_lower'];
+A_root = [root_cst.A_upper', -root_cst.A_lower'];
+A_tip = [tip_cst.A_upper', -tip_cst.A_lower'];
 
 x = optimize.DesignVector({'lambda_1', 31.87, 0, 1.25;...
                            'lambda_2', 27.285, 0.94, 1.25;...

@@ -44,6 +44,17 @@ classdef Planform
     
     
     methods
+%         function obj = Planform(x)
+%             obj.Cr = x.c_r;
+%             obj.S1 = x.lambda_1;
+%             obj.S2 = x.lambda_2;
+%             obj.tau = x.tau;
+%             obj.b = x.b;
+%             obj.t_r = x.beta_root;
+%             obj.t_k = x.beta_kink;
+%             obj.t_t = x.beta_tip;
+%             
+%         end
         function a = get.S(obj)
             %Function for calculating the wing planform area
             cr = obj.Cr;
