@@ -29,7 +29,7 @@ classdef Aerodynamics
     properties(SetAccess = 'private')
         h = 11248;          %Cruise altitude[m]
         
-        M_c = 0.6;          %Cruise Mach number
+        M_c = 0.79;          %Cruise Mach number
         rho = 0.589;        %Cruise altitude air density[kg m^-3]
  %       W_pl = 17670;       %Design payload weight[kg]
         g = 9.81;           %Acceleration due to gravity[ms^-2]
@@ -41,17 +41,15 @@ classdef Aerodynamics
 
     
     methods
-%% Setting the fuel weight, wing weight        
+%% Setting the fuel weight, wing weight and geometry        
    function obj = Aerodynamics(x,P)
-            obj.W_f = x.W_f_hat;
-            obj.W_w = x.W_w_hat;
-            obj.A_r = [0.2257, 0.1039, 0.2244, 0.1359, 0.2463, 0.3951, -0.2233,...
-                -0.1597, -0.0684, -0.454, 0.0619, 0.3303];%x.A_root.';
-            obj.A_t = [0.2257, 0.1039, 0.2244, 0.1359, 0.2463, 0.3951, -0.2233,...
-                -0.1597, -0.0684, -0.454, 0.0619, 0.3303];%x.A_tip.';
-            obj.Chords = P.Chords;
-            obj.Coords = P.Coords;
-            obj.Twists = [0 0 0];%P.Twists;
+            obj.W_f = x.W_f_hat;    %Extracting fuel weight from design vector
+            obj.W_w = x.W_w_hat;    %Extracting wing weight from design vector
+            obj.A_r = x.A_root.';   %Extracting root coeffcients
+            obj.A_t = x.A_tip.';    %Extracting tip coefficients
+            obj.Chords = P.Chords;  %Chords based on Planform class
+            obj.Coords = P.Coords;  
+            obj.Twists = P.Twists;
             obj.S = P.S;
             obj.MAC = P.MAC;
             obj.p = P;
@@ -62,7 +60,7 @@ classdef Aerodynamics
    end 
         
         function AC = get.AC(obj)
-            P = obj.p;
+            
             MTOW = obj.W_aw + obj.W_f + obj.W_w;
             W_des = sqrt(MTOW*(MTOW - obj.W_f));
             T_c = 288.15 - 0.0065*obj.h;
@@ -72,12 +70,12 @@ classdef Aerodynamics
             C_L = obj.g*W_des/(0.5*obj.rho*obj.S*V_c^2);
             AC.Wing.Geom = [obj.Coords, obj.Chords.', obj.Twists.'];
             AC.Wing.inc = 0;
-            AC.Wing.eta = [0;2*P.gamma/P.b;1];
+            AC.Wing.eta = [0;1];
             AC.Visc = 1;
-            AC.Wing.Airfoils = [obj.A_r;obj.A_r - (obj.A_r-obj.A_t)*2*P.gamma/P.b;obj.A_t];
+            AC.Wing.Airfoils = [obj.A_r;obj.A_t];
             AC.Aero.rho = obj.rho;
             AC.Aero.alt = obj.h;
-            AC.Aero.M = obj.M_c;%obj.V_c/sqrt(1.4*287*215.038);
+            AC.Aero.M = obj.M_c;
             AC.Aero.Re = V_c*obj.MAC/obj.v;
             
             AC.Aero.V = obj.M_c*sqrt(1.4*287*T_c/(1+0.2*obj.M_c^2));
@@ -87,9 +85,9 @@ classdef Aerodynamics
         end
         
         function res = fetch_Res(obj)
-           tic; 
+           
            res = aerodynamics.Q3D_solver(obj.AC);
-           t=toc; disp(['Simulation time: ', num2str(t),' s']);
+           
         end
         function Cd = get.C_dw(obj)
            Cd = obj.Res.CDwing;

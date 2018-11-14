@@ -38,23 +38,23 @@ classdef Planform
         MAC             %Mean aerodynamic chord[m]
         S               %Wing planform area[m^2]
         eta
-        fs_r            %Root chord front spar position
-        rs_r            %Root chord rear spar position
+        fs_f            %Front spar chordwise position at fuselage line
+        rs_f            %Rear spar chordwise position at fuselage line
     end
     
     
     methods
-%         function obj = Planform(x)
-%             obj.Cr = x.c_r;
-%             obj.S1 = x.lambda_1;
-%             obj.S2 = x.lambda_2;
-%             obj.tau = x.tau;
-%             obj.b = x.b;
-%             obj.t_r = x.beta_root;
-%             obj.t_k = x.beta_kink;
-%             obj.t_t = x.beta_tip;
-%             
-%         end
+        function obj = Planform(x)
+            obj.Cr = x.c_r;
+            obj.S1 = x.lambda_1*pi/180;
+            obj.S2 = x.lambda_2*pi/180;
+            obj.tau = x.tau;
+            obj.b = x.b;
+            obj.t_r = x.beta_root;
+            obj.t_k = x.beta_kink;
+            obj.t_t = x.beta_tip;
+            
+        end
         function a = get.S(obj)
             %Function for calculating the wing planform area
             cr = obj.Cr;
@@ -64,15 +64,15 @@ classdef Planform
             B = obj.b;
             t = obj.tau;
             
-            cm = cr-g*tan(s1);
-            ct = t*cr;
+            cm = obj.Chords(2)+0.02;
+            ct = obj.Chords(3);
             a = g*(cr+cm) + (0.5*B-g)*(cm+ct);
         end
         
         function b = get.Chords(obj)
             %Function for calculating the various wing chords
             b(1) = obj.Cr;
-            b(2) = obj.Cr - (4/3)*obj.gamma*tan(obj.S1) - 0.02;
+            b(2) = obj.Cr - obj.gamma*tan(obj.S1) - 0.02;
             b(3) = obj.tau*obj.Cr;
         end
         
@@ -96,18 +96,19 @@ classdef Planform
         
         function d = get.MAC(obj)
             %Function for calculating the mean aerodynamic chord
-            cr = obj.Cr;
+            cr = obj.Chords(1);
             g = obj.gamma;
             s1 = obj.S1;
             
             B = obj.b;
-            t = obj.tau;
-            cm = cr - g*tan(s1);
-            ct = t*cr;
             
-            a = g*(cr+cm) + (0.5*B-g)*(cm+ct);
-            d = 2*((((cr^3)-(cm^3))/tan(s1)) + (0.5*B-g)*((cm^3)-ct^3)/(cm-ct))/...
-                (3*g*cr + 3*B*cm/2 + 3*ct*(0.5*B-g));
+            cm = obj.Chords(2)+0.02;
+            ct = obj.Chords(3);
+            
+            C1 = g*(cr^2 + cm*cr + cm^2)/3;
+            C2 = (0.5*B-g)*(cm^2 + cm*ct + ct^2)/3;
+            
+            d = 2*(C1 + C2)/obj.S;
             
         end
         function e = get.Twists(obj)
@@ -117,7 +118,7 @@ classdef Planform
             f = [0, obj.gamma/(0.5*obj.b), 1];
         end
         
-        function g = get.fs_r(obj)
+        function g = get.fs_f(obj)
             cr = obj.Chords(1);
             cm = obj.Chords(2);
             ct = obj.Chords(3);
@@ -127,12 +128,15 @@ classdef Planform
             s1 = obj.S1;
             s2 = obj.S2;
             Fs = obj.fs;
-            crf = cr-0.5*df*tan(s1);
             
-            g = (Fs/(crf*(B-2*g)))*(cm*(B-df)-ct*(2*g-df)) + (g-df/2)*(...
-                tan(s1)-tan(s2));
+            
+            tanfs = tan(s2) - Fs*(cm-ct)/(0.5*B-g);
+
+            fsr = (g/cr)*(tan(s1) - tanfs) + Fs*cm/cr;
+            g = fsr - (fsr - Fs)*(0.5*df/g);
         end
-        function g = get.rs_r(obj)
+        
+        function g = get.rs_f(obj)
             cr = obj.Chords(1);
             cm = obj.Chords(2);
             ct = obj.Chords(3);
@@ -142,12 +146,31 @@ classdef Planform
             s1 = obj.S1;
             s2 = obj.S2;
             Rs = obj.rs;
-            crf = cr-0.5*df*tan(s1);
             
-            g = (Rs/(crf*(B-2*g)))*(cm*(B-df)-ct*(2*g-df)) + (g-df/2)*(...
-                tan(s1)-tan(s2));
+            tanrs = tan(s2) - Rs*(cm-ct)/(0.5*B-g);
+
+            rsr = (g/cr)*(tan(s1) - tanrs) + Rs*cm/cr;
+            g = rsr - (rsr - Rs)*(0.5*df/g);
         end
     end
+    
+    methods (Static)
+        
+        function x = X_LE(obj, y)
+            sympref('HeavisideAtOrigin',0.5);
+            Y = y*0.5*obj.b;
+            
+            x = heaviside(obj.gamma-Y).*(Y*tan(obj.S1)) + ...
+                heaviside(Y-obj.gamma).*((Y-obj.gamma)*tan(obj.S2) + ...
+                obj.gamma*tan(obj.S1));
+            
+        end
+        
+    end
+    
+    
+
+
 end
 
      
