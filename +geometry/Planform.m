@@ -155,7 +155,8 @@ classdef Planform
     end
     
     methods (Static)
-        
+        %Leading edge function as a function of spanwise
+        %y-coordinate(fraction of semi span)
         function x = X_LE(obj, y)
             sympref('HeavisideAtOrigin',0.5);
             Y = y*0.5*obj.b;
@@ -164,6 +165,19 @@ classdef Planform
                 heaviside(Y-obj.gamma).*((Y-obj.gamma)*tan(obj.S2) + ...
                 obj.gamma*tan(obj.S1));
             
+        end
+        %Chord length function as a function of spanwise
+        %y-coordinate(fraction of semi span)
+        function c = C(obj,y)
+            Y = y*0.5*obj.b;
+            
+            cr = obj.Chords(1);
+            cm = obj.Chords(2);
+            ct = obj.Chords(3);
+            
+            c = heaviside(obj.gamma-Y).*(cr - (cr-cm).*Y./obj.gamma) + ...
+                heaviside(Y-obj.gamma).*(cm - (cm-ct).*((Y-obj.gamma)/(...
+                obj.b-obj.gamma)));
         end
         
     end
