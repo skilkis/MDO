@@ -29,7 +29,7 @@ classdef Aerodynamics
     properties(SetAccess = 'private')
         h = 11248;          %Cruise altitude[m]
         
-        M_c = 0.79;          %Cruise Mach number
+        M_c = 0.787;          %Cruise Mach number
         rho = 0.589;        %Cruise altitude air density[kg m^-3]
  %       W_pl = 17670;       %Design payload weight[kg]
         g = 9.81;           %Acceleration due to gravity[ms^-2]
