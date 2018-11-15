@@ -92,8 +92,10 @@ classdef FittedAirfoil < geometry.Airfoil
             figure('Name', inputname(1))
             hold on; grid on; grid minor;
             % Plotting Original Airfoil Ordinates
-            plot(obj.x_upper, obj.y_upper, 'DisplayName', 'Upper Surface')
-            plot(obj.x_lower, obj.y_lower, 'DisplayName', 'Lower Surface')
+            plot(obj.x_upper, obj.y_upper,'o',...
+                'DisplayName', 'Upper Surface')
+            plot(obj.x_lower, obj.y_lower, 'o',...
+                'DisplayName', 'Lower Surface')
             % Plotting CSTAirfoil Values
             chord = max([obj.x_upper; obj.x_lower]) - ...
                     min([obj.x_upper; obj.x_lower]);

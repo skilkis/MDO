@@ -46,7 +46,8 @@ classdef (Abstract) Airfoil < handle
         
         function write(obj, filepath)
             % Writes an Airfoil .dat file where the order of points is from
-            % TE -> Upper Surface -> LE -> Lower Surface -> TE
+            % TE -> Upper Surface -> LE -> Lower Surface -> TE. Assumes
+            % that the minimum x starts at zero
             
             x_max = max([obj.x_upper; obj.x_lower]);
             if x_max <= 1.0
@@ -63,7 +64,7 @@ classdef (Abstract) Airfoil < handle
             end
             fid = fopen(filepath, 'w');
                 for i = 1:length(data)
-                    fprintf(fid, '%.10f %.10f\n', data(i,1), data(i,2));
+                    fprintf(fid, '%.6f %.6f\n', data(i,1), data(i,2));
                 end
             fclose(fid);
         end

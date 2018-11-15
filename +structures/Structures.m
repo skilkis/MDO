@@ -4,9 +4,9 @@ classdef Structures < handle
     
     properties
         design_vector           % Design Vector Object
-        aircraft_in = aircraft.Aircraft('A320');
+        aircraft_in
         W_w                     % Wing Weight
-        
+        V                       % Computed Fuel-Tank Volume
         EMWET_input = struct();
         EMWET_output = struct();
     end
@@ -47,10 +47,11 @@ classdef Structures < handle
             % Defining Input Struct
             ac = obj.aircraft_in; x = obj.design_vector; i.name = ac.name;
             i.MTOW = obj.calc_mtow();
-            i.ZFW = ac.W_zf; % Zero Fuel Weight
+            % TODO check if zero fuel weight can be constant
+            i.ZFW = ac.W_zf; % Zero Fuel Weight is assumed constant
             i.n_max = ac.eta_max; % Load Factor
             i.b = x.b;  % Wing Span
-            i.N_sections = 2; % Number of Planform Sections
+            i.N_sections = 3; % Number of Planform Sections
             i.N_airfoils = 2; % Number of Airfoil Sections
             i.airfoils.root.loc = 0; i.airfoils.root.name = [i.name '_r'];
             i.airfoils.tip.loc = 1; i.airfoils.tip.name = [i.name '_t'];
@@ -64,22 +65,30 @@ classdef Structures < handle
             i.sections.root.x = coords(1, 1);
             i.sections.root.y = coords(1, 2);
             i.sections.root.z = coords(1, 3);
-            i.sections.root.fs = planform.fs_r;
-            i.sections.root.rs = planform.rs_r;
+            i.sections.root.fs = planform.FS_root;
+            i.sections.root.rs = planform.RS_root;
 
+            i.sections.kink.chord = chords(1);
+            i.sections.kink.x = coords(1, 1);
+            i.sections.kink.y = coords(1, 2);
+            i.sections.kink.z = coords(1, 3);
+            i.sections.kink.fs = planform.FS;
+            i.sections.kink.rs = planform.RS;
+            % i.sections.root.fs = planform.FS;
+            % i.sections.root.rs = planform.RS;
 
             i.sections.tip.chord = chords(end);
             i.sections.tip.x = coords(end, 1);
             i.sections.tip.y = coords(end, 2);
             i.sections.tip.z = coords(end, 3);
-            i.sections.tip.fs = planform.fs;
-            i.sections.tip.rs = planform.rs;
+            i.sections.tip.fs = planform.FS;
+            i.sections.tip.rs = planform.RS;
 
             i.S = planform.S;
             i.fuel_start = ac.fuel_limits(1); 
             i.fuel_end = ac.fuel_limits(2);
-            i.engine_spec = [0.25, 3000]; % TODO Add this into Aircraft
-            i.N_engines = 1; % Number of engines on each wing
+            i.engine_spec = ac.engine_spec; % Engine
+            i.N_engines = 1; % Number of engines on each wing, HARDCODED
 
             % Material Properties
             young = ac.E_al;
@@ -150,11 +159,41 @@ classdef Structures < handle
         end
         
         function write_airfoils(obj)
-            ac = obj.aircraft_in;
-            ac.airfoils.root.write([obj.temp_dir '\' ...
+%             ac = obj.aircraft_in;
+%             ac.airfoils.root.write([obj.temp_dir '\' ...
+%                 obj.EMWET_input.airfoils.root.name '.dat'])
+%             ac.airfoils.tip.write([obj.temp_dir ...
+%                 '\' obj.EMWET_input.airfoils.tip.name '.dat'])
+            CST = obj.build_CSTAirfoil();
+            CST.root.write([obj.temp_dir '\' ...
                 obj.EMWET_input.airfoils.root.name '.dat'])
-            ac.airfoils.tip.write([obj.temp_dir ...
+            CST.tip.write([obj.temp_dir ...
                 '\' obj.EMWET_input.airfoils.tip.name '.dat'])
+        end
+        
+        function CST = build_CSTAirfoil(obj) % TODO put this into design vector
+            % Creating cosine spaced points for maximum accuracy of airfoil
+            u_control = linspace(0, pi, 100);
+            x = 0.5*(1 - cos(u_control))';
+            
+            % Fetching Root CST Coefs
+            A_root = obj.design_vector.A_root;
+            root.upper = A_root(1:length(A_root)/2);
+            root.lower = A_root(length(A_root)/2+1:end);
+            
+            % Fetching Tip CST Coefs
+            A_tip = obj.design_vector.A_tip;
+            tip.upper = A_tip(1:length(A_tip)/2);
+            tip.lower = A_tip(length(A_tip)/2+1:end);
+            
+            % Creating CST Airfoils
+            CSTAirfoil = @geometry.CSTAirfoil;
+            CST.root = CSTAirfoil(x, 'A_upper', root.upper,...
+                'A_lower', root.lower);
+            CST.tip = CSTAirfoil(x, 'A_upper', tip.upper,...
+                'A_lower', tip.lower);
+            CST.tip.plot();
+            CST.root.plot();
         end
         
         function write_loads(obj)
@@ -166,7 +205,7 @@ classdef Structures < handle
             fid = fopen(filename, 'r');
             idx = 1;
 
-            n_lines = utilities.linecount(filename);
+            n_lines = util.linecount(filename);
             data_idx = 5; % Line index where EMWET output data starts
             data = zeros(n_lines - data_idx, 6);
             while ~feof(fid)

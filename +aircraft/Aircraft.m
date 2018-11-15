@@ -24,23 +24,33 @@ classdef Aircraft < handle
         W_aw            % Aircraft Less Wing Weight [kg]
         W_zf            % Zero-Fuel Weight [kg]
 %         W_e             % Empty Weight [kg]
-        
+
         % Geometric Parameters
-%         D_fus           % Fuselag Diameter [m]
-%         d_TE            % Fixed Inboard Trailing Edge Length [m]
-%         d_rib           % Rib Pitch [m]
-%         S               % Reference Wing-Planform area [m^2]
-%         N1              % LE Class Function Coefficient [-]
-%         N2              % TE Class Function Coefficient [-]
-%         FS              % Front Spar Chordwise Position [-]
-%         RS              % Rear Spar Chordwise Position [-]
-%         FS_fus          % Front Spar Chordwise Pos. at Fuselage-Line [-]
+        D_fus           % Fuselag Diameter [m]
+        d_TE            % Fixed Inboard Trailing Edge Length [m]
+        d_rib           % Rib Pitch [m]
+        S               % Reference Wing-Planform area [m^2]
+        FS              % Front Spar Chordwise Position [-]
+        RS              % Rear Spar Chordwise Position [-]
+        FS_fus          % F.Spar Chordwise Pos. at fuselage [-]
+        RS_fus          % R.Spar chordwise Pos. at fuselage [-]
+        c_r             % Root chord [m]
+        lambda_1        % Inboard Quarter chord sweep angle [rad]
+        lambda_2        % Outboard Quarter chord sweep angle [rad]
+        tau             % Taper ratio(Ct/Cr) [-]
+        b               % Wing span(total) [m]
+        beta_root       % Twist angle value for root [deg]
+        beta_kink       % Twist angle at kink [deg]
+        beta_tip        % Twist angle at tip [deg]
         
         % Aluminum Material Properties
         E_al            % Young's Modulus of Aluminum [Pa]
         sigma_c         % Compresible Yield Stress [Pa]
         sigma_t         % Tensile Yield Stress [Pa]
         rho_al          % Density of Aluminum Alloy [kg/m^3]
+        
+        % Engine Specifications
+        engine_spec = [0.25, 3000]; % [Span Position, Weight [kg]]
         
         % Miscelaneious Properties
         eta_max         % Maximum Load Factor [-]
@@ -81,20 +91,21 @@ classdef Aircraft < handle
                        'could not be updated'], field{:})
             end
 
-%             obj.planform = geometry.Planform();
+            obj.planform = geometry.Planform(obj);
             obj.getAirfoils();
         end
         
         function getAirfoils(obj)
-            c_r = obj.planform.Chords(1);
-            c_t = obj.planform.Chords(end);
             import_airfoil = geometry.AirfoilReader([obj.base_airfoil...
                                                    '.dat']);
-            root_fit = geometry.FittedAirfoil(import_airfoil)...
-                .scale(c_r, 0.5); % TODO thickness should be thickness specified by planform
-
-            % TODO fix scaling of tip airfoil
+%             root_fit = geometry.FittedAirfoil(import_airfoil)...
+%                 .scale(obj.c_r, 0.15); % TODO thickness should be thickness specified by planform
+% 
+%             % TODO fix scaling of tip airfoil
 %             tip_airfoil = root_fit.scale(c_t, 0.1); % TODO change this to thickness specified by planform
+            % problem WITH SCALING
+            root_fit = geometry.FittedAirfoil(import_airfoil);
+            tip_airfoil=root_fit.scale(1.0, 0.1);
             
             obj.airfoils.root = root_fit;
             obj.airfoils.tip = tip_airfoil;
