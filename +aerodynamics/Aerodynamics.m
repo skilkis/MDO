@@ -24,9 +24,6 @@ classdef Aerodynamics
         Res;
         C_dw;
         p;
-    end
- %% Set parameters   
-    properties(SetAccess = 'private')
         h = 11248;          %Cruise altitude[m]
         
         M_c = 0.787;          %Cruise Mach number
@@ -35,6 +32,10 @@ classdef Aerodynamics
         g = 9.81;           %Acceleration due to gravity[ms^-2]
         v = 8*10^(-6);       %Viscosity of air at 215 K[m^2s^-1]
         W_aw = 38400;       %Aircraft less wing weight[kg]
+    end
+ %% Set parameters   
+    properties(SetAccess = 'private')
+
       
     end
     
@@ -42,17 +43,25 @@ classdef Aerodynamics
     
     methods
 %% Setting the fuel weight, wing weight and geometry        
-   function obj = Aerodynamics(x,P)
-            obj.W_f = x.W_f_hat;    %Extracting fuel weight from design vector
-            obj.W_w = x.W_w_hat;    %Extracting wing weight from design vector
-            obj.A_r = x.A_root.';   %Extracting root coeffcients
-            obj.A_t = x.A_tip.';    %Extracting tip coefficients
-            obj.Chords = P.Chords;  %Chords based on Planform class
-            obj.Coords = P.Coords;  
-            obj.Twists = P.Twists;
-            obj.S = P.S;
-            obj.MAC = P.MAC;
-            obj.p = P;
+   function obj = Aerodynamics(aircraft_in)
+            
+            obj.W_f = aircraft_in.W_f_hat;    %Extracting fuel weight from design vector
+            obj.W_w = aircraft_in.W_w_hat;    %Extracting wing weight from design vector
+            obj.A_r = aircraft_in.A_root.';   %Extracting root coeffcients
+            obj.A_t = aircraft_in.A_tip.';    %Extracting tip coefficients
+            obj.Chords = aircraft_in.Planform.Chords;  %Chords based on Planform class
+            obj.Coords = aircraft_in.Planform.Coords;  
+            obj.Twists = aircraft_in.Planform.Twists;
+            obj.S = aircraft_in.Planform.S;
+            obj.MAC = aircraft_in.Planform.MAC;
+            obj.p = aircraft_in.Planform;
+            
+            obj.h = aircraft_in.h_c;
+            obj.M_c = aircraft_in.M_c;
+            obj.rho = aircraft_in.rho_c;
+            obj.g = aircraft_in.g;
+            obj.W_aw = aircraft_in.W_aw;
+            obj.v = aircraft_in.v;
             
             obj.Res = obj.fetch_Res();
             
