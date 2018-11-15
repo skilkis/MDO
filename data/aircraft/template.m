@@ -18,7 +18,7 @@ R_c = 5000.4;                   % Design Cruise Range [km]
 
 % Aircraft Weights
 W_aw = 38400;                   % Aircraft Less Wing Weight [kg]
-W_zf = 65000;                   % Maximum Zero-Fuel Weight [kg]
+W_mp = 19190;                   % Maximum Zero-Fuel Weight [kg]
 % W_e = [];                     % Empty Weight [kg]
 
 % Geometric Parameters

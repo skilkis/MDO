@@ -11,6 +11,9 @@ classdef Aircraft < handle
         name            % Aircraft Name w/o File-Extension [-]
         base_airfoil    % Airfoil Name that Best Describes the Geom. [-]
         
+        % Drag coefficient
+        C_dw
+        
         % Cruise Parameters
         h_c             % Cruise Altitude [m]
         M_c             % Cruise Mach Number [-]
@@ -22,7 +25,7 @@ classdef Aircraft < handle
         
         % Aircraft Weights
         W_aw            % Aircraft Less Wing Weight [kg]
-        W_zf            % Zero-Fuel Weight [kg]
+        W_mp            % Max Payload Weight [kg]
 %         W_e             % Empty Weight [kg]
 
         % Geometric Parameters
