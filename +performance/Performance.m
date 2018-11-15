@@ -17,7 +17,7 @@ classdef Performance < handle
           W_des = sqrt(MTOW(MTOW-W_f));
           C_L = W_des*aircraft_in.g/(0.5*aircraft_in.rho_c*...
               aircraft_in.planform.S);
-          C_D = aircraft_in.C_dw;
+          C_D = aircraft_in.C_d_w;
           R_c = aircraft_in.R_c*1000;
           C_T = aircraft_in.C_T;
           

@@ -61,7 +61,8 @@ classdef Aircraft < handle
         C_T             % Thrust Specific Fuel Consumption
         M_mo            % Maximum Operating Mach Number [-]
         fuel_limits     % Span-wise Fuel Tank Limits (Root, Tip)
-
+        g               % Acceleration due to gravity [m/s^2]
+        v               % Air viscosity at altitude [m^2/s]
         % Planform Object of the Current Aircraft
         planform
         

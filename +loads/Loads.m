@@ -20,34 +20,40 @@ classdef Loads
         A_t;% = ones(1,12);
         b;
         p;
-    end
-        
-    properties(SetAccess = 'private')
-    h = 11248;          % Cruise altitude[m]
-    %V_c = 231.5;        % Cruise speed[m/s]
-    M_c = 0.79;
-    rho = 0.589;        % Cruise altitude air density[kg m^-3]
-%       W_pl = 17670;   % Design payload weight[kg]
-    g = 9.81;           % Acceleration due to gravity[ms^-2]
-    n_max = 2.5;        % Maximum load factor
-    v = 8*10^(-6);      % Viscosity of air at 215 K[m^2s^-1]
-    W_aw = 38400;       % Aircraft less wing weight[kg]
 
+    h = 11248;          % Cruise altitude[m]
+    
+    M_c;
+    rho;        % Cruise altitude air density[kg m^-3]
+
+    g;           % Acceleration due to gravity[ms^-2]
+    n;        % Maximum load factor
+    v;      % Viscosity of air at 215 K[m^2s^-1]
+    W_aw;       % Aircraft less wing weight[kg]
+    
         
     end
    methods
-   function obj = Loads(x,P)
-            obj.W_f = x.W_f_hat;
-            obj.W_w = x.W_w_hat;
-            obj.A_r = x.A_root.';
-            obj.A_t = x.A_tip.';
-            obj.Chords = P.Chords;
-            obj.Coords = P.Coords;
-            obj.Twists = P.Twists;
-            obj.S = P.S;
-            obj.MAC = P.MAC;
-            obj.b = P.b;
-            obj.p = P;
+   function obj = Loads(aircraft_in)
+            obj.W_f = aircraft_in.W_f_hat;
+            obj.W_w = aircraft_in.W_w_hat;
+            obj.A_r = aircraft_in.A_root.';
+            obj.A_t = aircraft_in.A_tip.';
+            obj.Chords = aircraft_in.Chords;
+            obj.Coords = aircraft_in.Coords;
+            obj.Twists = aircraft_in.Twists;
+            obj.S = aircraft_in.planform.S;
+            obj.MAC = aircraft_in.planform.MAC;
+            obj.b = aircraft_in.planform.b;
+            obj.p = aircraft_in.planform;
+            
+            obj.h = aircraft_in.h_c;
+            obj.M_c = aircraft_in.M_c;
+            obj.rho = aircraft_in.rho_c;
+            obj.g = aircraft_in.g;
+            obj.n_max = aircraft_in.n_max;
+            obj.v = aircraft_in.v;
+            obj.W_aw = aircraft_in.W_aw;
             
             obj.Res = obj.fetch_Res();
    end 
