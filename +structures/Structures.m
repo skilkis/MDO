@@ -48,7 +48,7 @@ classdef Structures < handle
             ac = obj.aircraft_in; x = obj.design_vector; i.name = ac.name;
             i.MTOW = obj.calc_mtow();
             % TODO check if zero fuel weight can be constant
-            i.ZFW = ac.W_zf; % Zero Fuel Weight is assumed constant
+            i.ZFW = ac.W_aw + ac.W_mp + x.W_w_hat; % Zero Fuel Weight is assumed constant
             i.n_max = ac.eta_max; % Load Factor
             i.b = x.b;  % Wing Span
             i.N_sections = 3; % Number of Planform Sections
@@ -65,13 +65,13 @@ classdef Structures < handle
             i.sections.root.x = coords(1, 1);
             i.sections.root.y = coords(1, 2);
             i.sections.root.z = coords(1, 3);
-            i.sections.root.fs = planform.FS_root;
-            i.sections.root.rs = planform.RS_root;
+            i.sections.root.fs = planform.FS_proj;
+            i.sections.root.rs = planform.RS_proj;
 
-            i.sections.kink.chord = chords(1);
-            i.sections.kink.x = coords(1, 1);
-            i.sections.kink.y = coords(1, 2);
-            i.sections.kink.z = coords(1, 3);
+            i.sections.kink.chord = chords(2);
+            i.sections.kink.x = coords(2, 1);
+            i.sections.kink.y = coords(2, 2);
+            i.sections.kink.z = coords(2, 3);
             i.sections.kink.fs = planform.FS;
             i.sections.kink.rs = planform.RS;
             % i.sections.root.fs = planform.FS;

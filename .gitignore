@@ -10,3 +10,6 @@
 
 # Misc. Built LaTeX Files
 XDSM/figures/static
+
+# Ignore Temporary EMWET Files
+temp/EMWET

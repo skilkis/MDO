@@ -41,6 +41,8 @@ classdef Planform < handle
         RS_fus          %Rear spar chordwise position at fuselage line
         FS_root         %Front spar chord-wise position at root
         RS_root         %Rear spar chord-wise position at root
+        FS_proj         %Projected front spar position at root
+        RS_proj         %Projected rear spar position at root
     end
     
     
@@ -140,14 +142,13 @@ classdef Planform < handle
         function f = get.eta(obj)
             f = [0, obj.d_TE/(0.5*obj.b), 1];
         end
-        
-        function g = get.FS_fus(obj)
+
+        function fsr = get.FS_proj(obj)
             cr = obj.Chords(1);
             cm = obj.Chords(2);
             ct = obj.Chords(3);
             g = obj.d_TE;
             B = obj.b;
-            df = obj.D_fus;
             s1 = deg2rad(obj.lambda_1);
             s2 = deg2rad(obj.lambda_2);
             Fs = obj.FS;
@@ -157,16 +158,19 @@ classdef Planform < handle
 
             % Projected FS position at root
             fsr = (g/cr)*(tan(s1) - tanfs) + Fs*cm/cr;
-            g = fsr - (fsr - Fs)*(0.5*df/g);
         end
         
-        function g = get.RS_fus(obj)
+        function g = get.FS_fus(obj)
+            fsr = obj.FS_proj; % Projected FS position at root
+            g = fsr - (fsr - obj.FS)*(0.5*obj.D_fus/obj.d_TE);
+        end
+
+        function rsr = get.RS_proj(obj)
             cr = obj.Chords(1);
             cm = obj.Chords(2);
             ct = obj.Chords(3);
             g = obj.d_TE;
             B = obj.b;
-            df = obj.D_fus;
             s1 = deg2rad(obj.lambda_1);
             s2 = deg2rad(obj.lambda_2);
             Rs = obj.RS;
@@ -174,7 +178,11 @@ classdef Planform < handle
             tanrs = tan(s2) - Rs*(cm-ct)/(0.5*B-g);
             % Projected RS position at root
             rsr = (g/cr)*(tan(s1) - tanrs) + Rs*cm/cr;
-            g = rsr - (rsr - Rs)*(0.5*df/g);
+        end
+        
+        function g = get.RS_fus(obj)
+            rsr = obj.RS_proj;
+            g = rsr - (rsr - obj.RS)*(0.5*obj.D_fus/obj.d_TE);
         end
         
         % TODO change these two dependent properties to not use other
@@ -266,6 +274,10 @@ classdef Planform < handle
                 'Front Spar')
             plot((eta_spar * 0.5 * obj.b), x_RS, 'DisplayName',...
                 'Rear Spar')
+            plot(0, obj.FS_proj * chords(1), 'o', 'DisplayName',...
+                'Projected FS')
+            plot(0, obj.RS_proj * chords(1), 'o', 'DisplayName',...
+                'Projected RS')
             axis image
             set(gca,'Ydir','reverse')
             hold off;
