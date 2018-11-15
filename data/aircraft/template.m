@@ -7,6 +7,8 @@ close all
 name = 'A320';                  % Aircraft Name w/o File-Extension [-]
 base_airfoil = 'naca23015';     % Base Airfoil Name [-]
 
+% Drag coefficient
+C_d_w = 0.0161;
 % Cruise Parameters
 h_c = 11248;                    % Cruise Altitude [m]
 M_c = 0.787;                    % Cruise Mach Number [-]

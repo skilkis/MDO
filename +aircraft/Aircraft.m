@@ -12,7 +12,7 @@ classdef Aircraft < handle
         base_airfoil    % Airfoil Name that Best Describes the Geom. [-]
         
         % Drag coefficient
-        C_dw
+        C_d_w
         
         % Cruise Parameters
         h_c             % Cruise Altitude [m]
