@@ -1,5 +1,5 @@
 classdef DesignVector < dynamicprops & handle
-    %DESIGNVECTOR Utility class allowing key, value pairs
+    %DESIGNVECTOR Utility class allowing key, value, lb, up pairs
     %   Solves the hassle of having to remember indices w/ fmincon
 
     properties
@@ -38,10 +38,17 @@ classdef DesignVector < dynamicprops & handle
             for key = obj.keys'
                 % Creating a getter for each key
                 len = obj.lengths(key_idx);
+                % Adding property per entry in design vector
                 P = addprop(obj, key{:});
                 P.GetMethod = @(getter) ...
                     obj.vector(vec_idx:(vec_idx + len - 1)) .* ...
                     obj.init(vec_idx:(vec_idx + len - 1));
+                
+                % Adding property per initial design vector
+                P = addprop(obj, [key{:} '_0']);
+                P.GetMethod = @(getter) ...
+                    obj.init(vec_idx:(vec_idx + len - 1));
+                
                 % TODO experiment with set method
 %                 P.SetMethod = @(setter) ...
 %                     obj.vector(index:(index + len - 1)) .* ...
