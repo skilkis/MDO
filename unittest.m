@@ -4,7 +4,7 @@ close all
 
 %% Test Aircraft Initialization
 ac = aircraft.Aircraft('A320');
-ac.planform.plot()
+ac.planform.plot();
 
 %% Testing Airfoil Fitting
 % root_airfoil = geometry.AirfoilReader('naca23015.dat');

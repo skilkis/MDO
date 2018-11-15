@@ -7,6 +7,8 @@ classdef Planform < handle
         %The properties in this list are variables. Their default values
         %correspond to the A320-200.
         
+        aircraft_in          % Input Aircraft Object
+        
         % Variables
         c_r = 7.3834;        % Root chord [m]
         lambda_1 = 31.87;    % Inboard Quarter chord sweep angle [rad]
@@ -44,6 +46,7 @@ classdef Planform < handle
     
     methods
         function obj = Planform(aircraft_in)
+            obj.aircraft_in = aircraft_in;
             % Variables
             obj.c_r = aircraft_in.c_r;
             obj.lambda_1 = aircraft_in.lambda_1;
@@ -235,23 +238,41 @@ classdef Planform < handle
             figure('Name', 'Planform');
             hold on; grid on; grid minor;
             
+            % Gathering Outer Planform Points
             x = [obj.Coords(:, 1); flipud(obj.Coords(:, 1) + obj.Chords');...
                 obj.Coords(1,1)];
             y = [obj.Coords(:, 2); flipud(obj.Coords(:, 2));...
                 obj.Coords(1,2)];
-            disp(x)
+
+            % Gathering Spar Parameters
+            eta_spar = [0, obj.D_fus/(obj.b), obj.eta(2:end)];
+            x_le = [obj.Coords(1, 1); obj.LE_at_span(eta_spar(2)); ...
+                    obj.Coords(2:end, 1)];
+            chords = [obj.Chords(1), obj.chord_at_span(eta_spar(2)), ...
+                    obj.Chords(2:end)]';
+            disp(chords)
+
+            FS_frac = [obj.FS_root, obj.FS_fus, obj.FS, obj.FS]';
+            RS_frac = [obj.RS_root, obj.RS_fus, obj.RS, obj.RS]';
             
-%             plot(obj.x_upper, obj.y_upper)
-%             plot(obj.x_lower, obj.y_lower)
-%             chord = max([obj.x_upper; obj.x_lower]);  
-            plot(y, x)
+            x_FS = chords .* FS_frac + x_le;
+            x_RS = chords .* RS_frac + x_le;
+
+            plot(y, x, 'DisplayName', 'Planform')
+            line(0.5*[obj.D_fus obj.D_fus],get(gca,'YLim'),...
+                'LineStyle', '-.', 'Color', 'k', 'DisplayName',...
+                'Fuselage-Line')
+            plot((eta_spar * 0.5 * obj.b), x_FS, 'DisplayName',...
+                'Front Spar')
+            plot((eta_spar * 0.5 * obj.b), x_RS, 'DisplayName',...
+                'Rear Spar')
             axis image
             set(gca,'Ydir','reverse')
             hold off;
             xlabel('Half-Span (y) [m]','Color','k');
             ylabel('Chord-Wise Length (x)','Color','k');
-%             legend('Upper Surface', 'Lower Surface')
-            title('Planform Geometry')
+            legend()
+            title(sprintf('%s Planform Geometry', obj.aircraft_in.name))
             handle = gcf();
         end
     end
