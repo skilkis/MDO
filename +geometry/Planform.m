@@ -258,7 +258,6 @@ classdef Planform < handle
                     obj.Coords(2:end, 1)];
             chords = [obj.Chords(1), obj.chord_at_span(eta_spar(2)), ...
                     obj.Chords(2:end)]';
-            disp(chords)
 
             FS_frac = [obj.FS_root, obj.FS_fus, obj.FS, obj.FS]';
             RS_frac = [obj.RS_root, obj.RS_fus, obj.RS, obj.RS]';

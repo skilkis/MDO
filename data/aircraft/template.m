@@ -21,7 +21,8 @@ R_c = 5000.4;                   % Design Cruise Range [km]
 % Aircraft Weights
 W_aw = 38400;                   % Aircraft Less Wing Weight [kg]
 W_mp = 19190;                   % Maximum Zero-Fuel Weight [kg]
-% W_e = [];                     % Empty Weight [kg]
+W_f = 17940;                    % Design Fuel Weight [kg]
+W_p = 14250;                    % Design Payload Weight [kg]
 
 % Geometric Parameters
 D_fus = 3.95;                   % Fuselag Diameter [m]
@@ -48,7 +49,7 @@ sigma_t = 295e6;                % Tensile Yield Stress [Pa]
 rho_al = 2800;                  % Density of Aluminum Alloy [kg/m^3]
 
 % Engine Specifications
-engine_spec = [0.25, 3000]; % [Span Position, Weight [kg]]
+engine_spec = [0.25, 3000];     % [Span Position, Weight [kg]]
 
 % Miscelaneious Properties
 eta_max = 2.5;                  % Maximum Load Factor [-]
