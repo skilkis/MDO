@@ -26,6 +26,7 @@ classdef Aircraft < handle
         % Aircraft Weights
         W_aw            % Aircraft Less Wing Weight [kg]
         W_mp            % Max Payload Weight [kg]
+        W_p             % Design Payload Weight [kg]
         W_f             % Design Fuel Weight [kg]
         W_w             % Wing Weight[kg]
         

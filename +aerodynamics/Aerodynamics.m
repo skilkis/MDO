@@ -1,120 +1,112 @@
-% clear all
-% close all
-% clc
-
 
 
 classdef Aerodynamics
+%% AERODYNAMICS
+
+% This is the aerodynamics analysis code. It's responsible for calculating
+% the drag coefficient of the wing defined in the current iteration. This
+% value is compared to the guessed value of the drag coefficient in the
+% constraints. First, the variables and parameters are extracted from the
+% input struct. After that, the Q3D input struct is made according to these
+% variables and parameters, which allows Q3D to calculate the wing drag
+% coefficient.
+
 %% Properties allowed to be changed by the optimizer or class itself    
     properties
-        %Root chord Bernstein coefficients
-        A_r;% = [0.2081    0.2645   0.1419     0.2872  0.1349  0.2845...
-       %-0.1230   -0.1419     -0.1727     -0.1080     -0.1503     -0.1197];
-        %Tip chord Bernstein coefficients
-        A_t;% = 0.66666*[0.2081    0.2645   0.1419     0.2872  0.1349  0.2845...
-      %-0.1230   -0.1419     -0.1727     -0.1080     -0.1503     -0.1197];
-        W_f;         %Design fuel weight[kg]
-        W_w;         %Wing weight[kg]
-        Chords;
-        Coords;
-        Twists;
-        S;
-        MAC;
-        AC;
-        Res;
-        C_dw;
-        p;
-        h = 11248;          %Cruise altitude[m]
-        
-        M_c = 0.787;          %Cruise Mach number
-        rho = 0.589;        %Cruise altitude air density[kg m^-3]
- %       W_pl = 17670;       %Design payload weight[kg]
-        g = 9.81;           %Acceleration due to gravity[ms^-2]
-        v = 8*10^(-6);       %Viscosity of air at 215 K[m^2s^-1]
-        W_aw = 38400;       %Aircraft less wing weight[kg]
-    end
- %% Set parameters   
-    properties(SetAccess = 'private')
+        Vars;       % Input variables
+        Params;     % Input parameters
+        Structs;    % Input structs
+        C_d_w;      % Aerodynamics output
 
-      
     end
+
     
 
     
     methods
 %% Setting the fuel weight, wing weight and geometry        
    function obj = Aerodynamics(aircraft_in)
+            % Extracting input variables
+            obj.Vars.W_f = aircraft_in.W_f;    % Guess value fuel weight[kg]
+            obj.Vars.W_w = aircraft_in.W_w;    % Guess value wing weight [kg]
+            obj.Vars.A_r = aircraft_in.airfoils.A_root.';   % Root chord coefficients
+            obj.Vars.A_t = aircraft_in.airfoils.A_tip.';    % Tip chord coefficients
+            obj.Vars.Chords = aircraft_in.planform.Chords;  % Wing section chord lengths [m]
+            obj.Vars.Coords = aircraft_in.planform.Coords;  % Leading edge coordinates [m]
+            obj.Vars.Twists = aircraft_in.planform.Twists;  % Wing section twist angles [deg]
+            obj.Vars.S = aircraft_in.planform.S;            % Wing planform area [m^2]
+            obj.Vars.MAC = aircraft_in.planform.MAC;        % Wing mean aerodynamic chord [m]
             
-            obj.W_f = aircraft_in.W_f_hat;    %Extracting fuel weight from design vector
-            obj.W_w = aircraft_in.W_w_hat;    %Extracting wing weight from design vector
-            obj.A_r = aircraft_in.A_root.';   %Extracting root coeffcients
-            obj.A_t = aircraft_in.A_tip.';    %Extracting tip coefficients
-            obj.Chords = aircraft_in.Planform.Chords;  %Chords based on Planform class
-            obj.Coords = aircraft_in.Planform.Coords;  
-            obj.Twists = aircraft_in.Planform.Twists;
-            obj.S = aircraft_in.Planform.S;
-            obj.MAC = aircraft_in.Planform.MAC;
-            obj.p = aircraft_in.Planform;
+            % Extracting input parameters
+            obj.Params.h = aircraft_in.h_c;         % Cruise altitude [m]
+            obj.Params.M_c = aircraft_in.M_c;       % Cruise Mach number [-]
+            obj.Params.a_c = aircraft_in.a_c;       % Speed of sound at cruise [m/s]
+            obj.Params.rho = aircraft_in.rho_c;     % Air density at cruise [kg/m^3]
+            obj.Params.g = aircraft_in.g;           % Acceleration due to gravity [m/s^2]
+            obj.Params.W_aw = aircraft_in.W_aw;     % Empty aircraft-less weight [kg]
+            obj.Params.W_p = aircraft_in.W_p;       % Design payload weight [kg]
+            obj.Params.v = aircraft_in.v;           % Kinematic viscosity at cruise [m^2/s]
             
-            obj.h = aircraft_in.h_c;
-            obj.M_c = aircraft_in.M_c;
-            obj.rho = aircraft_in.rho_c;
-            obj.g = aircraft_in.g;
-            obj.W_aw = aircraft_in.W_aw;
-            obj.v = aircraft_in.v;
             
-            obj.Res = obj.fetch_Res();
+            obj.Structs.p = aircraft_in.planform;
+            
+            % Creating the Q3D input struct
+            obj.Structs.AC = obj.fetch_AC();
+            
+            % Running Q3D
+            obj.Structs.Res = obj.fetch_Res();
+            
+            % Extracting the wing drag coefficient
+            obj.C_d_w = obj.fetch_C_dw();
+            
             
             
    end 
-        
-        function AC = get.AC(obj)
+%% Building the Q3D input struct        
+        function AC = fetch_AC(obj)
             
-            MTOW = obj.W_aw + obj.W_f + obj.W_w;
-            W_des = sqrt(MTOW*(MTOW - obj.W_f));
-            T_c = 288.15 - 0.0065*obj.h;
+            % Maximum take-off weight calculation [kg]
+            MTOW = obj.Params.W_aw + obj.Vars.W_f + obj.Vars.W_w;
             
-            V_c = obj.M_c*sqrt(1.4*287*T_c/(1+0.2*obj.M_c^2));
+            % Aircraft weight at design point [kg]
+            W_des = sqrt(MTOW*(MTOW - obj.Vars.W_f));
             
-            C_L = obj.g*W_des/(0.5*obj.rho*obj.S*V_c^2);
-            AC.Wing.Geom = [obj.Coords, obj.Chords.', obj.Twists.'];
+            % Cruise speed [m/s]
+            V_c = obj.Params.M_c*obj.Params.a_c;
+            
+            % Calculation of design lift coefficient
+            C_L = obj.Params.g*W_des/(0.5*obj.Params.rho*obj.Vars.S*V_c^2);
+            
+            % Building the struct based on input geometry, parameters and
+            % design lift coefficient.
+            AC.Wing.Geom = [obj.Vars.Coords, obj.Vars.Chords.', obj.Vars.Twists.'];
             AC.Wing.inc = 0;
             AC.Wing.eta = [0;1];
             AC.Visc = 1;
-            AC.Wing.Airfoils = [obj.A_r;obj.A_t];
-            AC.Aero.rho = obj.rho;
-            AC.Aero.alt = obj.h;
-            AC.Aero.M = obj.M_c;
-            AC.Aero.Re = V_c*obj.MAC/obj.v;
+            AC.Wing.Airfoils = [obj.Vars.A_r;obj.Vars.A_t];
+            AC.Aero.rho = obj.Params.rho;
+            AC.Aero.alt = obj.Params.h;
+            AC.Aero.M = obj.Params.M_c;
+            AC.Aero.Re = V_c*obj.Vars.MAC/obj.Params.v;
             
-            AC.Aero.V = obj.M_c*sqrt(1.4*287*T_c/(1+0.2*obj.M_c^2));
+            AC.Aero.V = V_c;
             AC.Aero.CL = C_L;
             
             
         end
-        
+ %% Running Q3D       
         function res = fetch_Res(obj)
+          res = aerodynamics.Q3D_solver(obj.Structs.AC);
            
-           res = aerodynamics.Q3D_solver(obj.AC);
-           
-        end
-        function Cd = get.C_dw(obj)
-           Cd = obj.Res.CDwing;
-%            if isnan(cd) == 1
-%                Cd = 1000;
-%            else
-%                Cd = cd;
-        end
         end
         
-%         function L = get.L_distr(obj)
-%             q = 0.5*obj.rho*obj.S*obj.V_c^2;
-%             Y = obj.Res.Wing.Yst;
-%             Ccl = obj.Res.Wing.ccl;
-%             Ccl0 = (Ccl(2)*Y(1) - Ccl(1)*Y(2))/(Y(1)-Y(2));
-%             Ccl1 = ((Ccl(L-1)-Ccl(L))*0.5*P.b +Ccl(L)*Y(L-1)-Ccl(L-1)*Y(L))/(Y(L-1)-Y(L));
-%             L = [Ccl0,Ccl.',Ccl1]*q;
-%         end
+%% Extracting the drag coefficient        
+        function Cd = fetch_C_dw(obj)
+           Cd = obj.Structs.Res.CDwing;
+
+        end
+        end
+
          
 end
     
