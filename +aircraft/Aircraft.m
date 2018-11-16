@@ -27,7 +27,7 @@ classdef Aircraft < handle
         W_aw            % Aircraft Less Wing Weight [kg]
         W_mp            % Max Payload Weight [kg]
         W_f             % Design Fuel Weight [kg]
-        W_w                   % Wing weight[kg]
+        W_w             % Wing Weight[kg]
         
         % Geometric Parameters
         D_fus           % Fuselag Diameter [m]
