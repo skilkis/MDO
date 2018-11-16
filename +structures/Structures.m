@@ -3,7 +3,6 @@ classdef Structures < handle
     %   Detailed explanation goes here
     
     properties
-        design_vector           % Design Vector Object
         aircraft_in
         W_w                     % Wing Weight
         V                       % Computed Fuel-Tank Volume
@@ -18,11 +17,10 @@ classdef Structures < handle
     
     methods
         
-        function obj = Structures(design_vector, aircraft_in)
+        function obj = Structures(aircraft_in)
             %STRUCTURES Construct an instance of this class
             %   Detailed explanation goes here
             % TODO enable input for aircraft_in
-            obj.design_vector = design_vector;
             obj.aircraft_in = aircraft_in;
 
             % Construction Sequence:
@@ -33,25 +31,26 @@ classdef Structures < handle
             obj.write_loads()       % Writes loads to file
             obj.run_EMWET();        % Runs EMWET
             obj.fetch_output()      % Parses data from .weight file
-%             obj.cleanup()           % Removes Temporary Directory
+            obj.build_fuel_tank     % Builds the fuel-tank
+            obj.cleanup()           % Removes Temporary Directory
         end
 
         function MTOW = calc_mtow(obj)
             % Calculates the MTOW of the current Iteraiton
             
             % TODO move into aircraft class
-            ac = obj.aircraft_in; x = obj.design_vector;
-            MTOW = ac.W_aw + x.W_f_hat + x.W_w_hat;
+            ac = obj.aircraft_in;
+            MTOW = ac.W_aw + x.W_f + ac.W_w;
         end
 
         function fetch_inputs(obj)
             % Defining Input Struct
-            ac = obj.aircraft_in; x = obj.design_vector; i.name = ac.name;
+            ac = obj.aircraft_in; i.name = ac.name;
             i.MTOW = obj.calc_mtow();
             % TODO check if zero fuel weight can be constant
-            i.ZFW = ac.W_aw + ac.W_mp + x.W_w_hat; % Zero Fuel Weight is assumed constant
+            i.ZFW = ac.W_aw + ac.W_mp + ac.W_w; % Zero Fuel Weight is assumed constant
             i.n_max = ac.eta_max; % Load Factor
-            i.b = x.b;  % Wing Span
+            i.b = ac.b;  % Wing Span
             i.N_sections = 3; % Number of Planform Sections
             i.N_airfoils = 2; % Number of Airfoil Sections
             i.airfoils.root.loc = 0; i.airfoils.root.name = [i.name '_r'];
@@ -177,12 +176,12 @@ classdef Structures < handle
             x = 0.5*(1 - cos(u_control))';
             
             % Fetching Root CST Coefs
-            A_root = obj.design_vector.A_root;
+            A_root = ac.A_root;
             root.upper = A_root(1:length(A_root)/2);
             root.lower = A_root(length(A_root)/2+1:end);
             
             % Fetching Tip CST Coefs
-            A_tip = obj.design_vector.A_tip;
+            A_tip = ac.A_tip;
             tip.upper = A_tip(1:length(A_tip)/2);
             tip.lower = A_tip(length(A_tip)/2+1:end);
             
@@ -197,7 +196,21 @@ classdef Structures < handle
         end
         
         function write_loads(obj)
-            copyfile([pwd '\data\aircraft\A320.load'], obj.temp_dir);
+            % Transforming Bernstein Coefs. into Actual Load Data
+            A_L = ac.A_L; A_M = ac.A_M; n = length(A_L)-1; i = 0:n;
+            Y_range = linspace(0, 1, 30);
+            B = ((factorial(n)./(factorial(i).*factorial(n-i))).*...
+                (Y_range.^i).*(1-Y_range).^(n-i));
+            L = B*A_L; M = B*A_M;
+
+            % Writing to .load file
+            filename = [obj.temp_dir '\' obj.aircraft_in.name '.load'];
+            fid = fopen(filename, 'w');
+            for i = 1:length(Y_range)
+                fprintf(fid, '%.4f %.4e %.4e\n', Y_range(i), L(i), M(i));
+            end
+            fclose(fid);
+            % copyfile([pwd '\data\aircraft\A320.load'], obj.temp_dir);
         end
         
         function fetch_output(obj)
@@ -248,6 +261,7 @@ classdef Structures < handle
         
         function build_fuel_tank(obj)
             obj.fuel_tank = structures.FuelTank(obj);
+            obj.V = fuel.V;
         end
     end
     

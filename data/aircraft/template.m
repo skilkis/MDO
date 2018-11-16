@@ -32,8 +32,8 @@ D_fus = 3.95;                   % Fuselag Diameter [m]
 d_TE = 6.0134;                  % Fixed Inboard Trailing Edge Length [m]
 d_rib = 0.5;                    % Rib Pitch [m]
 S = 122.3696;                   % Reference Wing-Planform area [m^2]
-FS = 0.2;                       % Front Spar Chordwise Position [-]
-RS = 0.7255;                    % Rear Spar Chordwise Position [-]
+FS = 0.25;                      % Front Spar Chordwise Position [-]
+RS = 0.75;                      % Rear Spar Chordwise Position [-]
 c_r = 7.3834;                   % Root chord [m]
 lambda_1 = 31.87;               % Inboard Quarter chord sweep angle [rad]
 lambda_2 = 27.285;              % Outboard Quarter chord sweep angle [rad]
@@ -53,16 +53,17 @@ rho_al = 2800;                  % Density of Aluminum Alloy [kg/m^3]
 engine_spec = [0.25, 3000];     % [Span Position, Weight [kg]]
 
 % Loading Coefficients
-A_L = [1.0355;                  % Lift distribution Bernstein coefficients
-    1.0078;
-    0.3833;
-    0.6340;
-    0.1757]*1e7;                
-A_M = [-2.9317;                 % Moment distribution Bernstein coefficients
-    -0.2652;
-    0.0189;
-    -0.7480;
-    0.4414]*1e6;
+A_L = [1.0517,...               % Lift distribution Bernstein coefficients
+    1.0255,...
+    0.3926,...
+    0.6482,...
+    0.1807]*1e7;
+
+A_M = [-2.9799,...              % Moment distribution Bernstein coefficients
+    -0.2718,...
+    0.0320,...
+    -0.7629,...
+    0.4460]*1e6;
 
 % Miscelaneious Properties
 eta_max = 2.5;                  % Maximum Load Factor [-]
