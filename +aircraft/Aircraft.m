@@ -13,7 +13,7 @@ classdef Aircraft < handle
         
         % Drag coefficient
         C_d_w
-        C_d_aw0
+        C_d_aw
         
         % Cruise Parameters
         h_c             % Cruise Altitude [m]
@@ -29,6 +29,7 @@ classdef Aircraft < handle
         W_mp            % Max Payload Weight [kg]
         W_p             % Design Payload Weight [kg]
         W_f             % Design Fuel Weight [kg]
+        
         W_w             % Wing Weight[kg]
         
         % Geometric Parameters
@@ -72,6 +73,13 @@ classdef Aircraft < handle
         
         % Aircraft Airfoils
         airfoils
+        
+        % Loading coefficients
+        A_L
+        A_M
+        
+%         % Design Vector
+%         x
     end
     
     methods
@@ -101,6 +109,8 @@ classdef Aircraft < handle
 
             obj.planform = geometry.Planform(obj);
             obj.getAirfoils();
+%            obj.x = optimize.DesignVector();
+            
         end
         
         function getAirfoils(obj)

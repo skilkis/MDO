@@ -9,39 +9,59 @@ classdef Constraints < handle
     end
     %% Constraint functions
     methods
-        function obj = Constraints(runcase_n)
-            P = runcase_n.Planform;
+        function obj = Constraints(runcase_n, results)
+            
             
             %Comparing the guess value for Cd against the actual Cd
-            Cd_true = runcase_n.C_dw;
-            Cd_guess = runcase_n.aircraft.C_dw_hat;
+            Cd_true = results.C_dw;
+            Cd_guess = runcase_n.C_dw_hat;
             C_cd = (Cd_guess/Cd_true)-1;
                 
             %Comparing the guessed lift and moment distributions against the
             %actual distributions.
-            L_distr_true = runcase_n.L_distr;
-            M_distr_true = runcase_n.M_distr;
+            L_distr_true = results.Loading.L_distr;
+            M_distr_true = results.Loading.M_distr;
+            Y = results.Loading.Y_coord.';
             
-            L_distr_guess = runcase_n.Berns_L;
-            M_distr_guess = runcase_n.Berns_Mom;
-                    
-            C_lift = sum((L_distr_true-L_distr_guess).^2);
-            C_mom = sum((M_distr_true-M_distr_guess).^2);
+            
+            A_L = runcase_n.A_L;
+            A_M = runcase_n.A_M;
+            
+            
+            n = length(A_L)-1;
+            i = 0:n;
+
+
+            yrange = Y/max(Y);
+
+            B = ((factorial(n)./(factorial(i).*factorial(n-i))).*(yrange.^i).*(1-yrange)...
+                .^(n-i));
+            Z_L = B*A_L;
+            Z_M = B*A_M;
+            
+            C_lift = sum(((L_distr_true-Z_L)./L_distr_true).^2);
+            if C_lift <= 0.085
+                C_lift = 0;
+            end
+            C_mom = sum(((M_distr_true-Z_M)./M_distr_true).^2);
+            if C_mom <= 0.085
+                C_mom = 0;
+            end
                
             %Comparing the wing structual weight against the guessed value.        
-            W_w_true = runcase_n.W_w;
+            W_w_true = results.Struc.W_w;
             W_w_guess = runcase_n.W_w_hat;
             C_ww = (W_w_guess/W_w_true)-1;
                 
                 
-            W_f_true = runcase_n.W_f;
+            W_f_true = results.W_f;
             W_f_guess = runcase_n.W_f_hat;
             C_wf = (W_f_guess/W_f_true)-1;
                 
                 
             %Inequality constraint setting the wing loading equal or lower 
             %than initial value
-            WL_0 = runcase_n.WL_0;
+            WL_0 = (runcase_n.W_aw + runcase_n.x.W_f_0 + runcase_n.W_w_0)/122.4;
             WL_guess = (runcase_n.W_aw + runcase_n.W_f_hat + runcase_n.W_w_hat)...
                 /P.S;
             C_wl = 1 - (WL_0/WL_guess);
@@ -62,8 +82,25 @@ classdef Constraints < handle
                 
                     
                     
-            end
         end
+            
+        function Z = Bernplotter(Y, A, N)
+           
+            
+            n = length(A)-1;
+            i = 0:n;
+
+            
+            yrange = Y.'/max(Y);
+
+            B = ((factorial(n)./(factorial(i).*factorial(n-i))).*(yrange.^i).*(1-yrange)...
+                .^(n-i)).*(yrange*N(1) + N(2));
+
+            Z = B*A;
+        end
+        
+    end
+        
             
         
 end

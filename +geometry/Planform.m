@@ -224,7 +224,7 @@ classdef Planform < handle
             
             x = heaviside(obj.d_TE-Y).*(Y*tan(s1)) + ...
                 heaviside(Y-obj.d_TE).*((Y-obj.d_TE)*tan(s2) + ...
-                obj.d_TE*tan(s2));
+                obj.d_TE*tan(s1));
             
         end
 
