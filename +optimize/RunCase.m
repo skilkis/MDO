@@ -10,11 +10,27 @@ classdef RunCase
     end
     
     methods
-        function solv = RunCase()
+        
+        function obj = RunCase(x0)
             
-            %RUNCASE Construct an instance of this class
-            %   Detailed explanation goes here
-            obj.Property1 = inputArg1 + inputArg2;
+            
+        end
+        function Optimizer(obj)
+            
+            options = optimoptions('fmincon', 'Display', 'iter', 'Algorithm', 'sqp', 'StepTolerance', 1e-9, ...
+                'MaxFunctionEvaluations',13000,'MaxIterations',800);
+            tic;
+            [opt, fval, exitflag, output] = fmincon(f, x0, [], [], [], [], lb, ...
+                ub, [], options);
+            time = toc;
+            
+        end
+        
+        
+        function solv = objective(obj)
+            O = objective.Objective(obj.aircraft);
+            solv = O.Fuelfrac;
+           
         end
         
         function outputArg = method1(obj,inputArg)

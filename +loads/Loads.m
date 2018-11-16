@@ -105,7 +105,7 @@ classdef Loads
         
         % Calculating dynamic pressure
         V_c = obj.Params.M_mo*obj.Params.a_c;
-        q = 0.5*obj.Params.rho*obj.Vars.S*V_c^2;
+        q = 0.5*obj.Params.rho*V_c^2;
         Ccl = obj.Structs.Res.Wing.ccl;
         
         % Extrapolating the lift at the root and tip using spline
@@ -121,7 +121,7 @@ classdef Loads
         V_c = obj.Params.M_mo*obj.Params.a_c;
         
         % Calculating dynamic pressure
-        q = 0.5*obj.Params.rho*obj.Vars.S*V_c^2;
+        q = 0.5*obj.Params.rho*V_c^2;
         Y = obj.Structs.Res.Wing.Yst;
         Cm = obj.Structs.Res.Wing.cm_c4;
         
