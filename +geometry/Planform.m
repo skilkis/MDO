@@ -242,6 +242,18 @@ classdef Planform < handle
                 0.5*obj.b-obj.d_TE)));
         end
         
+        function fs = FS_at_span(obj, y)
+            etas = [0, obj.D_fus/obj.b, obj.eta(2:end)];
+            FS_vec = [obj.FS_root, obj.FS_fus, obj.FS, obj.FS];
+            fs = interp1(etas,FS_vec,y);
+        end
+        
+        function fs = RS_at_span(obj, y)
+            etas = [0, obj.D_fus/obj.b, obj.eta(2:end)];
+            FS_vec = [obj.RS_root, obj.RS_fus, obj.RS, obj.RS];
+            fs = interp1(etas,FS_vec,y);
+        end
+%         
         function handle = plot(obj)
             figure('Name', 'Planform');
             hold on; grid on; grid minor;
@@ -264,7 +276,7 @@ classdef Planform < handle
             
             x_FS = chords .* FS_frac + x_le;
             x_RS = chords .* RS_frac + x_le;
-
+            
             plot(y, x, 'DisplayName', 'Planform')
             line(0.5*[obj.D_fus obj.D_fus],get(gca,'YLim'),...
                 'LineStyle', '-.', 'Color', 'k', 'DisplayName',...

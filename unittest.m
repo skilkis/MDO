@@ -69,5 +69,7 @@ assert(all((x.init .* x.vector) == x.init), 'Design Vector Corrupted');
 % x.fetch_history('normalized', true);
 
 %% Creating a EMWET Worker and Running
+tic;
 s = structures.Structures(x, ac);
+toc;
 assert(~isempty(fieldnames(s.EMWET_output)), 'EMWET Output Not Recieved')

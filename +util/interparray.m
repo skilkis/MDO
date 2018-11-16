@@ -14,6 +14,7 @@ function array_out = interparray(int_locs, start_scalar, end_scalar, start_array
     % end_array: End array/vector located on 1-D axis defined by end_scalar
     
     %% Tests
+    transposed = false;
     % Filtering invalid array input
     if size(start_array) ~= size(end_array)
         error('Dimension of interpolated arrays must match')
@@ -22,6 +23,9 @@ function array_out = interparray(int_locs, start_scalar, end_scalar, start_array
     % Filtering invalid interpolation locations
     if ~isvector(int_locs)
         error('Interpolated locations must be a vector')
+    elseif ~isrow(int_locs)
+        int_locs = int_locs';
+        transposed = true;
     end
     
     % Checking that evaluation scalar(s) are within the bounds
@@ -30,7 +34,6 @@ function array_out = interparray(int_locs, start_scalar, end_scalar, start_array
     end
     
     % Correcting non-column vector
-    transposed = false;
     if ~iscolumn(start_array) && isvector(start_array)
         start_array = start_array'; end_array = end_array';
         transposed = true;

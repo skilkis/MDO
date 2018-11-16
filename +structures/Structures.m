@@ -9,6 +9,7 @@ classdef Structures < handle
         V                       % Computed Fuel-Tank Volume
         EMWET_input = struct();
         EMWET_output = struct();
+        fuel_tank
     end
     
     properties (SetAccess = private, GetAccess = private)
@@ -74,8 +75,6 @@ classdef Structures < handle
             i.sections.kink.z = coords(2, 3);
             i.sections.kink.fs = planform.FS;
             i.sections.kink.rs = planform.RS;
-            % i.sections.root.fs = planform.FS;
-            % i.sections.root.rs = planform.RS;
 
             i.sections.tip.chord = chords(end);
             i.sections.tip.x = coords(end, 1);
@@ -193,8 +192,8 @@ classdef Structures < handle
                 'A_lower', root.lower);
             CST.tip = CSTAirfoil(x, 'A_upper', tip.upper,...
                 'A_lower', tip.lower);
-            CST.tip.plot();
-            CST.root.plot();
+%             CST.tip.plot();
+%             CST.root.plot();
         end
         
         function write_loads(obj)
@@ -233,15 +232,22 @@ classdef Structures < handle
         
         function exit_code = run_EMWET(obj)
             try
+                tic;
                 working_dir = cd;
                 cd(obj.temp_dir)
                 eval(sprintf('EMWET %s', obj.aircraft_in.name))
                 cd(working_dir);
                 exit_code = 1;
+                t = toc;
+                fprintf('EMWET took: %.5f [s]\n', t)
             catch e
                 error(e.message);
                 exit_code = 0;
             end
+        end
+        
+        function build_fuel_tank(obj)
+            obj.fuel_tank = structures.FuelTank(obj);
         end
     end
     

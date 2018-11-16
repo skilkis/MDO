@@ -39,8 +39,6 @@ classdef Aircraft < handle
         S               % Reference Wing-Planform area [m^2]
         FS              % Front Spar Chordwise Position [-]
         RS              % Rear Spar Chordwise Position [-]
-        FS_fus          % F.Spar Chordwise Pos. at fuselage [-]
-        RS_fus          % R.Spar chordwise Pos. at fuselage [-]
         c_r             % Root chord [m]
         lambda_1        % Inboard Quarter chord sweep angle [rad]
         lambda_2        % Outboard Quarter chord sweep angle [rad]
