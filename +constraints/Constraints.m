@@ -24,8 +24,8 @@ classdef Constraints < handle
             Y = results.Loading.Y_coord.';
             
             
-            A_L = runcase_n.A_L;
-            A_M = runcase_n.A_M;
+            A_L = runcase_n.A_L.';
+            A_M = runcase_n.A_M.';
             
             
             n = length(A_L)-1;
@@ -36,6 +36,7 @@ classdef Constraints < handle
 
             B = ((factorial(n)./(factorial(i).*factorial(n-i))).*(yrange.^i).*(1-yrange)...
                 .^(n-i));
+            
             Z_L = B*A_L;
             Z_M = B*A_M;
             

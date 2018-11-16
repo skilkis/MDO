@@ -8,8 +8,8 @@ name = 'A320';                  % Aircraft Name w/o File-Extension [-]
 base_airfoil = 'naca23015';     % Base Airfoil Name [-]
 
 % Drag coefficients
-C_d_w = 0.0116;                 % Initial wing drag coefficient [-]
-C_d_aw = 0.008326;             % Aircraft-less wing drag coefficient [-]
+C_d_w = 0.0117;                 % Initial wing drag coefficient [-]
+C_d_aw = 0.00587;             % Aircraft-less wing drag coefficient [-]
 
 % Cruise Parameters
 h_c = 11248;                    % Cruise Altitude [m]
@@ -23,7 +23,7 @@ R_c = 5000.4;                   % Design Cruise Range [km]
 % Aircraft Weights
 W_aw = 33138.4;                   % Aircraft Less Wing Weight [kg]
 W_mp = 19190;                   % Maximum Zero-Fuel Weight [kg]
-W_f = 17940;                    % Design Fuel Weight [kg]
+W_f = 19350;                    % Design Fuel Weight [kg]
 W_p = 14250;                    % Design Payload Weight [kg]
 W_w = 8171.6;                   % Wing weight[kg]
 
