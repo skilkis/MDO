@@ -13,6 +13,7 @@ classdef Aircraft < handle
         
         % Drag coefficient
         C_d_w
+        C_d_aw0
         
         % Cruise Parameters
         h_c             % Cruise Altitude [m]
