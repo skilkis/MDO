@@ -29,8 +29,7 @@ classdef Aircraft < handle
         W_mp            % Max Payload Weight [kg]
         W_p             % Design Payload Weight [kg]
         W_f             % Design Fuel Weight [kg]
-        
-        W_w             % Wing Weight[kg]
+        W_w             % Wing Weight [kg]
         
         % Geometric Parameters
         D_fus           % Fuselag Diameter [m]
@@ -55,7 +54,7 @@ classdef Aircraft < handle
         rho_al          % Density of Aluminum Alloy [kg/m^3]
         
         % Engine Specifications
-        engine_spec = [0.25, 3000]; % Span Position, Weight [kg]
+        engine_spec     % Span Position, Weight [kg]
         
         % Miscelaneious Properties
         eta_max         % Maximum Load Factor [-]

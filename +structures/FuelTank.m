@@ -126,7 +126,7 @@ classdef FuelTank < handle
         end
         
         function plot(obj)
-            c = obj.convex_hull.c; w = obj.convex_hull.w;
+            c = obj.convex_hull.center; w = obj.convex_hull.wing;
             hold on
             surf(c.x(c.K), c.y(c.K), c.z(c.K))
             surf(w.x(w.K), w.y(w.K), w.z(w.K))
