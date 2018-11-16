@@ -41,7 +41,7 @@ classdef RunCase
         
         function C = constraints(obj)
             Cons = constraints.Constraints(obj.aircraft,obj.results);
-            C = [Cons.C_ineq; Cons.C_eq];
+            C = [Cons.C_ineq, Cons.C_eq];
         end
         
         function x_true = get_results(obj)

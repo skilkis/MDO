@@ -52,6 +52,7 @@ classdef Loads
             obj.Params.v = aircraft_in.v;               % Kinematic viscosity [m^2/s]
             obj.Params.W_aw = aircraft_in.W_aw;         % Empty-less wing weight [kg]
             obj.Params.W_p = aircraft_in.W_p;           % Design payload weight [kg]
+            obj.Params.d_TE = aircraft_in.d_TE;         % Straight trailing edge length [m]
             
       % Building all output structs and fetching the analysis outputs      
             obj.Structs.AC = obj.fetch_AC();
@@ -77,9 +78,10 @@ classdef Loads
         % calculated parameters
         AC.Wing.Geom = [obj.Vars.Coords, obj.Vars.Chords.', obj.Vars.Twists.'];
         AC.Wing.inc = 0;
-        AC.Wing.eta = [0;1];
+        AC.Wing.eta = [0;obj.Params.d_TE/obj.Vars.b;1];
         AC.Visc = 0;
-        AC.Wing.Airfoils = [obj.Vars.A_r;obj.Vars.A_t];
+        AC.Wing.Airfoils = [obj.Vars.A_r; 0.5*obj.Vars.A_r + 0.5*obj.Vars.A_t;...
+            obj.Vars.A_t];
         AC.Aero.rho = obj.Params.rho;
         AC.Aero.alt = obj.Params.h;
         AC.Aero.M = obj.Params.M_mo;

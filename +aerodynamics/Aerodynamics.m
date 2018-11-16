@@ -36,6 +36,7 @@ classdef Aerodynamics
             obj.Vars.Twists = aircraft_in.planform.Twists;  % Wing section twist angles [deg]
             obj.Vars.S = aircraft_in.planform.S;            % Wing planform area [m^2]
             obj.Vars.MAC = aircraft_in.planform.MAC;        % Wing mean aerodynamic chord [m]
+            obj.Vars.b = aircraft_in.planform.b;            % Wing span [m]
             
             % Extracting input parameters
             obj.Params.h = aircraft_in.h_c;         % Cruise altitude [m]
@@ -46,6 +47,7 @@ classdef Aerodynamics
             obj.Params.W_aw = aircraft_in.W_aw;     % Empty aircraft-less weight [kg]
             obj.Params.W_p = aircraft_in.W_p;       % Design payload weight [kg]
             obj.Params.v = aircraft_in.v;           % Kinematic viscosity at cruise [m^2/s]
+            obj.Params.d_TE = aircraft_in.d_TE;     % Straight trailing edge length [m]
             
             
             obj.Structs.p = aircraft_in.planform;
@@ -81,9 +83,10 @@ classdef Aerodynamics
             % design lift coefficient.
             AC.Wing.Geom = [obj.Vars.Coords, obj.Vars.Chords.', obj.Vars.Twists.'];
             AC.Wing.inc = 0;
-            AC.Wing.eta = [0;1];
+            AC.Wing.eta = [0;2*obj.Params.d_TE/obj.Vars.b;1];
             AC.Visc = 1;
-            AC.Wing.Airfoils = [obj.Vars.A_r;obj.Vars.A_t];
+            AC.Wing.Airfoils = [obj.Vars.A_r; 0.5*obj.Vars.A_r + 0.5*obj.Vars.A_t;...
+                obj.Vars.A_t];
             AC.Aero.rho = obj.Params.rho;
             AC.Aero.alt = obj.Params.h;
             AC.Aero.M = obj.Params.M_c;
