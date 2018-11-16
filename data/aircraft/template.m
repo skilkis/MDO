@@ -19,10 +19,11 @@ mu_c = 8.0e-06;                 % Cruise Dynamic Viscosity [kg/m s]
 R_c = 5000.4;                   % Design Cruise Range [km]
 
 % Aircraft Weights
-W_aw = 38400;                   % Aircraft Less Wing Weight [kg]
+W_aw = 33138.4;                   % Aircraft Less Wing Weight [kg]
 W_mp = 19190;                   % Maximum Zero-Fuel Weight [kg]
 W_f = 17940;                    % Design Fuel Weight [kg]
 W_p = 14250;                    % Design Payload Weight [kg]
+W_w = 8171.6;                   % Wing weight[kg]
 
 % Geometric Parameters
 D_fus = 3.95;                   % Fuselag Diameter [m]
