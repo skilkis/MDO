@@ -21,11 +21,11 @@ mu_c = 8.0e-06;                 % Cruise Dynamic Viscosity [kg/m s]
 R_c = 5000.4;                   % Design Cruise Range [km]
 
 % Aircraft Weights
-W_aw = 33138.4;                   % Aircraft Less Wing Weight [kg]
+W_aw = 31367.5;                   % Aircraft Less Wing Weight [kg]
 W_mp = 19190;                   % Maximum Zero-Fuel Weight [kg]
-W_f = 19350;                    % Design Fuel Weight [kg]
+W_f = 17940;                    % Design Fuel Weight [kg]
 W_p = 14250;                    % Design Payload Weight [kg]
-W_w = 8171.6;                   % Wing weight[kg]
+W_w = 9942.5;                   % Wing weight[kg]
 
 % Geometric Parameters
 D_fus = 3.95;                   % Fuselag Diameter [m]
@@ -67,7 +67,7 @@ A_M = [-2.9799,...              % Moment distribution Bernstein coefficients
 
 % Miscelaneious Properties
 eta_max = 2.5;                  % Maximum Load Factor [-]
-rho_f = 840;                    % Fuel Density (Kerosene) [kg/m^3]
+rho_f = 817;                    % Fuel Density (Kerosene) [kg/m^3]
 C_T = 16.5e-6;                  % Thrust Specific Fuel Consumption
 M_mo = 0.82;                    % Maximum Operating Mach Number [-]
 fuel_limit = 0.85;              % Allowable Fuel-Tank Normalized Span (Tip)
