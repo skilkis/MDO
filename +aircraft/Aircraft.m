@@ -53,16 +53,17 @@ classdef Aircraft < handle
         rho_al          % Density of Aluminum Alloy [kg/m^3]
         
         % Engine Specifications
-        engine_spec = [0.25, 3000]; % [Span Position, Weight [kg]]
+        engine_spec = [0.25, 3000]; % Span Position, Weight [kg]
         
         % Miscelaneious Properties
         eta_max         % Maximum Load Factor [-]
         rho_f           % Fuel Density (Kerosene) [kg/m^3]
         C_T             % Thrust Specific Fuel Consumption
         M_mo            % Maximum Operating Mach Number [-]
-        fuel_limits     % Span-wise Fuel Tank Limits (Root, Tip)
+        fuel_limit      % Span-wise Normalized Fuel Tank Limit (Tip)
         g               % Acceleration due to gravity [m/s^2]
         v               % Air viscosity at altitude [m^2/s]
+        
         % Planform Object of the Current Aircraft
         planform
         
@@ -113,6 +114,12 @@ classdef Aircraft < handle
             
             obj.airfoils.root = root_fit;
             obj.airfoils.tip = tip_airfoil;
+            
+            % Returning 
+            root_cst = root_fit.CSTAirfoil;
+            tip_cst = tip_airfoil.CSTAirfoil;
+            obj.airfoils.A_root = [root_cst.A_upper; root_cst.A_lower];
+            obj.airfoils.A_tip = [tip_cst.A_upper; tip_cst.A_lower];
         end
     end
 end

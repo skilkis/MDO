@@ -41,13 +41,13 @@ function array_out = interparray(int_locs, start_scalar, end_scalar, start_array
     slope = (end_array - start_array) / (end_scalar - start_scalar);
     if isvector(start_array)
         slope_mat = repmat(slope, 1, length(int_locs));
-        eval_mat = int_locs .* slope_mat;
+        eval_mat = (int_locs - start_scalar) .* slope_mat;
         start_mat = repmat(start_array, 1, length(int_locs));
     elseif ismatrix(start_array)
         % Turning int_locs into a (1, 1, p) 3-d array
         int_nd = reshape(int_locs, 1, 1, length(int_locs));
         slope_mat = repmat(slope, 1, 1, length(int_locs));
-        eval_mat = int_nd .* slope_mat;
+        eval_mat = (int_nd - start_scalar) .* slope_mat;
         start_mat = repmat(start_array, 1, 1, length(int_locs));        
     end
     % array_out = (int_locs - start_scalar) .* slope_mat + (start_array);

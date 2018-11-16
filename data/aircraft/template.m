@@ -56,7 +56,7 @@ eta_max = 2.5;                  % Maximum Load Factor [-]
 rho_f = 840;                    % Fuel Density (Kerosene) [kg/m^3]
 C_T = 16.5e-6;                  % Thrust Specific Fuel Consumption
 M_mo = 0.82;                    % Maximum Operating Mach Number [-]
-fuel_limits = [0.1, 0.85];      % Allowable Fuel-Tank Span (Root, Tip)
+fuel_limit = 0.85;              % Allowable Fuel-Tank Normalized Span (Tip)
 g = 9.81;                       % Acceleration due to gravity [m/s^2]
 v = 8e-6;                       % Kinematic viscosity at altitude [m^2/s]
 %% Saving

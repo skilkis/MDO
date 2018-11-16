@@ -32,7 +32,7 @@ classdef Structures < handle
             obj.write_loads()       % Writes loads to file
             obj.run_EMWET();        % Runs EMWET
             obj.fetch_output()      % Parses data from .weight file
-            obj.cleanup()           % Removes Temporary Directory
+%             obj.cleanup()           % Removes Temporary Directory
         end
 
         function MTOW = calc_mtow(obj)
@@ -85,8 +85,8 @@ classdef Structures < handle
             i.sections.tip.rs = planform.RS;
 
             i.S = planform.S;
-            i.fuel_start = ac.fuel_limits(1); 
-            i.fuel_end = ac.fuel_limits(2);
+            i.fuel_start = ac.D_fus / planform.b;
+            i.fuel_end = ac.fuel_limit;
             i.engine_spec = ac.engine_spec; % Engine
             i.N_engines = 1; % Number of engines on each wing, HARDCODED
 
@@ -163,6 +163,8 @@ classdef Structures < handle
 %                 obj.EMWET_input.airfoils.root.name '.dat'])
 %             ac.airfoils.tip.write([obj.temp_dir ...
 %                 '\' obj.EMWET_input.airfoils.tip.name '.dat'])
+            % TODO verify that planform is same as input planform
+
             CST = obj.build_CSTAirfoil();
             CST.root.write([obj.temp_dir '\' ...
                 obj.EMWET_input.airfoils.root.name '.dat'])
