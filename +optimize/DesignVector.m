@@ -30,11 +30,10 @@ classdef DesignVector < dynamicprops & handle
             obj.lengths = cellfun(@(x) length(x), cell_in(:,2));
             obj.init = cat(2, obj.cell_in{:,2})'; 
             obj.vector = obj.init ./ obj.init; % Normalized
-            obj.lb = cell2mat(cell_in(:,3));
-            obj.ub = cell2mat(cell_in(:,4));
+            obj.lb = zeros(length(obj.init), 1); obj.ub = obj.lb;
             
             key_idx = 1;
-            vec_idx = 1; % Look-up index from 
+            vec_idx = 1; % Look-up index from
             for key = obj.keys'
                 % Creating a getter for each key
                 len = obj.lengths(key_idx);
@@ -43,6 +42,10 @@ classdef DesignVector < dynamicprops & handle
                 P.GetMethod = @(getter) ...
                     obj.vector(vec_idx:(vec_idx + len - 1)) .* ...
                     obj.init(vec_idx:(vec_idx + len - 1));
+                    obj.lb(vec_idx:(vec_idx + len - 1))...
+                        = obj.cell_in{key_idx, 3};
+                    obj.ub(vec_idx:(vec_idx + len - 1))...
+                        = obj.cell_in{key_idx, 4};
                 
                 % Adding property per initial design vector
                 P = addprop(obj, [key{:} '_0']);

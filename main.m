@@ -10,7 +10,7 @@ close all
 options.Display         = 'iter-detailed';
 options.Algorithm       = 'sqp';
 options.FunValCheck     = 'off';
-options.DiffMinChange   = 1e-2;         % Minimum change while gradient searching
+options.DiffMinChange   = 1e-3;         % Minimum change while gradient searching
 options.DiffMaxChange   = 5e-2;         % Maximum change while gradient searching
 options.TolCon          = 1e-6;         % Maximum difference between two subsequent constraint vectors [c and ceq]
 options.TolFun          = 1e-6;         % Maximum difference between two subsequent objective value

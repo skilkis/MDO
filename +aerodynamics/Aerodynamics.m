@@ -99,10 +99,13 @@ classdef Aerodynamics
         end
  %% Running Q3D       
         function res = fetch_Res(obj)
+            tic;
             working_dir = cd;
             cd([pwd '\bin'])
             res = Q3D(obj.Structs.AC);
             cd(working_dir);
+            t = toc;
+            fprintf('Q3D Viscous took: %.5f [s]\n', t)
         end
         
 %% Extracting the drag coefficient        

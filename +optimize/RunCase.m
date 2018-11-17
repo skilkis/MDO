@@ -82,9 +82,10 @@ classdef RunCase < handle
                     res.W_f = obj.run_performance();
                 catch
                     res.C_dw = NaN;
-                    res.Loading.M_distr = NaN; res.Loading.L_distr = NaN;
-                    res.Loading.Y_coord = NaN;
-                    res.Struc.V_t = NaN; res.Struct.W_w = NaN;
+                    res.Loading.M_distr = ones(1, 16) * NaN;
+                    res.Loading.L_distr = ones(1, 16) * NaN;
+                    res.Loading.Y_coord = ones(1, 16) * NaN;
+                    res.Struct.W_w = NaN; res.Struc.V_t = NaN;
                     res.W_f = NaN;
                 end
                 
