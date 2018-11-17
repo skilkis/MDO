@@ -15,4 +15,4 @@ XDSM/figures/static
 temp/EMWET
 
 # Ignore Temporary Q3D Files
-bin/storage
+temp/Q3D

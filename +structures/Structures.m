@@ -50,7 +50,7 @@ classdef Structures < handle
             i.ZFW = ac.W_aw + ac.W_mp + ac.W_w; % Zero Fuel Weight is assumed constant
             i.n_max = ac.eta_max; % Load Factor
             i.b = ac.b;  % Wing Span
-            i.N_sections = 3; % Number of Planform Sections
+            i.N_sections = 4; % Number of Planform Sections
             i.N_airfoils = 2; % Number of Airfoil Sections
             i.airfoils.root.loc = 0; i.airfoils.root.name = [i.name '_r'];
             i.airfoils.tip.loc = 1; i.airfoils.tip.name = [i.name '_t'];
@@ -59,13 +59,21 @@ classdef Structures < handle
             planform = obj.aircraft_in.planform;
             coords = planform.Coords;
             chords = planform.Chords;
+            eta_fus = ac.D_fus / ac.b;
 
             i.sections.root.chord = chords(1);
             i.sections.root.x = coords(1, 1);
             i.sections.root.y = coords(1, 2);
             i.sections.root.z = coords(1, 3);
-            i.sections.root.fs = planform.FS_proj;
-            i.sections.root.rs = planform.RS_proj;
+            i.sections.root.fs = planform.FS_root;
+            i.sections.root.rs = planform.RS_root;
+            
+            i.sections.fus.chord = planform.chord_at_span(eta_fus);
+            i.sections.fus.x = planform.LE_at_span(eta_fus);
+            i.sections.fus.y = eta_fus * ac.b * 0.5;
+            i.sections.fus.z = 0;
+            i.sections.fus.fs = planform.FS_fus;
+            i.sections.fus.rs = planform.RS_fus;
 
             i.sections.kink.chord = chords(2);
             i.sections.kink.x = coords(2, 1);
@@ -93,6 +101,7 @@ classdef Structures < handle
             tens = ac.sigma_c;
             comp = ac.sigma_t;
 
+            % Assigning Material Properties per Panel
             fields = {'top', 'bot', 'front', 'rear'};
             for field = fields
                 i.box.(field{:}).young = young;
@@ -134,7 +143,7 @@ classdef Structures < handle
                     sec.rs);
             end
 
-            % Creating 
+            % Creating Engine Specifications
             fprintf(fid, '%g %g \n', i.fuel_start, i.fuel_end);
             fprintf(fid, '%d \n', i.N_engines);
             fprintf(fid, '%g %g \n', i.engine_spec); % Another problem area
