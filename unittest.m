@@ -61,7 +61,13 @@ ac.modify(x);
 assert(ac.b == (x.b_0 * 1.25))
 
 %% Creating a EMWET Worker and Running
-tic;
-s = structures.Structures(ac);
-toc;
-assert(~isempty(fieldnames(s.EMWET_output)), 'EMWET Output Not Recieved')
+% tic;
+% s = structures.Structures(ac);
+% toc;
+% assert(~isempty(fieldnames(s.EMWET_output)), 'EMWET Output Not Recieved')
+
+%% Creating a Q3D Viscid Worker and Running
+a = aerodynamics.Aerodynamics(ac);
+
+%% Creating a Q3D Inviscid Worker and Running
+l = loads.Loads(ac);

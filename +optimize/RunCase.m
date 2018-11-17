@@ -35,8 +35,8 @@ classdef RunCase < handle
                         'b', ac.b, 0.71, 1.06;...
                         'c_r', ac.c_r, 0.68, 1.15;...
                         'tau', ac.tau, 0.16, 2.5;...
-                        'A_root', ac.A_root', -2.0, 2.0;...
-                        'A_tip', ac.A_tip', -2.0, 2.0;...
+                        'A_root', ac.A_root', 0.5, 1.2;...
+                        'A_tip', ac.A_tip', 0.5, 1.2;...
                         'beta_root', ac.beta_root, 0, 1.7;...
                         'beta_kink', ac.beta_kink, -0.8, 3.2;...
                         'beta_tip', ac.beta_tip, -3.6, 3.6;...
@@ -50,6 +50,10 @@ classdef RunCase < handle
 
         function optimize(obj)
             tic;
+            n_cores = feature('numcores');
+            if n_cores == 4
+                parpool(4)
+            end
             [opt, ~] = fmincon(@obj.objective,...
                                obj.x.vector, [], [], [], [],...
                                obj.x.lb, obj.x.ub, @obj.constraints,...
@@ -74,20 +78,27 @@ classdef RunCase < handle
             if all(obj.cache.x(:, end) == x) && ~obj.first_run
                 res = obj.cache.results(end);
             else
-                try
-                    obj.aircraft.modify(obj.x);
-                    res.C_dw = obj.run_aerodynamics();
-                    res.Loading = obj.run_loads();
-                    res.Struc = obj.run_structures();
-                    res.W_f = obj.run_performance();
-                catch
-                    res.C_dw = NaN;
-                    res.Loading.M_distr = ones(1, 16) * NaN;
-                    res.Loading.L_distr = ones(1, 16) * NaN;
-                    res.Loading.Y_coord = ones(1, 16) * NaN;
-                    res.Struct.W_w = NaN; res.Struc.V_t = NaN;
-                    res.W_f = NaN;
+                obj.aircraft.modify(obj.x);
+                % Running Analysis Blocks
+%                 res.C_dw = obj.run_aerodynamics();
+                tic;
+                spmd
+                    if labindex == 1
+                        temp = obj.run_aerodynamics();
+                    elseif labindex == 2
+                        temp = obj.run_structures();
+                    elseif labindex == 3
+                        temp = obj.run_loads();
+                    elseif labindex == 4
+                        temp = obj.run_performance();
+                    end
                 end
+                t = toc;
+                fprintf('Parallel Process took: %.5f [s]\n', t)
+                res.C_dw = temp{1};
+                res.Struc = temp{2};
+                res.Loading = temp{3};
+                res.W_f = temp{4};
                 
                 if isempty(obj.cache.results)
                     obj.cache.results = res;
@@ -100,27 +111,54 @@ classdef RunCase < handle
         end
         
         function A = run_aerodynamics(obj)
-            Aero = aerodynamics.Aerodynamics(obj.aircraft);
-            A = Aero.C_d_w;
+            try
+                Aero = aerodynamics.Aerodynamics(obj.aircraft);
+                A = Aero.C_d_w;
+            catch
+                A.C_D_w = NaN;
+            end
         end
         
         function L = run_loads(obj)
-            Loads = loads.Loads(obj.aircraft);
-            L.M_distr = Loads.M_distr;
-            L.L_distr = Loads.L_distr;
-            L.Y_coord = Loads.Y_coord;
-            
+            try
+                Loads = loads.Loads(obj.aircraft);
+                L.M_distr = Loads.M_distr;
+                L.L_distr = Loads.L_distr;
+                L.Y_coord = Loads.Y_coord;
+            catch
+                L.M_distr = ones.length(obj.x.A_M);
+                L.L_distr = ones.length(obj.x.A_M);
+                L.Y_coord = NaN;
+            end
         end
         
         function S = run_structures(obj)
-           Structures = structures.Structures(obj.aircraft);
-           S.W_w = Structures.W_w;
-           S.V_t = Structures.V_t;
+            try
+               Structures = structures.Structures(obj.aircraft);
+               S.W_w = Structures.W_w;
+               S.V_t = Structures.V_t;
+            catch
+                S.W_w = NaN;
+                S.V_t = NaN;
+            end
         end
         
         function P = run_performance(obj)
-            perf = performance.Performance(obj.aircraft);
-            P = perf.W_fuel;
+            try
+                perf = performance.Performance(obj.aircraft);
+                P = perf.W_fuel;
+            catch
+                P.W_fuel = NaN;
+            end
+        end
+
+    end
+    methods (Static)
+         function obj = load_run(run_file)
+            filename = [pwd '\data\runs\' run_file '.mat'];
+            obj = load(filename, 'run_case');
+            obj = obj.run_case;
+            obj.x.vector = obj.cache.x(:, end);
         end
     end
 end

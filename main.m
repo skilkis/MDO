@@ -14,7 +14,7 @@ options.DiffMinChange   = 1e-3;         % Minimum change while gradient searchin
 options.DiffMaxChange   = 5e-2;         % Maximum change while gradient searching
 options.TolCon          = 1e-6;         % Maximum difference between two subsequent constraint vectors [c and ceq]
 options.TolFun          = 1e-6;         % Maximum difference between two subsequent objective value
-options.TolX            = 0.07;         % Maximum difference between two subsequent design vectors
+options.TolX            = 5e-2;         % Maximum difference between two subsequent design vectors
 
 options.MaxIter         = 1e5;          % Maximum iterations
 options.PlotFcns        = {@optimplotx,...
@@ -22,6 +22,7 @@ options.PlotFcns        = {@optimplotx,...
                            @optimplotfirstorderopt};
 
 run_case = optimize.RunCase('A320', options);
+% run_case = optimize.RunCase.load_run('test2');
 run_case.optimize();
 % To see the power of classes try accessing the plot method by
 % typing obj.plot() after running. These are dynamic calls to the object

@@ -1,6 +1,4 @@
-
-
-classdef Aerodynamics
+classdef Aerodynamics < handle
 %% AERODYNAMICS
 
 % This is the aerodynamics analysis code. It's responsible for calculating
@@ -17,15 +15,16 @@ classdef Aerodynamics
         Params;     % Input parameters
         Structs;    % Input structs
         C_d_w;      % Aerodynamics output
-
     end
 
+    properties (SetAccess = private, GetAccess = private)
+        temp_dir            % Temporary Directory for Q3D Runs
+    end
     
+    methods     
+        function obj = Aerodynamics(aircraft_in)
+        %Setting the fuel weight, wing weight and geometry
 
-    
-    methods
-%% Setting the fuel weight, wing weight and geometry        
-   function obj = Aerodynamics(aircraft_in)
             % Extracting input variables
             obj.Vars.W_f = aircraft_in.W_f;    % Guess value fuel weight[kg]
             obj.Vars.W_w = aircraft_in.W_w;    % Guess value wing weight [kg]
@@ -37,7 +36,7 @@ classdef Aerodynamics
             obj.Vars.S = aircraft_in.planform.S;            % Wing planform area [m^2]
             obj.Vars.MAC = aircraft_in.planform.MAC;        % Wing mean aerodynamic chord [m]
             obj.Vars.b = aircraft_in.planform.b;            % Wing span [m]
-            
+
             % Extracting input parameters
             obj.Params.h = aircraft_in.h_c;         % Cruise altitude [m]
             obj.Params.M_c = aircraft_in.M_c;       % Cruise Mach number [-]
@@ -48,37 +47,41 @@ classdef Aerodynamics
             obj.Params.W_p = aircraft_in.W_p;       % Design payload weight [kg]
             obj.Params.v = aircraft_in.v;           % Kinematic viscosity at cruise [m^2/s]
             obj.Params.d_TE = aircraft_in.d_TE;     % Straight trailing edge length [m]
-            
-            
+
+
             obj.Structs.p = aircraft_in.planform;
-            
+
             % Creating the Q3D input struct
             obj.Structs.AC = obj.fetch_AC();
             
+            % Creating Temporary Directory
+            obj.make_temp_dir();
+
             % Running Q3D
-            obj.Structs.Res = obj.fetch_Res();
-            
+            obj.Structs.Res = obj.run_Q3D();
+
             % Extracting the wing drag coefficient
             obj.C_d_w = obj.fetch_C_dw();
             
-            
-            
-   end 
-%% Building the Q3D input struct        
+            % Cleaning-up Temporary Directory
+            obj.cleanup();
+        end
+    
         function AC = fetch_AC(obj)
-            
+        % Building the Q3D input struct 
+
             % Maximum take-off weight calculation [kg]
             MTOW = obj.Params.W_aw + obj.Vars.W_f + obj.Vars.W_w;
-            
+
             % Aircraft weight at design point [kg]
             W_des = sqrt(MTOW*(MTOW - obj.Vars.W_f));
-            
+
             % Cruise speed [m/s]
             V_c = obj.Params.M_c*obj.Params.a_c;
-            
+
             % Calculation of design lift coefficient
             C_L = obj.Params.g*W_des/(0.5*obj.Params.rho*obj.Vars.S*V_c^2);
-            
+
             % Building the struct based on input geometry, parameters and
             % design lift coefficient.
             AC.Wing.Geom = [obj.Vars.Coords, obj.Vars.Chords.', obj.Vars.Twists.'];
@@ -91,31 +94,61 @@ classdef Aerodynamics
             AC.Aero.alt = obj.Params.h;
             AC.Aero.M = obj.Params.M_c;
             AC.Aero.Re = V_c*obj.Vars.MAC/obj.Params.v;
-            
+
             AC.Aero.V = V_c;
             AC.Aero.CL = C_L;
-            
-            
         end
- %% Running Q3D       
-        function res = fetch_Res(obj)
-            tic;
-            working_dir = cd;
-            cd([pwd '\bin'])
-            res = Q3D(obj.Structs.AC);
-            cd(working_dir);
-            t = toc;
-            fprintf('Q3D Viscous took: %.5f [s]\n', t)
+
+        function res = run_Q3D(obj)
+        % Running Q3D
+            try
+                tic;
+                working_dir = cd;
+                cd(obj.temp_dir)
+                res = Q3D(obj.Structs.AC);
+                cd(working_dir);
+                t = toc;
+                fprintf('Q3D Viscous took: %.5f [s]\n', t)
+            catch e
+                error(e.message);
+            end
+        end
+    
+        function Cd = fetch_C_dw(obj)
+        % Extracting Drag Coefficient
+           Cd = obj.Structs.Res.CDwing;
+        end
+    end
+
+    methods (Access = private)
+        function make_temp_dir(obj)
+            % Creates a temporary directory pertaining to the current
+            % worker_ID for EMWET if parallel processing is enabled.
+            % Otherwise a 'serial_exec' folder is created. The EMWET.p
+            % file is also copied to this directory
+            try
+                w = getCurrentWorker;
+                worker_ID = w.ProcessId;
+            catch
+                warning(['Parallel Processing Disabled ' ...
+                         'or not Installed on Machine'])
+                worker_ID = 'serial_exec';
+            end
+
+            obj.temp_dir = [pwd '\temp\Q3D\Aero\'...
+                            num2str(worker_ID)];
+                        
+            mkdir(obj.temp_dir)
+
+            % Copying EMWET to New Worker Directory
+            copyfile([pwd '\bin\Q3D.p'], obj.temp_dir);
+            copyfile([pwd '\bin\Storage'], [obj.temp_dir '\Storage']);
         end
         
-%% Extracting the drag coefficient        
-        function Cd = fetch_C_dw(obj)
-           Cd = obj.Structs.Res.CDwing;
-
+        function cleanup(obj)
+            rmdir(obj.temp_dir, 's');
         end
-        end
-
-         
+    end 
 end
     
     

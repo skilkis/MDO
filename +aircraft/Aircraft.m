@@ -75,6 +75,9 @@ classdef Aircraft < handle
         % Loading coefficients
         A_L
         A_M
+
+        % Airfoils
+        CST
         
 %         % Design Vector
 %         x
@@ -93,7 +96,7 @@ classdef Aircraft < handle
             data = load([pwd '\data\aircraft\' obj.name '.mat']);
             
             % Reading properties from data
-            exclude = {'planform'; 'A_root'; 'A_tip'}; % Exclude list
+            exclude = {'planform'; 'A_root'; 'A_tip'; 'CST'}; % Exclude list
             try
                 for field=fieldnames(obj)'
                     if ~any(strcmp(exclude, field{:}))
@@ -107,6 +110,7 @@ classdef Aircraft < handle
 
             obj.planform = geometry.Planform(obj);
             obj.getAirfoils();
+            obj.build_CSTAirfoil();
 %            obj.x = optimize.DesignVector();
             
         end
@@ -124,6 +128,28 @@ classdef Aircraft < handle
             obj.A_tip = [tip_cst.A_upper; tip_cst.A_lower];
         end
 
+        function build_CSTAirfoil(obj)
+            % TODO remove this from structures since it is unnecessary
+            % Creating cosine spaced points for maximum accuracy of airfoil
+            u_control = linspace(0, pi, 50);
+            x = 0.5*(1 - cos(u_control))';
+            
+            % Fetching Root CST Coefs
+            root.upper = obj.A_root(1:length(obj.A_root)/2);
+            root.lower = obj.A_root(length(obj.A_root)/2+1:end);
+            
+            % Fetching Tip CST Coefs
+            tip.upper = obj.A_tip(1:length(obj.A_tip)/2);
+            tip.lower = obj.A_tip(length(obj.A_tip)/2+1:end);
+            
+            % Creating CST Airfoils
+            CSTAirfoil = @geometry.CSTAirfoil;
+            obj.CST.root = CSTAirfoil(x, 'A_upper', root.upper,...
+                'A_lower', root.lower);
+            obj.CST.tip = CSTAirfoil(x, 'A_upper', tip.upper,...
+                'A_lower', tip.lower);
+        end
+
         function modify(obj, x)
             try
                 exclude = {'init'; 'vector'; 'lb'; 'ub'; 'history'};
@@ -137,8 +163,8 @@ classdef Aircraft < handle
                 error(['Input .dat file is corrupted, %s '...
                        'could not be updated'], field{:})
             end
-
             obj.planform = geometry.Planform(obj);
+            obj.build_CSTAirfoil();
         end
     end
 end
