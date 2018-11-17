@@ -5,7 +5,7 @@ classdef Structures < handle
     properties
         aircraft_in
         W_w                     % Wing Weight
-        V                       % Computed Fuel-Tank Volume
+        V_t                     % Computed Fuel-Tank Volume
         EMWET_input = struct(); % Struct Containing Inputs for EMWET 
         EMWET_output = struct();% Struct Containing Outputs of EMWET
         fuel_tank               % Constructed Fuel-Tank
@@ -175,12 +175,12 @@ classdef Structures < handle
             x = 0.5*(1 - cos(u_control))';
             
             % Fetching Root CST Coefs
-            ac = obj.aircraft_in; A_root = ac.airfoils.A_root;
+            ac = obj.aircraft_in; A_root = ac.A_root;
             root.upper = A_root(1:length(A_root)/2);
             root.lower = A_root(length(A_root)/2+1:end);
             
             % Fetching Tip CST Coefs
-            A_tip = ac.airfoils.A_tip;
+            A_tip = ac.A_tip;
             tip.upper = A_tip(1:length(A_tip)/2);
             tip.lower = A_tip(length(A_tip)/2+1:end);
             
@@ -197,7 +197,7 @@ classdef Structures < handle
         function write_loads(obj)
             % Transforming Bernstein Coefs. into Actual Load Data
             ac = obj.aircraft_in;
-            A_L = ac.A_L'; A_M = ac.A_M'; n = length(A_L)-1; i = 0:n;
+            A_L = ac.A_L; A_M = ac.A_M; n = length(A_L)-1; i = 0:n;
             Y_range = linspace(0, 1, 30)';
             B = ((factorial(n)./(factorial(i).*factorial(n-i))).*...
                 (Y_range.^i).*(1-Y_range).^(n-i));
@@ -261,7 +261,7 @@ classdef Structures < handle
         
         function build_fuel_tank(obj)
             obj.fuel_tank = structures.FuelTank(obj);
-            obj.V = obj.fuel_tank.V;
+            obj.V_t = obj.fuel_tank.V_t;
         end
     end
     

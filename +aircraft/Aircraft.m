@@ -68,8 +68,9 @@ classdef Aircraft < handle
         % Planform Object of the Current Aircraft
         planform
         
-        % Aircraft Airfoils
-        airfoils
+        % Airfoil Bernstein Coefficients
+        A_root
+        A_tip
         
         % Loading coefficients
         A_L
@@ -92,7 +93,7 @@ classdef Aircraft < handle
             data = load([pwd '\data\aircraft\' obj.name '.mat']);
             
             % Reading properties from data
-            exclude = {'planform'; 'airfoils'}; % Exclude list
+            exclude = {'planform'; 'A_root'; 'A_tip'}; % Exclude list
             try
                 for field=fieldnames(obj)'
                     if ~any(strcmp(exclude, field{:}))
@@ -113,23 +114,31 @@ classdef Aircraft < handle
         function getAirfoils(obj)
             import_airfoil = geometry.AirfoilReader([obj.base_airfoil...
                                                    '.dat']);
-%             root_fit = geometry.FittedAirfoil(import_airfoil)...
-%                 .scale(obj.c_r, 0.15); % TODO thickness should be thickness specified by planform
-% 
-%             % TODO fix scaling of tip airfoil
-%             tip_airfoil = root_fit.scale(c_t, 0.1); % TODO change this to thickness specified by planform
-            % problem WITH SCALING
             root_fit = geometry.FittedAirfoil(import_airfoil);
             tip_airfoil=root_fit.scale(1.0, 0.1);
-            
-            obj.airfoils.root = root_fit;
-            obj.airfoils.tip = tip_airfoil;
             
             % Returning 
             root_cst = root_fit.CSTAirfoil;
             tip_cst = tip_airfoil.CSTAirfoil;
-            obj.airfoils.A_root = [root_cst.A_upper; root_cst.A_lower];
-            obj.airfoils.A_tip = [tip_cst.A_upper; tip_cst.A_lower];
+            obj.A_root = [root_cst.A_upper; root_cst.A_lower];
+            obj.A_tip = [tip_cst.A_upper; tip_cst.A_lower];
+        end
+
+        function modify(obj, x)
+            try
+                exclude = {'init'; 'vector'; 'lb'; 'ub'; 'history'};
+                for field=fieldnames(x)'
+                    if isempty(strfind(field{:}, '_0')) && ...
+                         ~any(strcmp(exclude, field{:}))
+                        obj.(field{:}) = x.(field{:});
+                    end
+                end
+            catch
+                error(['Input .dat file is corrupted, %s '...
+                       'could not be updated'], field{:})
+            end
+
+            obj.planform = geometry.Planform(obj);
         end
     end
 end

@@ -29,8 +29,8 @@ classdef Aerodynamics
             % Extracting input variables
             obj.Vars.W_f = aircraft_in.W_f;    % Guess value fuel weight[kg]
             obj.Vars.W_w = aircraft_in.W_w;    % Guess value wing weight [kg]
-            obj.Vars.A_r = aircraft_in.airfoils.A_root.';   % Root chord coefficients
-            obj.Vars.A_t = aircraft_in.airfoils.A_tip.';    % Tip chord coefficients
+            obj.Vars.A_r = aircraft_in.A_root.';   % Root chord coefficients
+            obj.Vars.A_t = aircraft_in.A_tip.';    % Tip chord coefficients
             obj.Vars.Chords = aircraft_in.planform.Chords;  % Wing section chord lengths [m]
             obj.Vars.Coords = aircraft_in.planform.Coords;  % Leading edge coordinates [m]
             obj.Vars.Twists = aircraft_in.planform.Twists;  % Wing section twist angles [deg]
@@ -99,8 +99,10 @@ classdef Aerodynamics
         end
  %% Running Q3D       
         function res = fetch_Res(obj)
-          res = aerodynamics.Q3D_solver(obj.Structs.AC);
-           
+            working_dir = cd;
+            cd([pwd '\bin'])
+            res = Q3D(obj.Structs.AC);
+            cd(working_dir);
         end
         
 %% Extracting the drag coefficient        

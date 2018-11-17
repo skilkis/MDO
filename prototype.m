@@ -1,45 +1,39 @@
-% clc
-% clear all
-% close all
-% 
-% A1 = [1.0, 1.5, 2.0]';
-% A2 = [0.5, 0.75, 1.0]';
-% 
-% y1 = 0; y2 = 2;
-% y = 3.0;
-% 
-% tic;
-% Ay = util.interparray([0.0 1.0 2.0], 0.0, 1.0, A_root, A_tip);
-% toc;
-% 
-% M1 = ones(2, 2);
-% M2 = 2*ones(2, 2);
-% 
-% tic;
-% A_i = util.interparray([0.0, 0.5, 1.0], 0, 1, M1, M2);
-% toc;
+clc
+clear all
+close all
+%%
 
-in = s.EMWET_input;
-out = s.EMWET_output;
-span_loc = in.fuel_start;
-[val, idx] = min(abs(out.half_span - span_loc));
-%idx_nn =  Correct neighbouring index
-if span_loc < out.half_span(idx)
-    idx_nn = idx - 1;
-else
-    idx_nn = idx + 1;
-end
-% Obtaining data at either side of the required value
-start_array = [out.t_u(idx_nn), out.t_l(idx_nn), out.t_fs(idx_nn),...
-               out.t_rs(idx-1)];
-end_array = [out.t_u(idx), out.t_l(idx), out.t_fs(idx), out.t_rs(idx)];
+ac = aircraft.Aircraft('A320');
+ac.planform.plot();
 
-% Obtaning the span at either side of the required value
-start_span = out.half_span(idx_nn); end_span = out.half_span(idx);
-interp_array = util.interparray(span_loc,...
-                                start_span,...
-                                end_span,...
-                                start_array,...
-                                end_array);
+root_cst = ac.airfoils.root.CSTAirfoil;
+tip_cst = ac.airfoils.tip.CSTAirfoil;
+A_root = [root_cst.A_upper', root_cst.A_lower'];
+A_tip = [tip_cst.A_upper', tip_cst.A_lower'];
 
+x = optimize.DesignVector({'lambda_1', ac.lambda_1, 0, 1.25;...
+                           'lambda_2', ac.lambda_2, 0.94, 1.25;...
+                           'b', ac.b, 0.71, 1.06;...
+                           'c_r', ac.c_r, 0.68, 1.15;...
+                           'tau', ac.tau, 0.16, 2.5;...
+                           'A_root', ac.airfoils.A_root', -2.0, 2.0;...
+                           'A_tip', ac.airfoils.A_tip', -2.0, 2.0;...
+                           'beta_root', ac.beta_root, 0, 1.7;...
+                           'beta_kink', ac.beta_kink, -0.8, 3.2;...
+                           'beta_tip', ac.beta_tip, -3.6, 3.6;...
+                           % Get these values from first initial run
+                           'A_L', ac.A_L, -1.5, 1.5;...
+                           'A_M', ac.A_M, -1.5, 1.5;...
+                           'W_w', ac.W_w, 0.8, 1.0;...
+                           'W_f', ac.W_f, 0.8, 1.0;...
+                           'C_d_w', ac.C_d_w, 0.8, 1.0});
 
+assert(all((x.init .* x.vector) == x.init), 'Design Vector Corrupted');
+new_vector = ones(length(x.vector), 1);
+new_vector(1) = 1.25;
+%%
+x.vector = new_vector;
+% x.update(x.vector * 2); % Updating w/ a new design vector [2, 2, 2, ...]'
+% x.fetch_history('normalized', true);
+
+ac.modify(x);

@@ -6,7 +6,7 @@ classdef FuelTank < handle
     properties
         structures_in       % Structures Object
         tank_data           % Interpolated Data for Fuel-Tank
-        V                   % Total Fuel Tank Volume [m^3]
+        V_t                   % Total Fuel Tank Volume [m^3]
         convex_hull         % Structs containing pts, convhull
     end
     
@@ -70,8 +70,8 @@ classdef FuelTank < handle
             obj.tank_data.chord = pln.chord_at_span(y);
             
             % Fetching Bernstien Coefficients at each station
-            A_root = ac.airfoils.A_root;
-            A_tip = ac.airfoils.A_tip;
+            A_root = ac.A_root;
+            A_tip = ac.A_tip;
             
             obj.tank_data.A = util.interparray(y,...
                                                0, 1, A_root, A_tip);
@@ -157,7 +157,7 @@ classdef FuelTank < handle
             obj.convex_hull.wing = wing;
             obj.convex_hull.center = center;
 
-            obj.V = center.V + wing.V;
+            obj.V_t = center.V + wing.V;
         end
             
         function interp_array = EMWET_interp(obj, span_loc)
