@@ -47,7 +47,3 @@ save(['data\runs\' run_str], 'run_case') % Saving run_case to data\runs
 run_case.aircraft.planform.plot();
 run_case.aircraft.CST.root.plot();
 run_case.aircraft.CST.tip.plot();
-
-%% Shutting Down Parallel Pool
-poolobj = gcp('nocreate');
-delete(poolobj);

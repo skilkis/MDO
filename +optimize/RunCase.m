@@ -21,7 +21,7 @@ classdef RunCase < handle
         x;                  % DesignVector object for fmincon & ease of use
         results;
         x_final;
-        converged;
+        converged = false;  % True if fmincon stopped w/o errors
         options;
         sim_time;           % Total Sim. Time at end of Optimization [s]
     end
@@ -73,6 +73,8 @@ classdef RunCase < handle
         function optimize(obj)
             obj.start_time = datetime(); tic;
             n_cores = feature('numcores');
+
+            % Launching either in Parallel or Serial Execution
             try
                 if n_cores >= 4
                     parpool(4)
@@ -84,13 +86,17 @@ classdef RunCase < handle
                          'or not Installed on Machine. Optimization '...
                          'will execute as a serial process!'])
             end
+
             [opt, ~] = fmincon(@obj.objective,...
-                               obj.x.vector, [], [], [], [],...
-                               obj.x.lb, obj.x.ub, @obj.constraints,...
-                               obj.options);
+                            obj.x.vector, [], [], [], [],...
+                            obj.x.lb, obj.x.ub, @obj.constraints,...
+                            obj.options);
+                            
             obj.sim_time = toc;
             obj.x_final = opt;
             obj.end_time = datetime();
+            obj.converged = true;
+            obj.shutdown();
         end
         
         function [c, ceq] = constraints(obj, x)
@@ -227,6 +233,18 @@ classdef RunCase < handle
                 case 'done'
                     % hold off
                 otherwise
+            end
+        end
+
+        function shutdown(obj)
+            if obj.run_parallel
+                % Shutting Down Parallel Pool
+                poolobj = gcp('nocreate');
+                delete(poolobj);
+            end
+            obj.end_time = datetime();
+            if isempty(obj.sim_time)
+                obj.sim_time = obj.end_time - obj.start_time;
             end
         end
     end
