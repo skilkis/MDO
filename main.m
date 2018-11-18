@@ -37,7 +37,11 @@ run_case.aircraft.CST.tip.plot();
 
 %% Running Optimization w/ fmincon
 run_case.optimize();
-% save('')
+
+%% Saving Results
+date_str = replace(sprintf('%s', datetime), ' ', '_');
+run_str = sprintf('run_%s',replace(sprintf('%s', date_str), ':', '-'));
+save(['data\runs\' run_str], 'run_case') % Saving run_case to data\runs
 
 %% Plotting Final Result
 run_case.aircraft.planform.plot();

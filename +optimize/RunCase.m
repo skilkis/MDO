@@ -229,8 +229,8 @@ classdef RunCase < handle
                 otherwise
             end
         end
-
     end
+    
     methods (Static)
          function obj = load_run(run_file)
             filename = [pwd '\data\runs\' run_file '.mat'];
