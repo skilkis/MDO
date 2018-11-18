@@ -9,7 +9,7 @@ base_airfoil = 'naca23015';     % Base Airfoil Name [-]
 
 % Drag coefficients
 C_d_w = 0.0117;                 % Initial wing drag coefficient [-]
-C_d_aw = 0.00587;               % Aircraft-less wing drag coefficient [-]
+C_d_aw = 0.008332;               % Aircraft-less wing drag coefficient [-]
 
 % Cruise Parameters
 h_c = 11248;                    % Cruise Altitude [m]
