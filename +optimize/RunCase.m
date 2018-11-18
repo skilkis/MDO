@@ -100,7 +100,7 @@ classdef RunCase < handle
             c = Cons.C_ineq; ceq = Cons.C_eq;
             
             % Caching of constraints
-            if isempty(obj.cache.results)
+            if isempty(obj.cache.const)
                 obj.cache.const.c = c;
                 obj.cache.const.ceq = ceq;
             else
