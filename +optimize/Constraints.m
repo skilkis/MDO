@@ -13,11 +13,11 @@ classdef Constraints < handle
             
             %Comparing the guess value for Cd against the actual Cd
             Cd_true = results.C_dw;
-            disp(Cd_true);
+            
             Cd_guess = aircraft.C_d_w;
             
             C_cd = (Cd_guess/sum(Cd_true))-1;
-            disp(C_cd);
+            
                 
             %Comparing the guessed lift and moment distributions against the
             %actual distributions.
@@ -90,7 +90,7 @@ classdef Constraints < handle
             %than the fuel required for the mission
             W_f_true = results.W_f;
             V_t = results.Struc.V_t;
-            C_fuel = (W_f_true/(V_t*aircraft.rho_f))-V_t;
+            C_fuel = (W_f_true/(V_t*aircraft.rho_f))-1;
             
                 
             obj.C_eq = [C_cd, C_lift, C_mom, C_ww, C_wf];
