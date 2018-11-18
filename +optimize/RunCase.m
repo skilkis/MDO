@@ -19,10 +19,9 @@ classdef RunCase < handle
     properties
         aircraft;           % Aircraft instance with all parameters and vars
         x;                  % DesignVector object for fmincon & ease of use
-        results;
-        x_final;
+        x_final;            % Optimized Design Vector
         converged = false;  % True if fmincon stopped w/o errors
-        options;
+        options;            % fmincon options struct
     end
 
     properties (SetAccess = private, GetAccess = public)
