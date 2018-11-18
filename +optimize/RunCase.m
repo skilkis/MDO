@@ -30,18 +30,23 @@ classdef RunCase < handle
         cache = struct()    % Cache of Results & Constraints
         run_parallel        % Bool, True for machines with >= 4 cores
         iter_counter = 0    % Counts the number of function calls
+        start_time          % 
+        end_time
     end
     
     methods
         
         function obj = RunCase(aircraft_name, options)
+            % Constructing the specified aircraft
             obj.aircraft = aircraft.Aircraft(aircraft_name);
+            obj.init_design_vector(); % Creating the design vector object
 
             % Augmenting options w/ OutputFnc
-            options.OutputFcn = @obj.cache_optimValues;   
+            options.OutputFcn = @obj.cache_optimValues;
             obj.options = options;
-            obj.init_design_vector(); % Creating the design vector object
-            obj.cache.results = [];
+            obj.cache.results = []; % Results caching
+            obj.cache.fmincon = []; % Solver caching
+            obj.cache.const = [];   % Constraint caching
         end
 
         function init_design_vector(obj)
@@ -66,7 +71,7 @@ classdef RunCase < handle
         end
 
         function optimize(obj)
-            tic;
+            obj.start_time = datetime(); tic;
             n_cores = feature('numcores');
             try
                 if n_cores >= 4
@@ -83,8 +88,9 @@ classdef RunCase < handle
                                obj.x.vector, [], [], [], [],...
                                obj.x.lb, obj.x.ub, @obj.constraints,...
                                obj.options);
-            obj.x_final = opt;
             obj.sim_time = toc;
+            obj.x_final = opt;
+            obj.end_time = datetime();
         end
         
         function [c, ceq] = constraints(obj, x)
@@ -92,6 +98,15 @@ classdef RunCase < handle
             res = obj.fetch_results(x);
             Cons = optimize.Constraints(obj.aircraft, res, obj.x);
             c = Cons.C_ineq; ceq = Cons.C_eq;
+            
+            % Caching of constraints
+            if isempty(obj.cache.results)
+                obj.cache.const.c = c;
+                obj.cache.const.ceq = ceq;
+            else
+                obj.cache.const.c(end+1, :) = c;
+                obj.cache.const.ceq(end+1, :) = ceq;
+            end
         end
 
         function fval = objective(obj, x)
@@ -182,29 +197,33 @@ classdef RunCase < handle
             end
         end
 
-        function cache_optimValues(obj, x, optimValues, state)
-            disp(optimValues)       
+        function stop = cache_optimValues(obj, x, optimValues, state)
+            stop = false;
+            o = optimValues; 
             switch state
                 case 'init'
                     % hold on
+                    obj.cache.fmincon = o;
+                    obj.cache.fmincon.x = x;
                 case 'iter'
                     % Concatenate current point and objective function
-                    % value with history. x must be a row vector.
-                    temp.fval = [history.fval; optimValues.fval];
-                    temp.x = [history.x; x];
-                    % Concatenate current search direction with 
-                    % searchdir.
-                    temp. searchdir = [searchdir;...
-                                        optimValues.searchdirection'];
-
-                    obj.cache = temp;
+                    % value with history. x must be a row vector
+                    history = obj.cache.fmincon;
+                    temp.fval = [history.fval, o.fval];
+                    temp.x = [history.x, x];
                     
-
+                    % Gradient caching of fmincon
+                    temp.gradient = [history.gradient,...
+                                     o.gradient];
                     
-                    % plot(x(1),x(2),'o');
-                    % % Label points with iteration number.
-                    % % Add .15 to x(1) to separate label from plotted 'o'
-                    % text(x(1)+.15,x(2),num2str(optimValues.iteration));
+                    % Optimality caching of fmincon
+                    temp.firstorderopt = [history.firstorderopt,...
+                                          o.firstorderopt];
+                                      
+                    temp.iteration = [history.iteration, o.iteration];
+                    temp.funccount = [history.funccount, o.funccount];
+                    obj.cache.fmincon = temp;
+
                 case 'done'
                     % hold off
                 otherwise

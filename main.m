@@ -37,6 +37,7 @@ run_case.aircraft.CST.tip.plot();
 
 %% Running Optimization w/ fmincon
 run_case.optimize();
+% save('')
 
 %% Plotting Final Result
 
