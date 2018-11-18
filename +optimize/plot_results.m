@@ -4,7 +4,7 @@
 run_case;
 
 % Re-running simulations for the start & end
-data.start.
+data.start = NaN
 
 
 % end
