@@ -43,9 +43,15 @@ classdef Constraints < handle
             if C_lift <= 0.085
                 C_lift = 0;
             end
+            if isnan(C_lift)
+                C_lift = 10;
+            end
             C_mom = sum(((M_distr_true-Z_M)./M_distr_true).^2);
             if C_mom <= 0.085
                 C_mom = 0;
+            end
+            if isnan(C_mom)
+                C_mom = 10;
             end
                
             %Comparing the wing structual weight against the guessed value.        
