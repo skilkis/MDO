@@ -50,7 +50,7 @@ sigma_t = 295e6;                % Tensile Yield Stress [Pa]
 rho_al = 2800;                  % Density of Aluminum Alloy [kg/m^3]
 
 % Engine Specifications
-engine_spec = [0.1696, 2327];   % [Span Position, Weight [kg]]
+engine_spec = [0.1696, 2327];   % [Span Position, Weight [kg]
 
 % Loading Coefficients
 A_L = [8.5945,...               % Lift distribution Bernstein coefficients
