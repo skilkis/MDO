@@ -30,7 +30,9 @@ for field = {'start', 'end'}
             x = run_case.x_final;
             results = run_case.fetch_results(x);
     end
-
+    
+    ac = data.(f).aircraft;
+    
     spmd
         if labindex == 1
             temp = aerodynamics.Aerodynamics(ac);
@@ -42,8 +44,7 @@ for field = {'start', 'end'}
             temp = performance.Performance(ac);
         end
     end
-    
-    ac = data.(f).aircraft;
+ 
     data.(f).aero = temp{1};
     data.(f).load = temp{2};
     data.(f).struc = temp{3};

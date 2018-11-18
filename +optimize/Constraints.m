@@ -28,19 +28,11 @@ classdef Constraints < handle
             
             A_L = aircraft.A_L;
             A_M = aircraft.A_M;
-            
-            
-            n = length(A_L)-1;
-            i = 0:n;
-
 
             yrange = Y/max(Y);
-
-            B = ((factorial(n)./(factorial(i).*factorial(n-i))).*(yrange.^i).*(1-yrange)...
-                .^(n-i));
             
-            Z_L = B*A_L';
-            Z_M = B*A_M';
+            Z_L = geometry.CSTAirfoil.shapeFunction(yrange, A_L);
+            Z_M = geometry.CSTAirfoil.shapeFunction(yrange, A_M);
             
             C_lift = sum(((L_distr_true-Z_L')./L_distr_true).^2);
             
