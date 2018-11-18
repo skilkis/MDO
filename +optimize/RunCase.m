@@ -100,7 +100,7 @@ classdef RunCase < handle
         end
         
         function res = fetch_results(obj, x)
-            if obj.x.isnew(x) % Checking if the fmincon vector is new
+            if ~obj.x.isnew(x) % Checking if the fmincon vector is new
                 res = obj.cache.results(end);
             else
                 obj.aircraft.modify(obj.x);
@@ -136,9 +136,7 @@ classdef RunCase < handle
                     obj.cache.results = res;
                 else
                     obj.cache.results(end+1) = res;
-                    obj.cache.x(:, end+1) = obj.x.vector;
                 end
-                obj.first_run = false;
             end
         end
         
