@@ -23,20 +23,23 @@ classdef RunCase < handle
         x_final;
         converged = false;  % True if fmincon stopped w/o errors
         options;
-        sim_time;           % Total Sim. Time at end of Optimization [s]
     end
 
     properties (SetAccess = private, GetAccess = public)
         cache = struct()    % Cache of Results & Constraints
         run_parallel        % Bool, True for machines with >= 4 cores
         iter_counter = 0    % Counts the number of function calls
-        start_time          % 
-        end_time
+        start_time          % datetime at the start of optimization
+        end_time            % datetime at the end of optimization
+        sim_time;           % Total Sim. Time at end of Optimization [s]
     end
     
     methods
         
         function obj = RunCase(aircraft_name, options)
+            % Displaying welcome message
+            type data\log\header.txt; fprintf('\n')
+            
             % Constructing the specified aircraft
             obj.aircraft = aircraft.Aircraft(aircraft_name);
             obj.init_design_vector(); % Creating the design vector object
@@ -47,6 +50,7 @@ classdef RunCase < handle
             obj.cache.results = []; % Results caching
             obj.cache.fmincon = []; % Solver caching
             obj.cache.const = [];   % Constraint caching
+            obj.cache.time = [];    % Log of analysis time
         end
 
         function init_design_vector(obj)
@@ -100,7 +104,7 @@ classdef RunCase < handle
         end
         
         function [c, ceq] = constraints(obj, x)
-            obj.x.vector = x; % Updates design vector w/ fmincon value
+            disp('Constraints')
             res = obj.fetch_results(x);
             Cons = optimize.Constraints(obj.aircraft, res, obj.x);
             c = Cons.C_ineq; ceq = Cons.C_eq;
@@ -116,14 +120,17 @@ classdef RunCase < handle
         end
 
         function fval = objective(obj, x)
+            disp('Access from objective')
             res = obj.fetch_results(x);
             fval = res.W_f/obj.x.W_f_0;
         end
         
         function res = fetch_results(obj, x)
-            if ~obj.x.isnew(x) % Checking if the fmincon vector is new
+            if ~obj.x.isnew(x) && ~isempty(obj.cache.results)
                 res = obj.cache.results(end);
             else
+                disp('I asked for new runs')
+                obj.x.vector = x; % Updates design vector w/ fmincon value
                 obj.aircraft.modify(obj.x);
                 obj.iter_counter = obj.iter_counter + 1;
                 % Running Analysis Blocks
@@ -147,16 +154,20 @@ classdef RunCase < handle
                     res.Loading = temp{3};
                     res.W_f = temp{4};
                 else
+                    tic;
                     res.C_dw = obj.run_aerodynamics();
                     res.Loading = obj.run_loads();
                     res.Struc = obj.run_structures();
                     res.W_f = obj.run_performance();
+                    t = toc;
                 end
                 
                 if isempty(obj.cache.results)
                     obj.cache.results = res;
+                    obj.cache.time = t;
                 else
                     obj.cache.results(end+1) = res;
+                    obj.cache.time(end+1) = t;
                 end
             end
         end

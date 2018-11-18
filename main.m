@@ -1,4 +1,4 @@
-% Copyright 2018 San Kilkis, Evert Bunschoten
+% Copyright 2018 Evert Bunschoten, San Kilkis
 % 
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
@@ -31,9 +31,9 @@ options.PlotFcns            = {@optimplotx,...
 % Additional aircraft can be supplied by the user w/ template.m
 
 run_case = optimize.RunCase('A320', options);
-run_case.aircraft.planform.plot();
-run_case.aircraft.CST.root.plot();
-run_case.aircraft.CST.tip.plot();
+run_case.aircraft.planform.plot(); drawnow;
+run_case.aircraft.CST.root.plot(); drawnow;
+run_case.aircraft.CST.tip.plot(); drawnow;
 
 %% Running Optimization w/ fmincon
 run_case.optimize();

@@ -48,15 +48,14 @@ x = optimize.DesignVector({'lambda_1', ac.lambda_1, 0, 1.25;...
                            'W_w', ac.W_w, 0.8, 1.0;...
                            'W_f', ac.W_f, 0.8, 1.0;...
                            'C_d_w', ac.C_d_w, 0.8, 1.0});
-
+%%
 assert(all((x.init .* x.vector) == x.init), 'Design Vector Corrupted');
 
 % Testing if current vector created by the initial design is a new vector
-assert(x.isnew(x.vector)==true)
+assert(x.isnew(x.vector * 1)==false)
+assert(x.isnew(x.vector * 1.2)==true)
 % x.vector = ones(length(x.vector), 1) * 2; % Updating w/ a new design vector [2, 2, 2, ...]'
 x.fetch_history('normalized', true);
-
-
 
 %% Testing Aircraft Modification
 new_vector = ones(length(x.vector), 1); new_vector(3) = 1.25;

@@ -75,14 +75,14 @@ classdef DesignVector < dynamicprops & handle
             end
         end
         
-        function update(obj)
-            % Appends the current vector to the history
+        function append_history(obj)
+            % Appends the current vector to the history.
             obj.history = [obj.history, obj.vector];
         end
         
         function set.vector(obj, vector)
             % Setter of a vector, for when x.vector = vector syntax is used
-            obj.update()
+            obj.append_history()
             obj.vector = vector;
         end
 
@@ -107,24 +107,19 @@ classdef DesignVector < dynamicprops & handle
             normalized = arg.Results.normalized;
             
             % Fetching desired history
-            fetched_array = [obj.history, obj.vector];
             if normalized
-                history = fetched_array;
+                history = obj.history;
             else
-                history = fetched_array .* obj.init;
+                history = obj.history .* obj.init;
             end
         end
         
         function bool = isnew(obj, vector)
             % Determines if the supplied vector is a new entry
-            if ~isempty(obj.history)
-                if all(obj.history(:, end) == vector)
-                    bool = false;
-                else
-                    bool = true;
-                end
+            if all(obj.vector == vector)
+                bool = false;
             else
-                    bool = true;
+                bool = true;
             end
         end
   end
