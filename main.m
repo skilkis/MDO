@@ -18,10 +18,11 @@ options.Display             = 'iter-detailed';  % Display in Command Win.
 options.Algorithm           = 'sqp';
 options.FunValCheck         = 'off';            % Obj. Function Checking 
 options.DiffMinChange       = 1e-4;             % Min. Delta for Gradient
-options.DiffMaxChange       = 1e-2;             % Max. Delta for Gradient
+options.DiffMaxChange       = 1e-1;             % Max. Delta for Gradient
 options.TolCon              = 1e-5;             % Constraint Tolerance
 options.TolFun              = 1e-5;             % Obj. Function Tolerance
-options.TolX                = 1e-6;             % Step Tolerance
+options.OptimalityTolerance = 1e-6;
+options.TolX                = 1e-10;             % Step Tolerance
 options.MaxIter             = 1e5;              % Maximum Iterations
 options.PlotFcns            = {@optimplotx,...
                                @optimplotfval,...
