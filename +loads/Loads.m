@@ -87,6 +87,7 @@ classdef Loads < handle
 
             % Calculating maximum dive speed
             V_c = obj.Params.M_mo*obj.Params.a_c;
+            
 
             % Calculating lift coefficient based on maximum load factor
             C_L = obj.Params.n_max*obj.Params.g*MTOW/(0.5*obj.Params.rho*...

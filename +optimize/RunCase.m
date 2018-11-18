@@ -156,8 +156,8 @@ classdef RunCase < handle
                 L.L_distr = Loads.L_distr;
                 L.Y_coord = Loads.Y_coord;
             catch
-                L.M_distr = ones.length(obj.x.A_M) * NaN;
-                L.L_distr = ones.length(obj.x.A_M) * NaN;
+                L.M_distr = ones(length(obj.x.A_M),1) * NaN;
+                L.L_distr = ones(length(obj.x.A_M),1) * NaN;
                 L.Y_coord = NaN;
             end
         end

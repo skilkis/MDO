@@ -13,8 +13,11 @@ classdef Constraints < handle
             
             %Comparing the guess value for Cd against the actual Cd
             Cd_true = results.C_dw;
+            disp(Cd_true);
             Cd_guess = aircraft.C_d_w;
-            C_cd = (Cd_guess/Cd_true)-1;
+            
+            C_cd = (Cd_guess/sum(Cd_true))-1;
+            disp(C_cd);
                 
             %Comparing the guessed lift and moment distributions against the
             %actual distributions.
@@ -39,14 +42,16 @@ classdef Constraints < handle
             Z_L = B*A_L;
             Z_M = B*A_M;
             
-            C_lift = sum(((L_distr_true-Z_L)./L_distr_true).^2);
+            C_lift = sum(((L_distr_true-Z_L')./L_distr_true).^2);
+            
             if C_lift <= 0.085
                 C_lift = 0;
             end
             if isnan(C_lift)
                 C_lift = 10;
             end
-            C_mom = sum(((M_distr_true-Z_M)./M_distr_true).^2);
+            C_mom = sum(((M_distr_true-Z_M')./M_distr_true).^2);
+            
             if C_mom <= 0.085
                 C_mom = 0;
             end
@@ -58,11 +63,13 @@ classdef Constraints < handle
             W_w_true = results.Struc.W_w;
             W_w_guess = aircraft.W_w;
             C_ww = (W_w_guess/W_w_true)-1;
+            
                 
                 
             W_f_true = results.W_f;
             W_f_guess = aircraft.W_f;
             C_wf = (W_f_guess/W_f_true)-1;
+            
                 
                 
             %Inequality constraint setting the wing loading equal or lower 
@@ -72,17 +79,19 @@ classdef Constraints < handle
             WL_guess = (aircraft.W_aw + aircraft.W_f + aircraft.W_w)...
                 /aircraft.planform.S;
             C_wl = 1 - (WL_0/WL_guess);
+            
                     
             %Inequality constraint checking for the sufficient front spar 
             %clearance at the fuselage line
             Fs_fus = aircraft.planform.FS_fus;
             C_fs = 1 - (Fs_fus/0.15);
-                
+              
             %Inequality constraint ensuring a tank volume equal or larger 
             %than the fuel required for the mission
             W_f_true = results.W_f;
             V_t = results.Struc.V_t;
-            C_fuel = (W_f_true/aircraft.rho_f)-V_t;
+            C_fuel = (W_f_true/(V_t*aircraft.rho_f))-V_t;
+            
                 
             obj.C_eq = [C_cd, C_lift, C_mom, C_ww, C_wf];
             obj.C_ineq = [C_wl, C_fs, C_fuel];
