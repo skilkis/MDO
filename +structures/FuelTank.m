@@ -1,3 +1,17 @@
+% Copyright 2018 San Kilkis
+% 
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+% 
+%    http://www.apache.org/licenses/LICENSE-2.0
+% 
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
 classdef FuelTank < handle
     %FUELTANK Constructs a plotable fuel-tank from the output of EMWET
     % Utilizes an array interpolation to obtain wing-structure data at
@@ -25,8 +39,9 @@ classdef FuelTank < handle
             ac = obj.structures_in.aircraft_in;
             
             % Locations in which the fuel tank must lie
+            eta_kink = ac.planform.eta(2);
             req_locs = [0, in.fuel_start,...
-                         ac.planform.eta(2), in.fuel_end];
+                        eta_kink, in.fuel_end];
                      
             % Keeping EMWET data less than the allowable fuel-tank span
             idx_fuel = (out.half_span < in.fuel_end);
@@ -71,10 +86,16 @@ classdef FuelTank < handle
             
             % Fetching Bernstien Coefficients at each station
             A_root = ac.A_root;
+            A_kink = ac.A_kink;
             A_tip = ac.A_tip;
             
-            obj.tank_data.A = util.interparray(y,...
-                                               0, 1, A_root, A_tip);
+            idx_i = (y <= eta_kink); % Inboard Indices
+            A_i = util.interparray(y(idx_i), 0, eta_kink, A_root, A_kink);
+
+            idx_o = ~idx_i; % Outboard Indices
+            A_o = util.interparray(y(idx_o), eta_kink, 1.0, A_kink, A_tip);
+
+            obj.tank_data.A = [A_i; A_o];
         end
         
         function [x, y, z] = get_bounds(obj)
@@ -126,38 +147,61 @@ classdef FuelTank < handle
         end
         
         function plot(obj)
-            c = obj.convex_hull.center; w = obj.convex_hull.wing;
+            c = obj.convex_hull.center; i = obj.convex_hull.inner;
+            o = obj.convex_hull.outer;
             hold on
-            surf(c.x(c.K), c.y(c.K), c.z(c.K))
-            surf(w.x(w.K), w.y(w.K), w.z(w.K))
+            trisurf(c.K,c.x,c.y,c.z, 'FaceColor', 'red', 'DisplayName',...
+                                     'Center Tank')
+            trisurf(i.K,i.x,i.y,i.z, 'FaceColor', 'blue', 'DisplayName',...
+                                     'Inboard Tank')
+            trisurf(o.K,o.x,o.y,o.z, 'FaceColor', 'green', 'DisplayName',...
+                                     'Outboard Tank')
             axis image
-            xlabel('Chord')
-            ylabel('Span')
-            zlabel('Height') 
+            xlabel('Chord [m]')
+            ylabel('Half Span [m]')
+            zlabel('Thickness [m]')
+            az = 180;
+            el = 90;
+            view(az, el);
+            legend()
+
         end
         
         function build_convexhull(obj)
             [x, y, z] = obj.get_bounds();
             ac = obj.structures_in.aircraft_in;
 
-            idx_c= (y <= (ac.D_fus / 2.0)); % Center-tank Indices
+            eta_kink = ac.planform.eta(2);
+            
+            % Center Fuel Tank Convex Hull
+            idx_c= (y <= (ac.D_fus / 2.0)); 
             x_c = x(idx_c); y_c = y(idx_c); z_c = z(idx_c);
             [K_center, V_center] = convhull(x_c,y_c,z_c, 'simplify', true);
             V_center = 2 * V_center * 0.93;
             center.K = K_center; center.V = V_center;
             center.x = x_c; center.y = y_c; center.z = z_c;
             
-            idx_o = (y >= (ac.D_fus / 2.0)); % Wing-tank Indices
+            % Inboard Fuel Tank Convex Hull
+            idx_i = and(y >=(ac.D_fus / 2.0), y <= (eta_kink * ac.b * 0.5));
+            x_i = x(idx_i); y_i = y(idx_i); z_i = z(idx_i);
+            [K_inner, V_inner] = convhull(x_i, y_i, z_i, 'simplify', true);
+            V_inner = 2 * V_inner * 0.93;
+            inner.K = K_inner;  inner.V = V_inner;
+            inner.x = x_i;  inner.y = y_i;  inner.z = z_i;
+
+            % Outboard Fuel Tank Convex Hull
+            idx_o = (y >= (eta_kink * ac.b * 0.5));
             x_o = x(idx_o); y_o = y(idx_o); z_o = z(idx_o);
             [K_outer, V_outer] = convhull(x_o, y_o, z_o, 'simplify', true);
             V_outer = 2 * V_outer * 0.93;
-            wing.K = K_outer; wing.V = V_outer;
-            wing.x = x_o; wing.y = y_o; wing.z = z_o;
+            outer.K = K_outer;  outer.V = V_outer;
+            outer.x = x_o;  outer.y = y_o;  outer.z = z_o;
 
-            obj.convex_hull.wing = wing;
             obj.convex_hull.center = center;
+            obj.convex_hull.inner =  inner;
+            obj.convex_hull.outer =  outer;
 
-            obj.V_t = center.V + wing.V;
+            obj.V_t = center.V + inner.V + outer.V;
         end
             
         function interp_array = EMWET_interp(obj, span_loc)

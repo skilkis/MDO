@@ -1,3 +1,17 @@
+% Copyright 2018 San Kilkis, Evert Bunschoten
+% 
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+% 
+%    http://www.apache.org/licenses/LICENSE-2.0
+% 
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
 %% Demonstrates simple yet powerful directory management w/ packages
 clc
 clear all
@@ -10,10 +24,10 @@ close all
 options.Display         = 'iter-detailed';
 options.Algorithm       = 'sqp';
 options.FunValCheck     = 'off';
-options.DiffMinChange   = 1e-3;         % Minimum change while gradient searching
-options.DiffMaxChange   = 5e-2;         % Maximum change while gradient searching
+options.DiffMinChange   = 1e-4;         % Minimum change while gradient searching
+options.DiffMaxChange   = 1e-2;         % Maximum change while gradient searching
 options.TolCon          = 1e-3;         % Maximum difference between two subsequent constraint vectors [c and ceq]
-options.TolFun          = 1e-6;         % Maximum difference between two subsequent objective value
+options.TolFun          = 1e-3;         % Maximum difference between two subsequent objective value
 options.TolX            = 1e-3;         % Maximum difference between two subsequent design vectors
 
 options.MaxIter         = 1e5;          % Maximum iterations
@@ -21,18 +35,10 @@ options.PlotFcns        = {@optimplotx,...
                            @optimplotfval,...
                            @optimplotfirstorderopt};
 
-% run_case = optimize.RunCase('A320', options);
-run_case = optimize.RunCase.load_run('run_1');
+run_case = optimize.RunCase('A320', options);
+% run_case = optimize.RunCase.load_run('run_1'); % Allows to use saved runs
 run_case.optimize();
-% To see the power of classes try accessing the plot method by
-% typing obj.plot() after running. These are dynamic calls to the object
-% and can proove indispensible when asking for data or storing history
-% of optimizations
 
-% Test Text from Visual Studio Code
-
-% Notes on Object Arrays:
-% https://nl.mathworks.com/matlabcentral/answers/312332-how-can-i-create-an-array-of-class-handles
-
-% Notes on Dependent Values: (Calculated on the Fly, can be very costly!)
-% https://nl.mathworks.com/matlabcentral/answers/128905-how-to-efficiently-use-dependent-properties-if-dependence-is-computational-costly
+run_case.aircraft.planform.plot();
+run_case.aircraft.CST.root.plot();
+run_case.aircraft.CST.tip.plot();

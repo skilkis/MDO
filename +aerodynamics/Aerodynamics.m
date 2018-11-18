@@ -1,3 +1,17 @@
+% Copyright 2018 Evert Bunschoten
+% 
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+% 
+%    http://www.apache.org/licenses/LICENSE-2.0
+% 
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
 classdef Aerodynamics < handle
 %% AERODYNAMICS
 
@@ -29,6 +43,7 @@ classdef Aerodynamics < handle
             obj.Vars.W_f = aircraft_in.W_f;    % Guess value fuel weight[kg]
             obj.Vars.W_w = aircraft_in.W_w;    % Guess value wing weight [kg]
             obj.Vars.A_r = aircraft_in.A_root.';   % Root chord coefficients
+            obj.Vars.A_k = aircraft_in.A_kink.';   % Kink airfoil coeffs.
             obj.Vars.A_t = aircraft_in.A_tip.';    % Tip chord coefficients
             obj.Vars.Chords = aircraft_in.planform.Chords;  % Wing section chord lengths [m]
             obj.Vars.Coords = aircraft_in.planform.Coords;  % Leading edge coordinates [m]
@@ -88,8 +103,7 @@ classdef Aerodynamics < handle
             AC.Wing.inc = 0;
             AC.Wing.eta = [0;2*obj.Params.d_TE/obj.Vars.b;1];
             AC.Visc = 1;
-            AC.Wing.Airfoils = [obj.Vars.A_r; 0.5*obj.Vars.A_r + 0.5*obj.Vars.A_t;...
-                obj.Vars.A_t];
+            AC.Wing.Airfoils = [obj.Vars.A_r; obj.Vars.A_k; obj.Vars.A_t];
             AC.Aero.rho = obj.Params.rho;
             AC.Aero.alt = obj.Params.h;
             AC.Aero.M = obj.Params.M_c;

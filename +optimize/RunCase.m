@@ -1,3 +1,17 @@
+% Copyright 2018 San Kilkis, Evert Bunschoten
+% 
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+% 
+%    http://www.apache.org/licenses/LICENSE-2.0
+% 
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
 classdef RunCase < handle
     %RUNCASE Summary of this class goes here
     %   Detailed explanation goes here
@@ -14,6 +28,7 @@ classdef RunCase < handle
     properties (SetAccess = private, GetAccess = public)
         cache = struct()
         first_run
+        parallel;
     end
     
     methods
@@ -51,8 +66,16 @@ classdef RunCase < handle
         function optimize(obj)
             tic;
             n_cores = feature('numcores');
-            if n_cores == 4
-                parpool(4)
+            try
+                if n_cores == 4
+                    parpool(4)
+                    obj.parallel = true;
+                end
+            catch
+                obj.parallel = false;
+                warning(['Parallel Processing Disabled ' ...
+                         'or not Installed on Machine. Optimization '...
+                         'will execute as a serial process!'])
             end
             [opt, ~] = fmincon(@obj.objective,...
                                obj.x.vector, [], [], [], [],...
@@ -81,24 +104,31 @@ classdef RunCase < handle
                 obj.aircraft.modify(obj.x);
                 % Running Analysis Blocks
 %                 res.C_dw = obj.run_aerodynamics();
-                tic;
-                spmd
-                    if labindex == 1
-                        temp = obj.run_aerodynamics();
-                    elseif labindex == 2
-                        temp = obj.run_structures();
-                    elseif labindex == 3
-                        temp = obj.run_loads();
-                    elseif labindex == 4
-                        temp = obj.run_performance();
+                if obj.parallel
+                    tic;
+                    spmd
+                        if labindex == 1
+                            temp = obj.run_aerodynamics();
+                        elseif labindex == 2
+                            temp = obj.run_structures();
+                        elseif labindex == 3
+                            temp = obj.run_loads();
+                        elseif labindex == 4
+                            temp = obj.run_performance();
+                        end
                     end
+                    t = toc;
+                    fprintf('Parallel Process took: %.5f [s]\n', t)
+                    res.C_dw = temp{1};
+                    res.Struc = temp{2};
+                    res.Loading = temp{3};
+                    res.W_f = temp{4};
+                else
+                    res.C_dw = obj.run_aerodynamics();
+                    res.Loading = obj.run_loads();
+                    res.Struc = obj.run_structures();
+                    res.W_f = obj.run_performance();
                 end
-                t = toc;
-                fprintf('Parallel Process took: %.5f [s]\n', t)
-                res.C_dw = temp{1};
-                res.Struc = temp{2};
-                res.Loading = temp{3};
-                res.W_f = temp{4};
                 
                 if isempty(obj.cache.results)
                     obj.cache.results = res;

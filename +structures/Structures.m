@@ -1,6 +1,21 @@
+% Copyright 2018 San Kilkis
+% 
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+% 
+%    http://www.apache.org/licenses/LICENSE-2.0
+% 
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
 classdef Structures < handle
-    %STRUCTURES Summary of this class goes here
+    %STRUCTURES 
     %   Detailed explanation goes here
+    % TODO Comment HERE
     
     properties
         aircraft_in
@@ -51,10 +66,7 @@ classdef Structures < handle
             i.n_max = ac.eta_max; % Load Factor
             i.b = ac.b;  % Wing Span
             i.N_sections = 4; % Number of Planform Sections
-            i.N_airfoils = 2; % Number of Airfoil Sections
-            i.airfoils.root.loc = 0; i.airfoils.root.name = [i.name '_r'];
-            i.airfoils.tip.loc = 1; i.airfoils.tip.name = [i.name '_t'];
-            
+           
             % Fetching Planform Geometry
             planform = obj.aircraft_in.planform;
             coords = planform.Coords;
@@ -89,6 +101,16 @@ classdef Structures < handle
             i.sections.tip.fs = planform.FS;
             i.sections.tip.rs = planform.RS;
 
+            i.N_airfoils = 3; % Number of Airfoil Sections
+            i.airfoils.root.loc = 0;
+            i.airfoils.root.name = [i.name '_r'];
+            
+            i.airfoils.kink.loc = eta_fus;
+            i.airfoils.kink.name = [i.name '_k'];
+            
+            i.airfoils.tip.loc = 1;
+            i.airfoils.tip.name = [i.name '_t'];
+            
             i.S = planform.S;
             i.fuel_start = ac.D_fus / planform.b;
             i.fuel_end = ac.fuel_limit;
@@ -171,9 +193,11 @@ classdef Structures < handle
 %                 '\' obj.EMWET_input.airfoils.tip.name '.dat'])
             % TODO verify that planform is same as input planform
 
-            CST = obj.build_CSTAirfoil();
+            CST = obj.aircraft_in.CST;
             CST.root.write([obj.temp_dir '\' ...
                 obj.EMWET_input.airfoils.root.name '.dat'])
+            CST.kink.write([obj.temp_dir ...
+                '\' obj.EMWET_input.airfoils.kink.name '.dat'])
             CST.tip.write([obj.temp_dir ...
                 '\' obj.EMWET_input.airfoils.tip.name '.dat'])
         end
@@ -187,6 +211,11 @@ classdef Structures < handle
             ac = obj.aircraft_in; A_root = ac.A_root;
             root.upper = A_root(1:length(A_root)/2);
             root.lower = A_root(length(A_root)/2+1:end);
+
+            % Fetching Kink CST Coefs
+            A_kink = ac.A_kink;
+            kink.upper = A_kink(1:length(A_kink)/2);
+            kink.lower = A_kink(length(A_kink)/2+1:end);
             
             % Fetching Tip CST Coefs
             A_tip = ac.A_tip;
@@ -197,10 +226,10 @@ classdef Structures < handle
             CSTAirfoil = @geometry.CSTAirfoil;
             CST.root = CSTAirfoil(x, 'A_upper', root.upper,...
                 'A_lower', root.lower);
+            CST.kink = CSTAirfoil(x, 'A_upper', kink.upper,...
+                'A_lower', kink.lower);
             CST.tip = CSTAirfoil(x, 'A_upper', tip.upper,...
                 'A_lower', tip.lower);
-%             CST.tip.plot();
-%             CST.root.plot();
         end
         
         function write_loads(obj)
