@@ -75,11 +75,17 @@ classdef DesignVector < dynamicprops & handle
             end
         end
         
-        function update(obj, vector)
+        function update(obj)
+            % Appends the current vector to the history
             obj.history = [obj.history, obj.vector];
-            obj.vector = vector;
         end
         
+        function set.vector(obj, vector)
+            % Setter of a vector, for when x.vector = vector syntax is used
+            obj.update()
+            obj.vector = vector;
+        end
+
         function history = fetch_history(obj, varargin)
             % Fetches the history of the design vector from obj.history
             % and returns either the normalized or unormalized result
@@ -108,92 +114,18 @@ classdef DesignVector < dynamicprops & handle
                 history = fetched_array .* obj.init;
             end
         end
-            
-            
-
-    %  function obj = DesignVector(data, keys)
-    %      if nargin == 0
-    %         data = 0;
-    %         keys = '';
-    %      elseif nargin == 1
-    %         keys = '';
-    %      end
-    %      obj = obj@double(data);
-    %      obj.keys = keys;
-    %   end
-   
-%       function sref = subsref(obj,s)
-%         switch s(1).type
-%            case '.'
-%               switch s(1).subs
-%                  case 'keys'
-%                     sref = obj.keys;
-%                  case 'Data'
-%                     d = double(obj);
-%                     if length(s)<2
-%                        sref = d;
-%                     elseif length(s)>1 && strcmp(s(2).type,'()')
-%                        sref = subsref(d,s(2:end));
-%                     end
-%                  otherwise
-%                     error('Not a supported indexing expression')
-%               end
-%            case '()'
-%               d = double(obj);
-%               newd = subsref(d,s(1:end));
-%               sref = definitions.DesignVector(newd,obj.keys);
-%            case '{}'
-%               error('Not a supported indexing expression')
-%         end
-%      end
-     
-%      function obj = subsasgn(obj,s,b)
-%         switch s(1).type
-%            case '.'
-%               switch s(1).subs
-%                  case 'keys'
-%                     obj.keys = b;
-%                  case 'Data'
-%                     if length(s)<2
-%                        obj = definitions.DesignVector(b,obj.keys);
-%                     elseif length(s)>1 && strcmp(s(2).type,'()')
-%                        d = double(obj);
-%                        newd = subsasgn(d,s(2:end),b);
-%                        obj = definitions.DesignVector(newd,obj.keys);
-%                     end
-%                  otherwise
-%                     error('Not a supported indexing expression')
-%               end
-%            case '()'
-%               d = double(obj);
-%               newd = subsasgn(d,s(1),b);
-%               obj = definitions.DesignVector(newd,obj.keys);
-%            case '{}'
-%               error('Not a supported indexing expression')
-%         end
-%      end
-     
-%      function newobj = horzcat(varargin)
-%         d1 = cellfun(@double,varargin,'UniformOutput',false );
-%         data = horzcat(d1{:});
-%         str = horzcat(cellfun(@char,varargin,'UniformOutput',false));
-%         newobj = definitions.DesignVector(data,str);
-%      end
-     
-%      function newobj = vertcat(varargin)
-%         d1 = cellfun(@double,varargin,'UniformOutput',false );
-%         data = vertcat(d1{:});
-%         str = vertcat(cellfun(@char,varargin,'UniformOutput',false));
-%         newobj = definitions.DesignVector(data,str);
-%      end
-     
-%      function str = char(obj)
-%         str = obj.keys;
-%      end
-     
-%      function disp(obj)
-%         disp(obj.keys)
-%         disp(double(obj))
-%      end
+        
+        function bool = isnew(obj, vector)
+            % Determines if the supplied vector is a new entry
+            if ~isempty(obj.history)
+                if all(obj.history(:, end) == vector)
+                    bool = false;
+                else
+                    bool = true;
+                end
+            else
+                    bool = true;
+            end
+        end
   end
 end

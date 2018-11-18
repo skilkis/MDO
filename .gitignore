@@ -16,3 +16,6 @@ temp/EMWET
 
 # Ignore Temporary Q3D Files
 temp/Q3D
+
+# Ignore prototyping folder
+prototype

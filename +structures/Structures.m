@@ -18,16 +18,16 @@ classdef Structures < handle
     % TODO Comment HERE
     
     properties
-        aircraft_in
-        W_w                     % Wing Weight
-        V_t                     % Computed Fuel-Tank Volume
-        EMWET_input = struct(); % Struct Containing Inputs for EMWET 
-        EMWET_output = struct();% Struct Containing Outputs of EMWET
-        fuel_tank               % Constructed Fuel-Tank
+        aircraft_in                 % Input Aircraft Object
+        W_w                         % Wing Weight
+        V_t                         % Computed Fuel-Tank Volume
+        EMWET_input = struct();     % Struct Containing Inputs for EMWET 
+        EMWET_output = struct();    % Struct Containing Outputs of EMWET
+        fuel_tank                   % Constructed Fuel-Tank
     end
     
     properties (SetAccess = private, GetAccess = private)
-        temp_dir            % Temporary Directory for EMWET Runs
+        temp_dir                    % Temporary Directory for EMWET Runs
     end
     
     methods
@@ -105,7 +105,7 @@ classdef Structures < handle
             i.airfoils.root.loc = 0;
             i.airfoils.root.name = [i.name '_r'];
             
-            i.airfoils.kink.loc = eta_fus;
+            i.airfoils.kink.loc = planform.eta(2);
             i.airfoils.kink.name = [i.name '_k'];
             
             i.airfoils.tip.loc = 1;
@@ -186,11 +186,6 @@ classdef Structures < handle
         end
         
         function write_airfoils(obj)
-%             ac = obj.aircraft_in;
-%             ac.airfoils.root.write([obj.temp_dir '\' ...
-%                 obj.EMWET_input.airfoils.root.name '.dat'])
-%             ac.airfoils.tip.write([obj.temp_dir ...
-%                 '\' obj.EMWET_input.airfoils.tip.name '.dat'])
             % TODO verify that planform is same as input planform
 
             CST = obj.aircraft_in.CST;
