@@ -1,25 +1,39 @@
-% classdef CSTAirfoil < geometry.Airfoil
-classdef CSTAirfoil
+% Copyright 2018 San Kilkis
+% 
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+% 
+%    http://www.apache.org/licenses/LICENSE-2.0
+% 
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
+classdef CSTAirfoil < geometry.Airfoil
 %RESPONSIBLE FOR BLAH BLAH
 
-
-
-   properties (SetAccess = private)
-      x_upper   % x coordinates of upper-surface points (column vector)
-      x_lower   % y coordinates of upper-surface points (column vector)
-      A_upper   % Upper surface Bernstein Coefficients
-      A_lower   % Lower surface Bernstein coefficients
-      N1        % LE Class Function value
-      N2        % TE Class Function value
-   end
+    properties (SetAccess = private)
+        x_upper   % x coordinates of upper-surface points (column vector)
+        x_lower   % y coordinates of upper-surface points (column vector)
+        A_upper   % Upper surface Bernstein Coefficients
+        A_lower   % Lower surface Bernstein coefficients
+        N1        % LE Class Function value
+        N2        % TE Class Function value
+        y_upper   % y coordinate of upper-surface points (column vector)
+        y_lower   % y coordinate of lower-surface points (column vector)
+        x_max     % x location of maximum thickness
+        t_max     % Normalized maximum thickness (t/c)
+    end
+    
+    properties (SetAccess = private, GetAccess = private)
+        classValues  % Class Function values w/ fields 'upper' and 'lower'
+        shapeValues  % Shape Function values w/ fields 'upper' and 'lower'
+    end
    
-   properties (Dependent, SetAccess = private) % Only can set by itself
-       classValues  % Class Function values w/ fields 'upper' and 'lower'
-       shapeValues  % Shape Function values w/ fields 'upper' and 'lower'
-       y_upper      % y coordinate of upper-surface points (column vector)
-       y_lower      % y coordinate of lower-surface points (column vector)
-   end
-   
+    
    methods
       %% Class Constructor
       function obj = CSTAirfoil(x_upper, varargin)
@@ -51,45 +65,46 @@ classdef CSTAirfoil
             obj.A_lower = p.Results.A_lower;
             obj.N1 = p.Results.N1;
             obj.N2 = p.Results.N2;
-        
+
+            % Calculating Output
+            obj.fetchClassValues();
+            obj.fetchShapeValues();
+            obj.fetchYValues();
       end
       
       % Dependent Attribute Getters
-      function value = get.classValues(obj)
+      function fetchClassValues(obj)
             % Localizing variables for clarity
             x_u = obj.x_upper;
             x_l = obj.x_lower;
             
             value.upper = obj.classFunction(x_u, obj.N1, obj.N2);
-            value.lower = -obj.classFunction(x_l, obj.N1, obj.N2);
+            value.lower = obj.classFunction(x_l, obj.N1, obj.N2);
+
+            obj.classValues = value;
       end
       
-      function value = get.shapeValues(obj)
+      function fetchShapeValues(obj)
             % Localizing variables for clarity
             x_u = obj.x_upper;
             x_l = obj.x_lower;
             
             value.upper = obj.shapeFunction(x_u, obj.A_upper);
             value.lower = obj.shapeFunction(x_l, obj.A_lower);
-      end
-      
-      function value = get.y_upper(obj)
-          value = obj.classValues.upper .* obj.shapeValues.upper;    
-      end
-      
-      function value = get.y_lower(obj)
-          value = obj.classValues.lower .* obj.shapeValues.lower;
-      end
-      
-%{
 
-%}
+            obj.shapeValues = value;
+      end
+      
+      function fetchYValues(obj)
+          obj.y_upper = obj.classValues.upper .* obj.shapeValues.upper;
+          obj.y_lower = obj.classValues.lower .* obj.shapeValues.lower;    
+      end
       
       function handle = plot(obj)
           figure('Name', inputname(1))
           hold on; grid minor
-          plot(obj.x_upper, obj.classValues.upper .* obj.shapeValues.upper)
-          plot(obj.x_lower, obj.classValues.lower .* obj.shapeValues.lower)
+          plot(obj.x_upper, obj.y_upper)
+          plot(obj.x_lower, obj.y_lower)
           axis([min(obj.x_upper), max(obj.x_upper),...
                 -max(obj.x_upper) * 0.5, max(obj.x_upper)*0.5])
           legend('Upper Surface', 'Lower Surface')
@@ -98,7 +113,35 @@ classdef CSTAirfoil
           title('CSTAirfoil Geometry')
           handle = gcf();
       end
+
+      function scaled = scale(obj, thickness)
+            upper_func = @(x) obj.classFunction(x, obj.N1, obj.N2) * ...
+                              obj.shapeFunction(x, obj.A_upper);
+            lower_func = @(x) obj.classFunction(x, obj.N1, obj.N2) * ...
+                               obj.shapeFunction(x, obj.A_lower);
+            
+            % Objective Function used to find the current thickness
+            f = @(x) -(upper_func(x) - lower_func(x));
+            
+            % Normalized maximum thickness value and location
+            [obj.x_max, obj.t_max] = fminbnd(f, 0.0, 1.0);
+            obj.t_max = -obj.t_max; % Reverting thickness value;
+            
+            %  Establishing thickness scaling ratio
+            ratio = thickness / obj.t_max;
+            
+            scaled = obj.copy(); scaled.t_max = thickness;            
+            scaled.y_upper = obj.y_upper * ratio;
+            scaled.y_lower = obj.y_lower * ratio;
+            scaled.A_upper = obj.A_upper * ratio;
+            scaled.A_lower = obj.A_lower * ratio;
+      end
+      
+      function y_at_length(x)
+          
+      end
    end
+
    methods (Static)
      function classValue = classFunction(x, N1, N2)
           classValue = (x.^N1).*(1-x).^N2;

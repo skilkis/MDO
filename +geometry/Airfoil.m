@@ -1,3 +1,17 @@
+% Copyright 2018 San Kilkis
+% 
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+% 
+%    http://www.apache.org/licenses/LICENSE-2.0
+% 
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
 classdef (Abstract) Airfoil < handle
     %AIRFOIL Parent-class setting required properties
     
@@ -9,8 +23,65 @@ classdef (Abstract) Airfoil < handle
     end
     
     methods (Abstract)
-        plot(obj)
         scale(obj, chord, thickness)
+    end
+    
+    methods
+        function handle = plot(obj)            
+            figure('Name', obj.name);
+            hold on; grid on; grid minor;
+            plot(obj.x_upper, obj.y_upper)
+            plot(obj.x_lower, obj.y_lower)
+            chord = max([obj.x_upper; obj.x_lower]);
+            axis([0, chord, -0.5 * chord, 0.5 * chord])
+            hold off;
+            xlabel('Normalized Chord Location (x/c)','Color','k');
+            ylabel('Normalized Chord-Normal Location (y/c)','Color','k');
+            legend('Upper Surface', 'Lower Surface')
+            title(sprintf('%s Geometry', obj.name))
+            handle = gcf();
+        end
+        
+        function copy_obj = copy(obj)
+        %Makes a fast object copy utilizing the MATLAB ByteStream
+            try
+                % R2010b or newer - directly in memory (faster)
+                objByteArray = getByteStreamFromArray(obj);
+                copy_obj = getArrayFromByteStream(objByteArray);
+            catch
+                % R2010a or earlier - serialize via temp file (slower)
+                fname = tempname([pwd '\temp\']);
+                save(fname, 'obj');
+                newObj = load(fname);
+                copy_obj = newObj.obj;
+                delete(fname);
+            end
+        end
+        
+        function write(obj, filepath)
+            % Writes an Airfoil .dat file where the order of points is from
+            % TE -> Upper Surface -> LE -> Lower Surface -> TE. Assumes
+            % that the minimum x starts at zero
+            
+            x_max = max([obj.x_upper; obj.x_lower]);
+            if x_max <= 1.0
+                ratio = x_max^-1;
+                x_u = obj.x_upper * ratio;
+                x_l = obj.x_lower * ratio;
+                y_u = obj.y_upper * ratio;
+                y_l = obj.y_lower * ratio;
+                data = [flipud(x_u), flipud(y_u); ...
+                        x_l(2:end), y_l(2:end)];
+            else
+                data = [flipud(obj.x_upper), flipud(obj.y_upper); ...
+                        obj.x_lower(2:end), obj.y_lower(2:end)];
+            end
+            fid = fopen(filepath, 'w');
+                for i = 1:length(data)
+                    fprintf(fid, '%.6f %.6f\n', data(i,1), data(i,2));
+                end
+            fclose(fid);
+        end
     end
 end
     

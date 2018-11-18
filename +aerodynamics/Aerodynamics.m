@@ -1,114 +1,177 @@
-% clear all
-% close all
-% clc
+% Copyright 2018 Evert Bunschoten
+% 
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+% 
+%    http://www.apache.org/licenses/LICENSE-2.0
+% 
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
 
+classdef Aerodynamics < handle
+%% AERODYNAMICS
 
+% This is the aerodynamics analysis code. It's responsible for calculating
+% the drag coefficient of the wing defined in the current iteration. This
+% value is compared to the guessed value of the drag coefficient in the
+% constraints. First, the variables and parameters are extracted from the
+% input struct. After that, the Q3D input struct is made according to these
+% variables and parameters, which allows Q3D to calculate the wing drag
+% coefficient.
 
-classdef Aerodynamics
 %% Properties allowed to be changed by the optimizer or class itself    
     properties
-        %Root chord Bernstein coefficients
-        A_r = [0.2081    0.2645   0.1419     0.2872  0.1349  0.2845...
-       -0.1230   -0.1419     -0.1727     -0.1080     -0.1503     -0.1197];
-        %Tip chord Bernstein coefficients
-        A_t = 0.66666*[0.2081    0.2645   0.1419     0.2872  0.1349  0.2845...
-      -0.1230   -0.1419     -0.1727     -0.1080     -0.1503     -0.1197];
-        W_f;         %Design fuel weight[kg]
-        W_w;         %Wing weight[kg]
-        Chords;
-        Coords;
-        Twists;
-        S;
-        MAC;
-        AC;
-        Res;
-        C_dw;
-        
-    end
- %% Set parameters   
-    properties(SetAccess = 'private')
-        h = 11248;          %Cruise altitude[m]
-        V_c = 231.5;        %Cruise speed[m/s]
-        rho = 0.589;        %Cruise altitude air density[kg m^-3]
- %       W_pl = 17670;       %Design payload weight[kg]
-        g = 9.81;           %Acceleration due to gravity[ms^-2]
-        v = 8*10^(-6);       %Viscosity of air at 215 K[m^2s^-1]
-        W_aw = 38400;       %Aircraft less wing weight[kg]
-        W_f0 = 23330;       %A320-200 design fuel weight[kg]
-        W_w0 = 9600;        %A320-200 wing weight[kg]
-         A_r0 = [0.2081    0.2645   0.1419     0.2872  0.1349  0.2845...
-        -0.1230   -0.1419     -0.1727     -0.1080     -0.1503     -0.1197];
-        %Tip chord Bernstein coefficients
-        A_t0 = 0.66666*[0.2081    0.2645   0.1419     0.2872  0.1349  0.2845...
-        -0.1230   -0.1419     -0.1727     -0.1080     -0.1503     -0.1197];
 
-        
+        Vars;       % Input variables
+        Params;     % Input parameters
+        Structs;    % Input structs
+        C_d_w;      % Aerodynamics output
+
+    end
+
+    properties (SetAccess = private, GetAccess = private)
+        temp_dir            % Temporary Directory for Q3D Runs
     end
     
+    methods     
+        function obj = Aerodynamics(aircraft_in)
+        %Setting the fuel weight, wing weight and geometry
 
+            % Extracting input variables
+            obj.Vars.W_f = aircraft_in.W_f;    % Guess value fuel weight[kg]
+            obj.Vars.W_w = aircraft_in.W_w;    % Guess value wing weight [kg]
+            obj.Vars.A_r = aircraft_in.A_root.';   % Root chord coefficients
+            obj.Vars.A_k = aircraft_in.A_kink.';   % Kink airfoil coeffs.
+            obj.Vars.A_t = aircraft_in.A_tip.';    % Tip chord coefficients
+            obj.Vars.Chords = aircraft_in.planform.Chords;  % Wing section chord lengths [m]
+            obj.Vars.Coords = aircraft_in.planform.Coords;  % Leading edge coordinates [m]
+            obj.Vars.Twists = aircraft_in.planform.Twists;  % Wing section twist angles [deg]
+            obj.Vars.S = aircraft_in.planform.S;            % Wing planform area [m^2]
+            obj.Vars.MAC = aircraft_in.planform.MAC;        % Wing mean aerodynamic chord [m]
+            obj.Vars.b = aircraft_in.planform.b;            % Wing span [m]
+
+            % Extracting input parameters
+            obj.Params.h = aircraft_in.h_c;         % Cruise altitude [m]
+            obj.Params.M_c = aircraft_in.M_c;       % Cruise Mach number [-]
+            obj.Params.a_c = aircraft_in.a_c;       % Speed of sound at cruise [m/s]
+            obj.Params.rho = aircraft_in.rho_c;     % Air density at cruise [kg/m^3]
+            obj.Params.g = aircraft_in.g;           % Acceleration due to gravity [m/s^2]
+            obj.Params.W_aw = aircraft_in.W_aw;     % Empty aircraft-less weight [kg]
+            obj.Params.W_p = aircraft_in.W_p;       % Design payload weight [kg]
+            obj.Params.v = aircraft_in.v;           % Kinematic viscosity at cruise [m^2/s]
+            obj.Params.d_TE = aircraft_in.d_TE;     % Straight trailing edge length [m]
+
+
+            obj.Structs.p = aircraft_in.planform;
+
+            % Creating the Q3D input struct
+            obj.Structs.AC = obj.fetch_AC();
+            
+            % Creating Temporary Directory
+            obj.make_temp_dir();
+
+            % Running Q3D
+            obj.Structs.Res = obj.run_Q3D();
+
+            % Extracting the wing drag coefficient
+            obj.C_d_w = obj.fetch_C_dw();
+            
+            % Cleaning-up Temporary Directory
+            obj.cleanup();
+        end
     
-    methods
-%% Setting the fuel weight, wing weight        
-   function obj = Aerodynamics(x_wf, x_ww, x_ar, x_at, P)
-            obj.W_f = x_wf*obj.W_f0;
-            obj.W_w = x_ww*obj.W_w0;
-            obj.A_r = x_ar.*obj.A_r0;
-            obj.A_t = x_at.*obj.A_t0;
-            obj.Chords = P.Chords;
-            obj.Coords = P.Coords;
-            obj.Twists = P.Twists;
-            obj.S = P.S;
-            obj.MAC = P.MAC;
-            
-   end 
-        
-        function AC = get.AC(obj)
-           
-            MTOW = obj.W_aw + obj.W_f + obj.W_w;
-            W_des = sqrt(MTOW*(MTOW - obj.W_f));
-            
-            C_L = obj.g*W_des/(0.5*obj.rho*obj.S*obj.V_c^2);
-            AC.Wing.Geom = [obj.Coords, obj.Chords.', obj.Twists.'];
+        function AC = fetch_AC(obj)
+        % Building the Q3D input struct 
+
+            % Maximum take-off weight calculation [kg]
+            MTOW = obj.Params.W_aw + obj.Vars.W_f + obj.Vars.W_w;
+
+            % Aircraft weight at design point [kg]
+            W_des = sqrt(MTOW*(MTOW - obj.Vars.W_f));
+
+            % Cruise speed [m/s]
+            V_c = obj.Params.M_c*obj.Params.a_c;
+
+            % Calculation of design lift coefficient
+            C_L = obj.Params.g*W_des/(0.5*obj.Params.rho*obj.Vars.S*V_c^2);
+
+            % Building the struct based on input geometry, parameters and
+            % design lift coefficient.
+            AC.Wing.Geom = [obj.Vars.Coords, obj.Vars.Chords.', obj.Vars.Twists.'];
             AC.Wing.inc = 0;
-            AC.Wing.eta = [0;1];
+            AC.Wing.eta = [0;2*obj.Params.d_TE/obj.Vars.b;1];
             AC.Visc = 1;
-            AC.Wing.Airfoils = [obj.A_r;obj.A_t];
-            AC.Aero.rho = obj.rho;
-            AC.Aero.alt = obj.h;
-            AC.Aero.M = obj.V_c/sqrt(1.4*287*215.038);
-            AC.Aero.Re = obj.V_c*obj.MAC/obj.v;
-            AC.Aero.V = obj.V_c;
+            AC.Wing.Airfoils = [obj.Vars.A_r; obj.Vars.A_k; obj.Vars.A_t];
+            AC.Aero.rho = obj.Params.rho;
+            AC.Aero.alt = obj.Params.h;
+            AC.Aero.M = obj.Params.M_c;
+            AC.Aero.Re = V_c*obj.Vars.MAC/obj.Params.v;
+
+            AC.Aero.V = V_c;
             AC.Aero.CL = C_L;
-            
         end
-        
-        function res = get.Res(obj)
-           res = aerodynamics.Q3D_solver(obj.AC);
+
+        function res = run_Q3D(obj)
+        % Running Q3D
+            try
+                tic;
+                working_dir = cd;
+                cd(obj.temp_dir)
+                res = Q3D(obj.Structs.AC);
+                cd(working_dir);
+                t = toc;
+                fprintf('Q3D Viscous took: %.5f [s]\n', t)
+            catch e
+                error(e.message);
+            end
         end
-        
-        function Cd = get.C_dw(obj)
-           cd = obj.Res.CDwing;
-           if isnan(cd) == 1
+    
+        function Cd = fetch_C_dw(obj)
+        % Extracting Drag Coefficient
+           Cd = obj.Structs.Res.CDwing;
+           if isnan(Cd)
                Cd = 1000;
-           else
-               Cd = cd;
            end
         end
-        
-%         function L = get.L_distr(obj)
-%             q = 0.5*obj.rho*obj.S*obj.V_c^2;
-%             Y = obj.Res.Wing.Yst;
-%             Ccl = obj.Res.Wing.ccl;
-%             Ccl0 = (Ccl(2)*Y(1) - Ccl(1)*Y(2))/(Y(1)-Y(2));
-%             Ccl1 = ((Ccl(L-1)-Ccl(L))*0.5*P.b +Ccl(L)*Y(L-1)-Ccl(L-1)*Y(L))/(Y(L-1)-Y(L));
-%             L = [Ccl0,Ccl.',Ccl1]*q;
-%         end
-         
-        
     end
-    
-    
+
+    methods (Access = private)
+        function make_temp_dir(obj)
+            % Creates a temporary directory pertaining to the current
+            % worker_ID for EMWET if parallel processing is enabled.
+            % Otherwise a 'serial_exec' folder is created. The EMWET.p
+            % file is also copied to this directory
+            try
+                w = getCurrentWorker;
+                worker_ID = w.ProcessId;
+            catch
+                warning(['Parallel Processing Disabled ' ...
+                         'or not Installed on Machine'])
+                worker_ID = 'serial_exec';
+            end
+
+            obj.temp_dir = [pwd '\temp\Q3D\Aero\'...
+                            num2str(worker_ID)];
+                        
+            mkdir(obj.temp_dir)
+
+            % Copying EMWET to New Worker Directory
+            copyfile([pwd '\bin\Q3D.p'], obj.temp_dir);
+            copyfile([pwd '\bin\Storage'], [obj.temp_dir '\Storage']);
+        end
+        
+        function cleanup(obj)
+            rmdir(obj.temp_dir, 's');
+        end
+    end 
 end
+    
+    
+
 
 
     

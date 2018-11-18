@@ -1,4 +1,5 @@
-%% Demonstrates simple yet powerful directory management w/ packages
+%% Obtains the Bernstien Coefficients of the A320-200 at the 3 span
+% Locations that define the wing planfrom (root, kink, tip)
 clc
 clear all
 close all
