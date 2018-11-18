@@ -234,7 +234,7 @@ classdef Structures < handle
             Y_range = linspace(0, 1, 30)';
             B = ((factorial(n)./(factorial(i).*factorial(n-i))).*...
                 (Y_range.^i).*(1-Y_range).^(n-i));
-            L = B*A_L; M = B*A_M;
+            L = B*A_L'; M = B*A_M';
 
             % Writing to .load file
             filename = [obj.temp_dir '\' obj.aircraft_in.name '.load'];

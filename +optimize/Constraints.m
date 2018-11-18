@@ -39,8 +39,8 @@ classdef Constraints < handle
             B = ((factorial(n)./(factorial(i).*factorial(n-i))).*(yrange.^i).*(1-yrange)...
                 .^(n-i));
             
-            Z_L = B*A_L;
-            Z_M = B*A_M;
+            Z_L = B*A_L';
+            Z_M = B*A_M';
             
             C_lift = sum(((L_distr_true-Z_L')./L_distr_true).^2);
             
