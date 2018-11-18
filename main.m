@@ -37,10 +37,13 @@ run_case.aircraft.CST.tip.plot();
 
 %% Running Optimization w/ fmincon
 run_case.optimize();
+% save('')
 
 %% Plotting Final Result
-
 run_case.aircraft.planform.plot();
 run_case.aircraft.CST.root.plot();
 run_case.aircraft.CST.tip.plot();
-% TODO implement way to plot into the same object
+
+%% Shutting Down Parallel Pool
+poolobj = gcp('nocreate');
+delete(poolobj);

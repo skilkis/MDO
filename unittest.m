@@ -7,8 +7,8 @@ ac = aircraft.Aircraft('A320');
 ac.planform.plot();
 
 %% Testing Airfoil Fitting
-% root_airfoil = geometry.AirfoilReader('naca23015.dat');
-% root_fit = geometry.FittedAirfoil(root_airfoil);
+root_airfoil = geometry.AirfoilReader('naca23015.dat');
+root_fit = geometry.FittedAirfoil(root_airfoil);
 % root_cst = root_fit.CSTAirfoil;
 % 
 % % Visual Verification of Fitting Process
