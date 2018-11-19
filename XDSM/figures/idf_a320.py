@@ -25,7 +25,7 @@ x.add_system('L', comp, ('1:', 'Loads'))
 x.add_system('P', comp, ('1:', 'Performance'))
 
 # Objective Function:
-x.add_system('obj', func, ('2: Objective', r'$f(W_f) = - W_f$'))
+x.add_system('obj', func, ('2: Objective', r'$f(W_f) = W_f$'))
 
 # Constraints:
 x.add_system('fuel', func, ('2: Ineq. Constraint', r'$\frac{W_f}{\rho_f} - V_t \leq 0$'))
