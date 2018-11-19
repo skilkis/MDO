@@ -60,17 +60,10 @@ classdef Constraints < handle
             W_w_guess = aircraft.W_w;
             C_ww = (W_w_guess/W_w_true)-1;
 
-            
-
-                
-                
             W_f_true = results.W_f;
             W_f_guess = aircraft.W_f;
             C_wf = (W_f_guess/W_f_true)-1;
-            
 
-                
-                
             %Inequality constraint setting the wing loading equal or lower 
             %than initial value
             % TODO change aircraft.S to aircraft.S_ref to avoid confusion
@@ -79,9 +72,6 @@ classdef Constraints < handle
                 /aircraft.planform.S;
             C_wl = 1 - (WL_0/WL_guess);
 
-            
-
-                    
             %Inequality constraint checking for the sufficient front spar 
             %clearance at the fuselage line
             Fs_fus = aircraft.planform.FS_fus;
