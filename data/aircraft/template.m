@@ -9,7 +9,7 @@ base_airfoil = 'naca23015';     % Base Airfoil Name [-]
 
 % Drag coefficients
 C_d_w = 0.0117;                 % Initial wing drag coefficient [-]
-C_d_aw = 0.00587;               % Aircraft-less wing drag coefficient [-]
+C_d_aw = 0.008332;               % Aircraft-less wing drag coefficient [-]
 
 % Cruise Parameters
 h_c = 11248;                    % Cruise Altitude [m]
@@ -50,7 +50,7 @@ sigma_t = 295e6;                % Tensile Yield Stress [Pa]
 rho_al = 2800;                  % Density of Aluminum Alloy [kg/m^3]
 
 % Engine Specifications
-engine_spec = [0.1696, 2327];   % [Span Position, Weight [kg]]
+engine_spec = [0.1696, 2327];   % [Span Position, Weight [kg]
 
 % Loading Coefficients
 A_L = [8.5945,...               % Lift distribution Bernstein coefficients

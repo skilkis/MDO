@@ -18,16 +18,16 @@ classdef Structures < handle
     % TODO Comment HERE
     
     properties
-        aircraft_in
-        W_w                     % Wing Weight
-        V_t                     % Computed Fuel-Tank Volume
-        EMWET_input = struct(); % Struct Containing Inputs for EMWET 
-        EMWET_output = struct();% Struct Containing Outputs of EMWET
-        fuel_tank               % Constructed Fuel-Tank
+        aircraft_in                 % Input Aircraft Object
+        W_w                         % Wing Weight
+        V_t                         % Computed Fuel-Tank Volume
+        EMWET_input = struct();     % Struct Containing Inputs for EMWET 
+        EMWET_output = struct();    % Struct Containing Outputs of EMWET
+        fuel_tank                   % Constructed Fuel-Tank
     end
     
     properties (SetAccess = private, GetAccess = private)
-        temp_dir            % Temporary Directory for EMWET Runs
+        temp_dir                    % Temporary Directory for EMWET Runs
     end
     
     methods
@@ -105,7 +105,7 @@ classdef Structures < handle
             i.airfoils.root.loc = 0;
             i.airfoils.root.name = [i.name '_r'];
             
-            i.airfoils.kink.loc = eta_fus;
+            i.airfoils.kink.loc = planform.eta(2);
             i.airfoils.kink.name = [i.name '_k'];
             
             i.airfoils.tip.loc = 1;
@@ -186,11 +186,6 @@ classdef Structures < handle
         end
         
         function write_airfoils(obj)
-%             ac = obj.aircraft_in;
-%             ac.airfoils.root.write([obj.temp_dir '\' ...
-%                 obj.EMWET_input.airfoils.root.name '.dat'])
-%             ac.airfoils.tip.write([obj.temp_dir ...
-%                 '\' obj.EMWET_input.airfoils.tip.name '.dat'])
             % TODO verify that planform is same as input planform
 
             CST = obj.aircraft_in.CST;
@@ -235,12 +230,13 @@ classdef Structures < handle
         function write_loads(obj)
             % Transforming Bernstein Coefs. into Actual Load Data
             ac = obj.aircraft_in;
-            A_L = ac.A_L; A_M = ac.A_M; n = length(A_L)-1; i = 0:n;
+            A_L = ac.A_L'; A_M = ac.A_M';
             Y_range = linspace(0, 1, 30)';
-            B = ((factorial(n)./(factorial(i).*factorial(n-i))).*...
-                (Y_range.^i).*(1-Y_range).^(n-i));
-            L = B*A_L; M = B*A_M;
-
+            L = geometry.CSTAirfoil.shapeFunction(Y_range, A_L);
+            M = geometry.CSTAirfoil.shapeFunction(Y_range, A_M);
+            
+            plot(Y_range, L); drawnow;
+            
             % Writing to .load file
             filename = [obj.temp_dir '\' obj.aircraft_in.name '.load'];
             fid = fopen(filename, 'w');

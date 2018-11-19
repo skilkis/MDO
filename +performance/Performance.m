@@ -44,7 +44,7 @@ classdef Performance < handle
           
           % Calculating the drag coefficient with aircraft-less wing drag
           % corrected with current planform area
-          C_D = aircraft_in.C_d_w + aircraft_in.C_d_aw*S/122.4;
+          C_D = aircraft_in.C_d_w + aircraft_in.C_d_aw*aircraft_in.S/S;
           
           % Calculating the fuel required for the mission
           obj.W_fuel = (1 - 0.938*exp(-aircraft_in.g*R_c*C_T*C_D/(V_c*C_L)))*MTOW;

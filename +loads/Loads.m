@@ -87,6 +87,7 @@ classdef Loads < handle
 
             % Calculating maximum dive speed
             V_c = obj.Params.M_mo*obj.Params.a_c;
+            
 
             % Calculating lift coefficient based on maximum load factor
             C_L = obj.Params.n_max*obj.Params.g*MTOW/(0.5*obj.Params.rho*...
@@ -96,7 +97,7 @@ classdef Loads < handle
             % calculated parameters
             AC.Wing.Geom = [obj.Vars.Coords, obj.Vars.Chords.', obj.Vars.Twists.'];
             AC.Wing.inc = 0;
-            AC.Wing.eta = [0;obj.Params.d_TE/obj.Vars.b;1];
+            AC.Wing.eta = [0;2*obj.Params.d_TE/obj.Vars.b;1];
             AC.Visc = 0;
             AC.Wing.Airfoils = [obj.Vars.A_r; obj.Vars.A_k; obj.Vars.A_t];
             AC.Aero.rho = obj.Params.rho;

@@ -17,29 +17,39 @@ classdef RunCase < handle
     %   Detailed explanation goes here
     
     properties
-        aircraft;       % Aircraft instance with all parameters and vars
-        x;              % DesignVector object for fmincon & ease of use
-        results;
-        x_final;
-        converged;
-        options;
+        aircraft;           % Aircraft instance with all parameters and vars
+        x;                  % DesignVector object for fmincon & ease of use
+        x_final;            % Optimized Design Vector
+        converged = false;  % True if fmincon stopped w/o errors
+        options;            % fmincon options struct
     end
 
     properties (SetAccess = private, GetAccess = public)
-        cache = struct()
-        first_run
-        parallel;
+        cache = struct()    % Cache of Results & Constraints
+        run_parallel        % Bool, True for machines with >= 4 cores
+        iter_counter = 0    % Counts the number of function calls
+        start_time          % datetime at the start of optimization
+        end_time            % datetime at the end of optimization
+        sim_time;           % Total Sim. Time at end of Optimization [s]
     end
     
     methods
         
         function obj = RunCase(aircraft_name, options)
+            % Displaying welcome message
+            type data\log\header.txt; fprintf('\n')
+            
+            % Constructing the specified aircraft
             obj.aircraft = aircraft.Aircraft(aircraft_name);
-            obj.options = options;
             obj.init_design_vector(); % Creating the design vector object
-            obj.cache.x = ones(size(obj.x.vector));
-            obj.cache.results = [];
-            obj.first_run = true;
+
+            % Augmenting options w/ OutputFnc
+            options.OutputFcn = @obj.cache_optimValues;
+            obj.options = options;
+            obj.cache.results = []; % Results caching
+            obj.cache.fmincon = []; % Solver caching
+            obj.cache.const = [];   % Constraint caching
+            obj.cache.time = [];    % Log of analysis time
         end
 
         function init_design_vector(obj)
@@ -58,53 +68,72 @@ classdef RunCase < handle
                         % Get these values from first initial run
                         'A_L', ac.A_L, -1.5, 1.5;...
                         'A_M', ac.A_M, -1.5, 1.5;...
-                        'W_w', ac.W_w, 0.8, 1.0;...
-                        'W_f', ac.W_f, 0.8, 1.0;...
+                        'W_w', ac.W_w, 0.6, 1.0;...
+                        'W_f', ac.W_f, 0.6, 1.0;...
                         'C_d_w', ac.C_d_w, 0.8, 1.0});
         end
 
         function optimize(obj)
-            tic;
+            obj.start_time = datetime(); tic;
             n_cores = feature('numcores');
+
+            % Launching either in Parallel or Serial Execution
             try
-                if n_cores == 4
+                if n_cores >= 4
                     parpool(4)
-                    obj.parallel = true;
+                    obj.run_parallel = true;
                 end
             catch
-                obj.parallel = false;
+                obj.run_parallel = false;
                 warning(['Parallel Processing Disabled ' ...
                          'or not Installed on Machine. Optimization '...
                          'will execute as a serial process!'])
             end
+
             [opt, ~] = fmincon(@obj.objective,...
-                               obj.x.vector, [], [], [], [],...
-                               obj.x.lb, obj.x.ub, @obj.constraints,...
-                               obj.options);
+                            obj.x.vector, [], [], [], [],...
+                            obj.x.lb, obj.x.ub, @obj.constraints,...
+                            obj.options);
+                            
+            obj.sim_time = toc;
             obj.x_final = opt;
-            time = toc;
+            obj.end_time = datetime();
+            obj.converged = true;
+            obj.shutdown();
         end
         
         function [c, ceq] = constraints(obj, x)
-            obj.x.vector = x;
+            disp('Constraints')
             res = obj.fetch_results(x);
             Cons = optimize.Constraints(obj.aircraft, res, obj.x);
             c = Cons.C_ineq; ceq = Cons.C_eq;
+            
+            % Caching of constraints
+            if isempty(obj.cache.const)
+                obj.cache.const.c = c;
+                obj.cache.const.ceq = ceq;
+            else
+                obj.cache.const.c(end+1, :) = c;
+                obj.cache.const.ceq(end+1, :) = ceq;
+            end
         end
 
         function fval = objective(obj, x)
+            disp('Access from objective')
             res = obj.fetch_results(x);
             fval = res.W_f/obj.x.W_f_0;
         end
         
         function res = fetch_results(obj, x)
-            if all(obj.cache.x(:, end) == x) && ~obj.first_run
+            if ~obj.x.isnew(x) && ~isempty(obj.cache.results)
                 res = obj.cache.results(end);
             else
+                disp('I asked for new runs')
+                obj.x.vector = x; % Updates design vector w/ fmincon value
                 obj.aircraft.modify(obj.x);
+                obj.iter_counter = obj.iter_counter + 1;
                 % Running Analysis Blocks
-%                 res.C_dw = obj.run_aerodynamics();
-                if obj.parallel
+                if obj.run_parallel
                     tic;
                     spmd
                         if labindex == 1
@@ -124,19 +153,21 @@ classdef RunCase < handle
                     res.Loading = temp{3};
                     res.W_f = temp{4};
                 else
+                    tic;
                     res.C_dw = obj.run_aerodynamics();
                     res.Loading = obj.run_loads();
                     res.Struc = obj.run_structures();
                     res.W_f = obj.run_performance();
+                    t = toc;
                 end
                 
                 if isempty(obj.cache.results)
                     obj.cache.results = res;
+                    obj.cache.time = t;
                 else
                     obj.cache.results(end+1) = res;
-                    obj.cache.x(:, end+1) = obj.x.vector;
+                    obj.cache.time(end+1) = t;
                 end
-                obj.first_run = false;
             end
         end
         
@@ -156,8 +187,8 @@ classdef RunCase < handle
                 L.L_distr = Loads.L_distr;
                 L.Y_coord = Loads.Y_coord;
             catch
-                L.M_distr = ones.length(obj.x.A_M);
-                L.L_distr = ones.length(obj.x.A_M);
+                L.M_distr = ones(length(obj.x.A_M),1) * NaN;
+                L.L_distr = ones(length(obj.x.A_M),1) * NaN;
                 L.Y_coord = NaN;
             end
         end
@@ -182,13 +213,61 @@ classdef RunCase < handle
             end
         end
 
+        function stop = cache_optimValues(obj, x, optimValues, state)
+            stop = false;
+            o = optimValues; 
+            switch state
+                case 'init'
+                    % hold on
+                    obj.cache.fmincon = o;
+                    obj.cache.fmincon.x = x;
+                case 'iter'
+                    % Concatenate current point and objective function
+                    % value with history. x must be a row vector
+                    history = obj.cache.fmincon;
+                    temp.fval = [history.fval, o.fval];
+                    temp.x = [history.x, x];
+                    
+                    % Gradient caching of fmincon
+                    temp.gradient = [history.gradient,...
+                                     o.gradient];
+                    
+                    % Optimality caching of fmincon
+                    temp.firstorderopt = [history.firstorderopt,...
+                                          o.firstorderopt];
+                                      
+                    temp.iteration = [history.iteration, o.iteration];
+                    temp.funccount = [history.funccount, o.funccount];
+                    obj.cache.fmincon = temp;
+
+                case 'done'
+                    % hold off
+                otherwise
+            end
+        end
+
+        function shutdown(obj)
+            if obj.run_parallel
+                % Shutting Down Parallel Pool
+                poolobj = gcp('nocreate');
+                delete(poolobj);
+            end
+            obj.end_time = datetime();
+            if isempty(obj.sim_time)
+                obj.sim_time = obj.end_time - obj.start_time;
+            end
+        end
     end
+    
     methods (Static)
          function obj = load_run(run_file)
             filename = [pwd '\data\runs\' run_file '.mat'];
-            obj = load(filename, 'run_case');
-            obj = obj.run_case;
-            obj.x.vector = obj.cache.x(:, end);
+            try
+                loaded_obj = load(filename, 'run_case');
+                obj = loaded_obj.run_case;
+            catch
+                error('Supplied file has no property: run_case')
+            end
         end
     end
 end

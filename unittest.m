@@ -7,8 +7,8 @@ ac = aircraft.Aircraft('A320');
 ac.planform.plot();
 
 %% Testing Airfoil Fitting
-% root_airfoil = geometry.AirfoilReader('naca23015.dat');
-% root_fit = geometry.FittedAirfoil(root_airfoil);
+root_airfoil = geometry.AirfoilReader('naca23015.dat');
+root_fit = geometry.FittedAirfoil(root_airfoil);
 % root_cst = root_fit.CSTAirfoil;
 % 
 % % Visual Verification of Fitting Process
@@ -48,10 +48,14 @@ x = optimize.DesignVector({'lambda_1', ac.lambda_1, 0, 1.25;...
                            'W_w', ac.W_w, 0.8, 1.0;...
                            'W_f', ac.W_f, 0.8, 1.0;...
                            'C_d_w', ac.C_d_w, 0.8, 1.0});
-
+%%
 assert(all((x.init .* x.vector) == x.init), 'Design Vector Corrupted');
-% x.update(x.vector * 2); % Updating w/ a new design vector [2, 2, 2, ...]'
-% x.fetch_history('normalized', true);
+
+% Testing if current vector created by the initial design is a new vector
+assert(x.isnew(x.vector * 1)==false)
+assert(x.isnew(x.vector * 1.2)==true)
+% x.vector = ones(length(x.vector), 1) * 2; % Updating w/ a new design vector [2, 2, 2, ...]'
+x.fetch_history('normalized', true);
 
 %% Testing Aircraft Modification
 new_vector = ones(length(x.vector), 1); new_vector(3) = 1.25;
