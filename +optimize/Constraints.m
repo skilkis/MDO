@@ -13,11 +13,13 @@ classdef Constraints < handle
             
             %Comparing the guess value for Cd against the actual Cd
             Cd_true = results.C_dw;
+
             
             Cd_guess = aircraft.C_d_w;
             
             C_cd = (Cd_guess/sum(Cd_true))-1;
             
+
                 
             %Comparing the guessed lift and moment distributions against the
             %actual distributions.
@@ -28,6 +30,7 @@ classdef Constraints < handle
             
             A_L = aircraft.A_L;
             A_M = aircraft.A_M;
+
 
             yrange = Y/max(Y);
             
@@ -50,18 +53,22 @@ classdef Constraints < handle
             if isnan(C_mom)
                 C_mom = 10;
             end
+
                
             %Comparing the wing structual weight against the guessed value.        
             W_w_true = results.Struc.W_w;
             W_w_guess = aircraft.W_w;
             C_ww = (W_w_guess/W_w_true)-1;
+
             
+
                 
                 
             W_f_true = results.W_f;
             W_f_guess = aircraft.W_f;
             C_wf = (W_f_guess/W_f_true)-1;
             
+
                 
                 
             %Inequality constraint setting the wing loading equal or lower 
@@ -71,19 +78,24 @@ classdef Constraints < handle
             WL_guess = (aircraft.W_aw + aircraft.W_f + aircraft.W_w)...
                 /aircraft.planform.S;
             C_wl = 1 - (WL_0/WL_guess);
+
             
+
                     
             %Inequality constraint checking for the sufficient front spar 
             %clearance at the fuselage line
             Fs_fus = aircraft.planform.FS_fus;
             C_fs = 1 - (Fs_fus/0.15);
+
               
             %Inequality constraint ensuring a tank volume equal or larger 
             %than the fuel required for the mission
             W_f_true = results.W_f;
             V_t = results.Struc.V_t;
+
             C_fuel = (W_f_true/(V_t*aircraft.rho_f))-1;
             
+
                 
             obj.C_eq = [C_cd, C_lift, C_mom, C_ww, C_wf];
             obj.C_ineq = [C_wl, C_fs, C_fuel];
