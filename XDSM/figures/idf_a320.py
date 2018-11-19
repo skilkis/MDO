@@ -42,7 +42,7 @@ x.add_system('G', func, ('2: Consistency', r'$\hat{x}_i - x_i = 0$'), stack=True
 x.add_input('opt', (r'$\zero{\Lambda_1}, \zero{\Lambda_2}, \zero{b}, \zero{c_r}, \zero{\tau},$',
                     r'$\zero{A_\text{root}}, \zero{A_\text{tip}}, \zero{\beta_\text{root}},$',
                     r'$\zero{\beta_\text{kink}}, \zero{\beta_\text{tip}}, \zero{\hat{A}_L}, \zero{\hat{A}_M},$',
-                    r'$\zero{\hat{N_L}}, \zero{\hat{N_M}}, \zero{\hat{W}_w}, \zero{\hat{W}_f}, \zero{\hat{C}_{D_w}}$'))
+                    r'$\zero{\hat{W}_w}, \zero{\hat{W}_f}, \zero{\hat{C}_{D_w}}$'))
 x.add_input('A', (r'$W_{A\text{-}W}, h_c, M_c, d_\text{TE}$', r'$a_c, \rho_c, \mu_c, N_1, N_2, g$'))
 x.add_input('S', (r'$W_{A\text{-}W}, W_e, \eta_\text{max}, FS, RS,$', r'$\rho_c, N_1, N_2, D_\text{fus}, d_\text{rib},'
                                                                       r' d_\text{TE}$',
@@ -71,7 +71,7 @@ x.connect('opt', 'P', (r'1: $\Lambda_1, \Lambda_2, b, c_r, \tau,$',
 x.connect('opt', 'G', r'2: $\hat{W}_w, \hat{W}_f, \hat{C}_{D_w}$')
 x.connect('opt', 'wing', (r'2: $\Lambda_1, \Lambda_2,$', r'$b, c_r, \tau$'))
 x.connect('opt', 'spar', (r'2: $\Lambda_1, \Lambda_2,$', r'$b, c_r, \tau$'))
-x.connect('opt', 'G_load', (r'$\hat{A}_L, \hat{A}_M,$', r'$\hat{N}_L, \hat{N}_M$'))
+x.connect('opt', 'G_load', r'$\hat{A}_L, \hat{A}_M,$')
 x.connect('A', 'G', r'2: $C_{D_w}$')
 
 x.connect('S', 'fuel', r'2: $V_t$')
