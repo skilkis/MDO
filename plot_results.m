@@ -1,6 +1,8 @@
+
 %% Loading Results of Simulation
-load('data\runs\run_18-Nov-2018_20-05-19.mat')
+load('data\runs\FinalRun.mat')
 set(0,'defaulttextinterpreter','latex')
+run_case.x_final = run_case.x.history(:, end);
 
 %% Running Simulations at Start/End (These are not cached to save memory)
 
@@ -70,6 +72,7 @@ hold on; grid minor
 plot(run_case.cache.const.c(:, 1), 'DisplayName', '$g_\mathrm{wing}$')
 plot(run_case.cache.const.c(:, 2), 'DisplayName', '$g_\mathrm{spar}$')
 plot(run_case.cache.const.c(:, 3), 'DisplayName', '$g_\mathrm{fuel}$')
+axis()
 legend('Location', 'Best', 'Interpreter', 'latex')
 xlabel('Function Calls [-]','Color','k');
 ylabel('Normalized Constraint [-]','Color','k');
@@ -83,6 +86,8 @@ plot(run_case.cache.const.ceq(:, 2), 'DisplayName', '$\hat{A}_L$')
 plot(run_case.cache.const.ceq(:, 3), 'DisplayName', '$\hat{A}_M$')
 plot(run_case.cache.const.ceq(:, 4), 'DisplayName', '$\hat{W}_w$')
 plot(run_case.cache.const.ceq(:, 5), 'DisplayName', '$\hat{W}_f$')
+x_lim = xlim;
+axis([x_lim(1), x_lim(2), -1, 1])
 legend('Location', 'Best', 'Interpreter', 'latex')
 xlabel('Function Calls [-]','Color','k');
 ylabel('Normalized Constraint [-]','Color','k');
@@ -266,7 +271,7 @@ plot(Y, Cd_rest,'DisplayName','A320-G Wave & Profile')
 legend('Location', 'Best')
 xlabel('Half-Span Position [m]','Color','k');
 ylabel('Drag Coefficient ($C_d$) [-]','Color','k');
-title('A320-G Modified Drag Distribution at $M_{MO}$')
+title('A320-G Modified Drag Distribution at $M_{c}$')
 
 
 %% Convex Hull Plots
