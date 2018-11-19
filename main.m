@@ -44,6 +44,4 @@ run_str = sprintf('run_%s',replace(sprintf('%s', date_str), ':', '-'));
 save(['data\runs\' run_str], 'run_case') % Saving run_case to data\runs
 
 %% Plotting Final Result
-run_case.aircraft.planform.plot();
-run_case.aircraft.CST.root.plot();
-run_case.aircraft.CST.tip.plot();
+run plot_results.m

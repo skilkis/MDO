@@ -51,10 +51,19 @@ set(handle,'PaperUnits','inches');
 set(handle,'Units','inches');
 
 % Set the page size and position to match the figure's dimensions
-paperPosition = get(handle,'PaperPosition');
-position = get(handle,'Position');
-set(handle,'PaperPosition',[0,0,position(3:4)]);
-set(handle,'PaperSize',position(3:4));
+% paperPosition = get(handle,'PaperPosition');
+% set(handle,'PaperPosition',[0,0,position(3:4)]);
+set(handle, 'PaperPositionMode', 'auto')
+fig_pos = get(handle,'PaperPosition');
+set(handle,'PaperSize',[fig_pos(3) fig_pos(4)]);
+
+% Setting Axis Color
+axis = get(handle,'CurrentAxes');
+set(axis, 'Box', 'off')
+
+% Change Renderer
+set(handle, 'Renderer', 'Painters');
+% set(handle, 'InvertHardCopy', 'off');
 
 % Save the pdf (this is the same method used by "saveas")
 print(handle,'-dpdf',pdfFileName,sprintf('-r%d',dpi))
