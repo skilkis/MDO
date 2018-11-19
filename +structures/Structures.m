@@ -230,12 +230,13 @@ classdef Structures < handle
         function write_loads(obj)
             % Transforming Bernstein Coefs. into Actual Load Data
             ac = obj.aircraft_in;
-            A_L = ac.A_L; A_M = ac.A_M; n = length(A_L)-1; i = 0:n;
+            A_L = ac.A_L'; A_M = ac.A_M';
             Y_range = linspace(0, 1, 30)';
-            B = ((factorial(n)./(factorial(i).*factorial(n-i))).*...
-                (Y_range.^i).*(1-Y_range).^(n-i));
-            L = B*A_L; M = B*A_M;
-
+            L = geometry.CSTAirfoil.shapeFunction(Y_range, A_L);
+            M = geometry.CSTAirfoil.shapeFunction(Y_range, A_M);
+            
+            plot(Y_range, L); drawnow;
+            
             % Writing to .load file
             filename = [obj.temp_dir '\' obj.aircraft_in.name '.load'];
             fid = fopen(filename, 'w');
