@@ -46,7 +46,7 @@ classdef Structures < handle
             obj.run_EMWET();        % Runs EMWET
             obj.fetch_output()      % Parses data from .weight file
             obj.build_fuel_tank     % Builds the fuel-tank
-            obj.cleanup()           % Removes Temporary Directory
+            % obj.cleanup()           % Removes Temporary Directory
         end
 
         function MTOW = calc_mtow(obj)
@@ -230,12 +230,10 @@ classdef Structures < handle
         function write_loads(obj)
             % Transforming Bernstein Coefs. into Actual Load Data
             ac = obj.aircraft_in;
-            A_L = ac.A_L'; A_M = ac.A_M';
+            A_L = ac.A_L; A_M = ac.A_M;
             Y_range = linspace(0, 1, 30)';
             L = geometry.CSTAirfoil.shapeFunction(Y_range, A_L);
             M = geometry.CSTAirfoil.shapeFunction(Y_range, A_M);
-            
-            plot(Y_range, L); drawnow;
             
             % Writing to .load file
             filename = [obj.temp_dir '\' obj.aircraft_in.name '.load'];

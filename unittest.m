@@ -55,6 +55,7 @@ assert(all((x.init .* x.vector) == x.init), 'Design Vector Corrupted');
 assert(x.isnew(x.vector * 1)==false)
 assert(x.isnew(x.vector * 1.2)==true)
 % x.vector = ones(length(x.vector), 1) * 2; % Updating w/ a new design vector [2, 2, 2, ...]'
+x.vector = x.vector * 1.5;
 x.fetch_history('normalized', true);
 
 %% Testing Aircraft Modification

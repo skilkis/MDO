@@ -25,8 +25,7 @@ for field = {'start', 'end'}
             results = run_case.cache.results(1);
         case 'end'
             data.(f).aircraft = run_case.aircraft; % Final iter aircraft
-            x = run_case.x_final;
-            results = run_case.fetch_results(x);
+            results = run_case.fetch_results(run_case.x_final);
     end
     
     ac = data.(f).aircraft;
@@ -52,6 +51,9 @@ end
 
 poolobj = gcp('nocreate');
 delete(poolobj);
+
+%%
+optimize.Constraints(ac, run_case.cache.results(1), run_case.x);
 
 %% Convergence Plots
 x_history = run_case.x.fetch_history('normalized', false);

@@ -9,72 +9,68 @@ classdef Constraints < handle
     end
     %% Constraint functions
     methods
-        function obj = Constraints(aircraft, results, x)
+        function obj = Constraints(aircraft_in, results, x)
             
             %Comparing the guess value for Cd against the actual Cd
             Cd_true = results.C_dw;
+            Cd_guess = aircraft_in.C_d_w;
+            
+            % Drag Consistency Constraint
+            C_cd = (Cd_guess/sum(Cd_true))-1; % TODO check if this is still necessary
 
-            
-            Cd_guess = aircraft.C_d_w;
-            
-            C_cd = (Cd_guess/sum(Cd_true))-1;
-            
-
-                
-            %Comparing the guessed lift and moment distributions against the
-            %actual distributions.
+            %Comparing the guessed lift and moment distributions against a
+            % a Bernstein polynomial fitted to the actual data
             L_distr_true = results.Loading.L_distr;
             M_distr_true = results.Loading.M_distr;
             Y = results.Loading.Y_coord.';
+            yrange = Y/max(Y); % Normalizing span
             
+            % Localizing Guess Lift/Moment Coefficients
+            A_L = aircraft_in.A_L;
+            A_M = aircraft_in.A_M;
             
-            A_L = aircraft.A_L;
-            A_M = aircraft.A_M;
-
-
-            yrange = Y/max(Y);
+            % Obtaining Resultant Coefficients from Loads Calc.
+            A_L_true = obj.fitCST(yrange, L_distr_true', A_L);
+            A_M_true = obj.fitCST(yrange, M_distr_true', A_M);
             
-            Z_L = geometry.CSTAirfoil.shapeFunction(yrange, A_L);
-            Z_M = geometry.CSTAirfoil.shapeFunction(yrange, A_M);
+            shape = @geometry.CSTAirfoil.shapeFunction;
+            figure('Name', 'MomentDistribution')
+            hold on;
+            L_dist = shape(yrange, A_L);
+            M_dist = shape(yrange, A_M);
             
-            C_lift = sum(((L_distr_true-Z_L')./L_distr_true).^2);
+            L_dist_true = shape(yrange, A_L_true);
+            M_dist_true_CST = shape(yrange, A_M_true);
             
-            if C_lift <= 0.085
-                C_lift = 0;
-            end
-            if isnan(C_lift)
-                C_lift = 10;
-            end
-            C_mom = sum(((M_distr_true-Z_M')./M_distr_true).^2);
+            plot(yrange, M_dist, 'DisplayName', 'Guess Value');
+            plot(yrange, M_dist_true_CST, 'DisplayName', 'Final CST');
+            plot(yrange, M_distr_true, 'DisplayName', 'Actual');
+            legend('location', 'Best');
             
-            if C_mom <= 0.085
-                C_mom = 0;
-            end
-            if isnan(C_mom)
-                C_mom = 10;
-            end
-
-               
+            % Consistency is = 0 when A_L = A_L_true & A_M = A_M_true
+            C_lift = 1 - sum(A_L./A_L_true);
+            C_mom = 1 - sum(A_M./A_M_true);
+            
             %Comparing the wing structual weight against the guessed value.        
             W_w_true = results.Struc.W_w;
-            W_w_guess = aircraft.W_w;
+            W_w_guess = aircraft_in.W_w;
             C_ww = (W_w_guess/W_w_true)-1;
 
             W_f_true = results.W_f;
-            W_f_guess = aircraft.W_f;
+            W_f_guess = aircraft_in.W_f;
             C_wf = (W_f_guess/W_f_true)-1;
 
             %Inequality constraint setting the wing loading equal or lower 
             %than initial value
             % TODO change aircraft.S to aircraft.S_ref to avoid confusion
-            WL_0 = (aircraft.W_aw + x.W_f_0 + x.W_w_0)/aircraft.S;
-            WL_guess = (aircraft.W_aw + aircraft.W_f + aircraft.W_w)...
-                /aircraft.planform.S;
+            WL_0 = (aircraft_in.W_aw + x.W_f_0 + x.W_w_0)/aircraft_in.S;
+            WL_guess = (aircraft_in.W_aw + aircraft_in.W_f + aircraft_in.W_w)...
+                /aircraft_in.planform.S;
             C_wl = 1 - (WL_0/WL_guess);
 
             %Inequality constraint checking for the sufficient front spar 
             %clearance at the fuselage line
-            Fs_fus = aircraft.planform.FS_fus;
+            Fs_fus = aircraft_in.planform.FS_fus;
             C_fs = 1 - (Fs_fus/0.15);
 
               
@@ -83,7 +79,7 @@ classdef Constraints < handle
             W_f_true = results.W_f;
             V_t = results.Struc.V_t;
 
-            C_fuel = (W_f_true/(V_t*aircraft.rho_f))-1;
+            C_fuel = (W_f_true/(V_t*aircraft_in.rho_f))-1;
             
 
                 
@@ -104,12 +100,18 @@ classdef Constraints < handle
                 .^(n-i)).*(yrange*N(1) + N(2));
 
             Z = B*A;
-        end
-        
+        end        
     end
-        
-            
-        
+    
+    methods (Static)
+        function coeff = fitCST(norm_range, data, x0)
+            % Starts from the current guess values of the Bernstein coefs,
+            % and tries to find a better fit to the actual data
+            shape = @geometry.CSTAirfoil.shapeFunction;
+            obj_func = @(x) sum(((data - shape(norm_range, x))./data).^2);
+            coeff = fminsearch(obj_func, x0);
+        end
+    end
 end
     
     
