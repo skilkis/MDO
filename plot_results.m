@@ -1,8 +1,7 @@
 
 %% Loading Results of Simulation
-load('data\runs\FinalRun.mat')
+load('data\runs\run_22-Nov-2018_03-08-52.mat')
 set(0,'defaulttextinterpreter','latex')
-run_case.x_final = run_case.x.history(:, end);
 
 %% Running Simulations at Start/End (These are not cached to save memory)
 
@@ -53,7 +52,7 @@ poolobj = gcp('nocreate');
 delete(poolobj);
 
 %%
-optimize.Constraints(ac, run_case.cache.results(1), run_case.x);
+optimize.Constraints(data.end.aircraft, run_case.cache.results(end), run_case.x);
 
 %% Convergence Plots
 x_history = run_case.x.fetch_history('normalized', false);

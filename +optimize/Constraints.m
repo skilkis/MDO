@@ -33,19 +33,19 @@ classdef Constraints < handle
             A_L_true = obj.fitCST(yrange, L_distr_true', A_L);
             A_M_true = obj.fitCST(yrange, M_distr_true', A_M);
             
-            shape = @geometry.CSTAirfoil.shapeFunction;
-            figure('Name', 'MomentDistribution')
-            hold on;
-            L_dist = shape(yrange, A_L);
-            M_dist = shape(yrange, A_M);
-            
-            L_dist_true = shape(yrange, A_L_true);
-            M_dist_true_CST = shape(yrange, A_M_true);
-            
-            plot(yrange, M_dist, 'DisplayName', 'Guess Value');
-            plot(yrange, M_dist_true_CST, 'DisplayName', 'Final CST');
-            plot(yrange, M_distr_true, 'DisplayName', 'Actual');
-            legend('location', 'Best');
+%             shape = @geometry.CSTAirfoil.shapeFunction;
+%             figure('Name', 'MomentDistribution')
+%             hold on;
+%             L_dist = shape(yrange, A_L);
+%             M_dist = shape(yrange, A_M);
+%             
+%             L_dist_true = shape(yrange, A_L_true);
+%             M_dist_true_CST = shape(yrange, A_M_true);
+%             
+%             plot(yrange, M_dist, 'DisplayName', 'Guess Value');
+%             plot(yrange, M_dist_true_CST, 'DisplayName', 'Final CST');
+%             plot(yrange, M_distr_true, 'DisplayName', 'Actual');
+%             legend('location', 'Best');
             
             % Consistency is = 0 when A_L = A_L_true & A_M = A_M_true
             C_lift = 1 - sum(A_L./A_L_true);
@@ -107,6 +107,7 @@ classdef Constraints < handle
         function coeff = fitCST(norm_range, data, x0)
             % Starts from the current guess values of the Bernstein coefs,
             % and tries to find a better fit to the actual data
+            optimset('MaxFunEvals',1e4);
             shape = @geometry.CSTAirfoil.shapeFunction;
             obj_func = @(x) sum(((data - shape(norm_range, x))./data).^2);
             coeff = fminsearch(obj_func, x0);
