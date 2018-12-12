@@ -1,14 +1,17 @@
 
 %% Loading Results of Simulation
 load('data\runs\run_22-Nov-2018_03-08-52.mat')
-set(0,'defaulttextinterpreter','latex')
+set(0,'defaulttextinterpreter','latex') % Setting panel thickness
 
 %% Running Simulations at Start/End (These are not cached to save memory)
 
 n_cores = feature('numcores');
 try
     if n_cores >= 4
+        parallel = true; run_case.run_parallel = true;
         parpool(4)
+    else
+        parallel = false; run_case.run_parallel = false;
     end
 catch
     warning(['Parallel Processing Disabled ' ...
@@ -29,27 +32,35 @@ for field = {'start', 'end'}
     
     ac = data.(f).aircraft;
     
-    spmd
-        if labindex == 1
-            temp = aerodynamics.Aerodynamics(ac);
-        elseif labindex == 2
-            temp = loads.Loads(ac);
-        elseif labindex == 3
-            temp = structures.Structures(ac);
-        elseif labindex == 4
-            temp = performance.Performance(ac);
+    if parallel
+        spmd
+            if labindex == 1
+                temp = aerodynamics.Aerodynamics(ac);
+            elseif labindex == 2
+                temp = loads.Loads(ac);
+            elseif labindex == 3
+                temp = structures.Structures(ac);
+            elseif labindex == 4
+                temp = performance.Performance(ac);
+            end
         end
-    end
- 
-    data.(f).aero = temp{1};
-    data.(f).load = temp{2};
-    data.(f).struc = temp{3};
-    data.(f).perf = temp{4};
-    data.(f).const = optimize.Constraints(ac, results, run_case.x);
-end
 
-poolobj = gcp('nocreate');
-delete(poolobj);
+        data.(f).aero = temp{1};
+        data.(f).load = temp{2};
+        data.(f).struc = temp{3};
+        data.(f).perf = temp{4};
+        data.(f).const = optimize.Constraints(ac, results, run_case.x);
+        
+        poolobj = gcp('nocreate');
+        delete(poolobj);
+    else
+        data.(f).aero = aerodynamics.Aerodynamics(ac);
+        data.(f).load = loads.Loads(ac);
+        data.(f).struc = structures.Structures(ac);
+        data.(f).perf = performance.Performance(ac);
+        data.(f).const = optimize.Constraints(ac, results, run_case.x);
+    end
+end
 
 %%
 optimize.Constraints(data.end.aircraft, run_case.cache.results(end), run_case.x);
@@ -62,7 +73,7 @@ figure('Name', 'ObjectiveConvergence')
 hold on; grid minor
 plot([run_case.cache.results.W_f], 'DisplayName', 'Calc. Value $W_f$')
 plot(x_history(44, :), 'DisplayName', 'Guess Value $\hat{W}_f$')
-legend('Location', 'Best', 'Interpreter', 'latex')
+l = legend('Location', 'Best'); set(l, 'Interpreter', 'latex');
 xlabel('Function Calls [-]','Color','k');
 ylabel('Fuel Weight [kg]','Color','k');
 title('Convergence History of Fuel Weight')
@@ -74,7 +85,7 @@ plot(run_case.cache.const.c(:, 1), 'DisplayName', '$g_\mathrm{wing}$')
 plot(run_case.cache.const.c(:, 2), 'DisplayName', '$g_\mathrm{spar}$')
 plot(run_case.cache.const.c(:, 3), 'DisplayName', '$g_\mathrm{fuel}$')
 axis()
-legend('Location', 'Best', 'Interpreter', 'latex')
+l = legend('Location', 'Best'); set(l, 'Interpreter', 'latex');
 xlabel('Function Calls [-]','Color','k');
 ylabel('Normalized Constraint [-]','Color','k');
 title('Convergence History of Inequality Constraints')
@@ -89,7 +100,7 @@ plot(run_case.cache.const.ceq(:, 4), 'DisplayName', '$\hat{W}_w$')
 plot(run_case.cache.const.ceq(:, 5), 'DisplayName', '$\hat{W}_f$')
 x_lim = xlim;
 axis([x_lim(1), x_lim(2), -1, 1])
-legend('Location', 'Best', 'Interpreter', 'latex')
+l = legend('Location', 'Best'); set(l, 'Interpreter', 'latex');
 xlabel('Function Calls [-]','Color','k');
 ylabel('Normalized Constraint [-]','Color','k');
 title('Convergence History of Consistency Constraints')
@@ -150,9 +161,8 @@ set(gca,'Ydir','reverse')
 hold off;
 xlabel('Half-Span (y) [m]','Color','k');
 ylabel('Chord-Wise Length (x)','Color','k');
-legend('Location', 'Best')
+l = legend('Location', 'Best'); set(l, 'Interpreter', 'latex');
 title('A320-G Planform Geometry')
-legend('Location', 'Best')
 
 %% Plotting Root Airfoil
 
@@ -171,7 +181,7 @@ plot(obj.x_lower, obj.y_lower, 'DisplayName', 'Lower-Surface')
 
 axis([min(obj.x_upper), max(obj.x_upper),...
     -max(obj.x_upper) * 0.5, max(obj.x_upper)*0.5])
-legend('Location', 'Best')
+l = legend('Location', 'Best'); set(l, 'Interpreter', 'latex');
 xlabel('Normalized Chord Location (x/c)','Color','k');
 ylabel('Normalized Chord-Normal Location (y/c)','Color','k');
 title('A320-G Modified Root Airfoil')
@@ -193,7 +203,7 @@ plot(obj.x_lower, obj.y_lower, 'DisplayName', 'Lower-Surface')
 
 axis([min(obj.x_upper), max(obj.x_upper),...
     -max(obj.x_upper) * 0.5, max(obj.x_upper)*0.5])
-legend('Location', 'Best')
+l = legend('Location', 'Best'); set(l, 'Interpreter', 'latex');
 xlabel('Normalized Chord Location (x/c)','Color','k');
 ylabel('Normalized Chord-Normal Location (y/c)','Color','k');
 title('A320-G Modified Tip Airfoil')
@@ -206,7 +216,7 @@ wing = data.start.aero.Structs.Res.Wing;
 plot(wing.Yst, wing.ccl, ':k', 'DisplayName', 'A320-200')
 wing = data.end.aero.Structs.Res.Wing;
 plot(wing.Yst, wing.ccl, 'DisplayName', 'A320-G')
-legend('Location', 'Best')
+l = legend('Location', 'Best'); set(l, 'Interpreter', 'latex');
 xlabel('Half-Span Position [m]','Color','k');
 ylabel('Lift Coefficient ($C_l\cdot c$) [-]','Color','k');
 title('A320-G Modified Lift Distribution at $M_c$')
@@ -217,7 +227,7 @@ wing = data.start.load.Structs.Res.Wing;
 plot(wing.Yst, wing.ccl, ':k', 'DisplayName', 'A320-200')
 wing = data.end.load.Structs.Res.Wing;
 plot(wing.Yst, wing.ccl, 'DisplayName', 'A320-G')
-legend('Location', 'Best')
+l = legend('Location', 'Best'); set(l, 'Interpreter', 'latex');
 xlabel('Half-Span Position [m]','Color','k');
 ylabel('Lift Coefficient ($C_l\cdot c$) [-]','Color','k');
 title('A320-G Modified Lift Distribution at $M_{MO}$')
@@ -228,7 +238,7 @@ wing = data.start.aero.Structs.Res.Wing;
 plot(wing.Yst, wing.cm_c4, ':k', 'DisplayName', 'A320-200')
 wing = data.end.aero.Structs.Res.Wing;
 plot(wing.Yst, wing.cm_c4, 'DisplayName', 'A320-G')
-legend('Location', 'Best')
+l = legend('Location', 'Best'); set(l, 'Interpreter', 'latex');
 xlabel('Half-Span Position [m]','Color','k');
 ylabel('Quarter-Chord Moment Coefficient ($C_{m_{0.25c}}$) [-]','Color','k');
 title('A320-G Modified Lift Distribution at $M_c$')
@@ -239,7 +249,7 @@ wing = data.start.load.Structs.Res.Wing;
 plot(wing.Yst, wing.cm_c4, ':k', 'DisplayName', 'A320-200')
 wing = data.end.load.Structs.Res.Wing;
 plot(wing.Yst, wing.cm_c4, 'DisplayName', 'A320-G')
-legend('Location', 'Best')
+l = legend('Location', 'Best'); set(l, 'Interpreter', 'latex');
 xlabel('Half-Span Position [m]','Color','k');
 ylabel('Quarter-Chord Moment Coefficient ($C_{m_{0.25c}}$) [-]','Color','k');
 title('A320-G Modified Lift Distribution at $M_{MO}$')
@@ -269,7 +279,7 @@ plot(Y, Cd_tot,'DisplayName','A320-G Total')
 plot(Y, Cdi,'DisplayName','A320-G Induced')
 plot(Y, Cd_rest,'DisplayName','A320-G Wave & Profile')
 
-legend('Location', 'Best')
+l = legend('Location', 'Best'); set(l, 'Interpreter', 'latex');
 xlabel('Half-Span Position [m]','Color','k');
 ylabel('Drag Coefficient ($C_d$) [-]','Color','k');
 title('A320-G Modified Drag Distribution at $M_{c}$')
@@ -296,6 +306,8 @@ az = 45;
 el = 30;
 view(az, el);
 legend('Location', 'Best', 'Orientation', 'horizontal')
+l = legend('Location', 'Best');
+set(l, 'Orientation', 'horizontal','Interpreter', 'latex');
 
 figure('Name', 'FuelTankA320-G')
 hold on; grid;
@@ -316,7 +328,8 @@ zlabel('Thickness [m]')
 az = 45;
 el = 30;
 view(az, el);
-legend('Location', 'Best', 'Orientation','horizontal')
+l = legend('Location', 'Best');
+set(l, 'Orientation', 'horizontal','Interpreter', 'latex');
 
 %% Saving/Overwriting Figures in the Images Folder as a .pdf
 

@@ -22,11 +22,11 @@ classdef RunCase < handle
         x_final;            % Optimized Design Vector
         converged = false;  % True if fmincon stopped w/o errors
         options;            % fmincon options struct
+        run_parallel        % Bool, True for machines with >= 4 cores
     end
 
     properties (SetAccess = private, GetAccess = public)
         cache = struct()    % Cache of Results & Constraints
-        run_parallel        % Bool, True for machines with >= 4 cores
         iter_counter = 0    % Counts the number of function calls
         start_time          % datetime at the start of optimization
         end_time            % datetime at the end of optimization
