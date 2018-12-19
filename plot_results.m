@@ -27,7 +27,7 @@ for field = {'start', 'end'}
             results = run_case.cache.results(1);
         case 'end'
             data.(f).aircraft = run_case.aircraft; % Final iter aircraft
-            results = run_case.fetch_results(run_case.x_final);
+            results = run_case.cache.results(end);
     end
     
     ac = data.(f).aircraft;
@@ -50,9 +50,6 @@ for field = {'start', 'end'}
         data.(f).struc = temp{3};
         data.(f).perf = temp{4};
         data.(f).const = optimize.Constraints(ac, results, run_case.x);
-        
-        poolobj = gcp('nocreate');
-        delete(poolobj);
     else
         data.(f).aero = aerodynamics.Aerodynamics(ac);
         data.(f).load = loads.Loads(ac);
@@ -62,8 +59,16 @@ for field = {'start', 'end'}
     end
 end
 
+% Parallel Pool Clean-up
+if parallel
+    poolobj = gcp('nocreate');
+    delete(poolobj);
+end
+
 %%
-optimize.Constraints(data.end.aircraft, run_case.cache.results(end), run_case.x);
+const = optimize.Constraints(data.start.aircraft, run_case.cache.results(end), run_case.x);
+const.plot_moment();
+const.plot_lift();
 
 %% Convergence Plots
 x_history = run_case.x.fetch_history('normalized', false);
