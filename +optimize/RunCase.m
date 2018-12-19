@@ -98,6 +98,9 @@ classdef RunCase < handle
             obj.sim_time = toc;
             obj.x_final = opt;
             obj.end_time = datetime();
+            
+            % Running disciplines on x_final
+            obj.fetch_results(obj.x_final);            
             obj.converged = true;
             obj.shutdown();
         end
