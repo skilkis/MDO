@@ -91,7 +91,7 @@ classdef Constraints < handle
             W_f_true = results.W_f;
             V_t = results.Struc.V_t;
 
-            C_fuel = 1-(W_f_true/(V_t*aircraft_in.rho_f));
+            C_fuel = 1-((V_t*aircraft_in.rho_f)/W_f_true);
             
 
                 

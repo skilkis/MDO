@@ -39,9 +39,9 @@ lambda_1 = 31.87;               % Inboard Quarter chord sweep angle [rad]
 lambda_2 = 27.285;              % Outboard Quarter chord sweep angle [rad]
 tau = 0.2002;                   % Taper ratio(Ct/Cr) [-]
 b = 33.91;                      % Wing span(total) [m]
-beta_root = 4.82;               % Twist angle value for root [deg]
-beta_kink = 0.62;               % Twist angle at kink [deg]
-beta_tip = -0.56;               % Twist angle at tip [deg]
+%beta_root = 4.82;               % Twist angle value for root [deg]
+beta_kink = -4.2;               % Twist angle at kink [deg]
+beta_tip = -5.38;               % Twist angle at tip [deg]
 
 % Aluminum Material Properties
 E_al = 70.1e9;                  % Young's Modulus of Aluminum [Pa]
