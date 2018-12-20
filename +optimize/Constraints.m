@@ -64,11 +64,11 @@ classdef Constraints < handle
             %Comparing the wing structual weight against the guessed value.        
             W_w_true = results.Struc.W_w;
             W_w_guess = aircraft_in.W_w;
-            C_ww = (W_w_guess/W_w_true)-1;
+            C_ww = 1-(W_w_guess/W_w_true);
 
             W_f_true = results.W_f;
             W_f_guess = aircraft_in.W_f;
-            C_wf = (W_f_guess/W_f_true)-1;
+            C_wf = 1-(W_f_guess/W_f_true);
 
             %Inequality constraint setting the wing loading equal or lower 
             %than initial value
@@ -78,12 +78,12 @@ classdef Constraints < handle
             WL_guess = (aircraft_in.W_aw + aircraft_in.W_p + aircraft_in.W_f...
                 + aircraft_in.W_w)...
                 /aircraft_in.planform.S;
-            C_wl = (WL_0/WL_guess) - 1;
+            C_wl = 1-(WL_0/WL_guess);
 
             %Inequality constraint checking for the sufficient front spar 
             %clearance at the fuselage line
             Fs_fus = aircraft_in.planform.FS_fus;
-            C_fs = (Fs_fus/0.15) - 1;
+            C_fs = 1-(Fs_fus/0.15);
 
               
             %Inequality constraint ensuring a tank volume equal or larger 
@@ -91,7 +91,7 @@ classdef Constraints < handle
             W_f_true = results.W_f;
             V_t = results.Struc.V_t;
 
-            C_fuel = (W_f_true/(V_t*aircraft_in.rho_f))-1;
+            C_fuel = 1-(W_f_true/(V_t*aircraft_in.rho_f));
             
 
                 
@@ -113,7 +113,7 @@ classdef Constraints < handle
             obj.A_L = obj.fitCST(obj.y_range, L_dist', obj.A_L_hat);
 
             % Evaluating consistency constraint
-            C_lift = sum(obj.A_L_hat./obj.A_L) - 1;
+            C_lift = 1 - obj.A_L_hat'./obj.A_L';
         end
 
         function C_mom = moment_constraint(obj)
@@ -123,7 +123,7 @@ classdef Constraints < handle
             obj.A_M = obj.fitCST(obj.y_range, M_dist', obj.A_M_hat);
 
             % Evaluating consistency constraint
-            C_mom = sum(obj.A_M_hat./obj.A_M) - 1;
+            C_mom = 1 - obj.A_M_hat'./obj.A_M';
         end
         
         function C_cd = drag_constraint(obj)
