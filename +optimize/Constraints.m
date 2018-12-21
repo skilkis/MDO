@@ -95,7 +95,7 @@ classdef Constraints < handle
             
 
                 
-            obj.C_eq = [C_cd, C_lift, C_mom, C_ww, C_wf];
+            obj.C_eq = [3*C_cd, 1.5*C_lift, 1.5*C_mom, C_ww, C_wf];
             obj.C_ineq = [C_wl, C_fs, C_fuel];
         end
         
@@ -113,7 +113,7 @@ classdef Constraints < handle
             obj.A_L = obj.fitCST(obj.y_range, L_dist', obj.A_L_hat);
 
             % Evaluating consistency constraint
-            C_lift = 1 - obj.A_L_hat'./obj.A_L';
+            C_lift = (1 - obj.A_L_hat'./obj.A_L');
         end
 
         function C_mom = moment_constraint(obj)
@@ -123,7 +123,7 @@ classdef Constraints < handle
             obj.A_M = obj.fitCST(obj.y_range, M_dist', obj.A_M_hat);
 
             % Evaluating consistency constraint
-            C_mom = 1 - obj.A_M_hat'./obj.A_M';
+            C_mom = (1 - obj.A_M_hat'./obj.A_M');
         end
         
         function C_cd = drag_constraint(obj)
