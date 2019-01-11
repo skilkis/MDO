@@ -13,8 +13,17 @@
 % limitations under the License.
 
 classdef RunCase < handle
-    %RUNCASE Summary of this class goes here
-    %   Detailed explanation goes here
+    %RUNCASE handles the optimization process for a supplied aircraft
+    %   Once a RunCase object is initialized with an `aircraft_name` and 
+    %   `options` for fmincon, the optimization can be triggered by calling
+    %   the `optimize` method as follows:
+    %
+    %   run_case = optimize.RunCase('A320', options);
+    %   run_case.optimize();
+    %
+    %   If the system has 4 or more logical cores, then the uncoupled IDF 
+    %   architecture can be fully exploited, and the disciplines will run
+    %   in parallel. This considerably decreases run-time.
     
     properties
         aircraft;           % Aircraft instance with all parameters and vars
