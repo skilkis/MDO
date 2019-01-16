@@ -55,7 +55,7 @@ classdef Aircraft < handle
         lambda_2        % Outboard Quarter chord sweep angle [rad]
         tau             % Taper ratio(Ct/Cr) [-]
         b               % Wing span(total) [m]
-        beta_root       % Twist angle value for root [deg]
+        %beta_root       % Twist angle value for root [deg]
         beta_kink       % Twist angle at kink [deg]
         beta_tip        % Twist angle at tip [deg]
         

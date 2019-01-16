@@ -29,9 +29,9 @@ classdef Planform < handle
         lambda_2 = 27.285;   % Outboard Quarter chord sweep angle [rad]
         tau = 0.2002;        % Taper ratio(Ct/Cr) [-]
         b = 33.91;           % Wing span(total) [m]
-        beta_root = 4.82;    % Twist angle value for root [deg]
-        beta_kink = 0.62;    % Twist angle at kink [deg]
-        beta_tip = -0.56;    % Twist angle at tip [deg]
+        %beta_root = 4.82;    % Twist angle value for root [deg]
+        beta_kink = -4.2;    % Twist angle at kink [deg]
+        beta_tip = -5.38;    % Twist angle at tip [deg]
         
         % Parameters
         d_TE = 6.0134        %Straight TE length of the first trapezoid[m]
@@ -69,7 +69,7 @@ classdef Planform < handle
             obj.lambda_2 = aircraft_in.lambda_2;
             obj.tau = aircraft_in.tau;
             obj.b = aircraft_in.b;
-            obj.beta_root = aircraft_in.beta_root;
+            %obj.beta_root = aircraft_in.beta_root;
             obj.beta_kink = aircraft_in.beta_kink;
             obj.beta_tip = aircraft_in.beta_tip;
             % Parameters        
@@ -86,7 +86,7 @@ classdef Planform < handle
             obj.lambda_1 = x.lambda_2;
             obj.tau = x.tau;
             obj.b = x.b;
-            obj.beta_root = x.beta_root;
+            %obj.beta_root = x.beta_root;
             obj.beta_kink = x.beta_kink;
             obj.beta_tip = x.beta_tip;
         end
@@ -150,7 +150,7 @@ classdef Planform < handle
         end
         
         function e = get.Twists(obj)
-            e = [obj.beta_root, obj.beta_kink, obj.beta_tip];
+            e = [0, obj.beta_kink, obj.beta_tip];
         end
         
         function f = get.eta(obj)
