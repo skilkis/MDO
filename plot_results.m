@@ -63,7 +63,8 @@ for field = {'start', 'end'}
 end
 
 %%
-optimize.Constraints(data.end.aircraft, run_case.cache.results(end), run_case.x);
+optimize.Constraints(data.end.aircraft, run_case.cache.results(end),...
+                     run_case.x);
 
 %% Convergence Plots
 x_history = run_case.x.fetch_history('normalized', false);
@@ -241,7 +242,7 @@ plot(wing.Yst, wing.cm_c4, 'DisplayName', 'A320-G')
 l = legend('Location', 'Best'); set(l, 'Interpreter', 'latex');
 xlabel('Half-Span Position [m]','Color','k');
 ylabel('Quarter-Chord Moment Coefficient ($C_{m_{0.25c}}$) [-]','Color','k');
-title('A320-G Modified Lift Distribution at $M_c$')
+title('A320-G Modified Moment Distribution at $M_c$')
 
 figure('Name', 'MomentDistMMO')
 hold on; grid minor
@@ -252,7 +253,7 @@ plot(wing.Yst, wing.cm_c4, 'DisplayName', 'A320-G')
 l = legend('Location', 'Best'); set(l, 'Interpreter', 'latex');
 xlabel('Half-Span Position [m]','Color','k');
 ylabel('Quarter-Chord Moment Coefficient ($C_{m_{0.25c}}$) [-]','Color','k');
-title('A320-G Modified Lift Distribution at $M_{MO}$')
+title('A320-G Modified Moment Distribution at $M_{MO}$')
 
 figure('Name', 'Drag')
 hold on; grid minor
