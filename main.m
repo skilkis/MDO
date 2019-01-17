@@ -17,7 +17,7 @@
 options.Display             = 'iter-detailed';  % Display in Command Win.
 options.Algorithm           = 'sqp';
 options.FunValCheck         = 'off';            % Obj. Function Checking 
-options.DiffMinChange       = 1e-3;             % Min. Delta for Gradient
+options.DiffMinChange       = 5e-3;             % Min. Delta for Gradient
 options.DiffMaxChange       = 5e-1;             % Max. Delta for Gradient
 options.TolCon              = 1e-5;             % Constraint Tolerance
 options.TolFun              = 1e-6;             % Obj. Function Tolerance
