@@ -1,6 +1,6 @@
 
 %% Loading Results of Simulation
-load('data\runs\run_21-Dec-2018_17-52-12.mat')
+load('data\runs\run_17-Jan-2019_02-20-07.mat')
 set(0,'defaulttextinterpreter','latex') % Setting panel thickness
 
 %% Running Simulations at Start/End (These are not cached to save memory)

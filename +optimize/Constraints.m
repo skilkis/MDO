@@ -95,7 +95,7 @@ classdef Constraints < handle
             
 
                 
-            obj.C_eq = [3*C_cd, 1.5*C_lift, 1.5*C_mom, C_ww, C_wf];
+            obj.C_eq = [C_cd, C_lift, C_mom, C_ww, C_wf];
             obj.C_ineq = [C_wl, C_fs, C_fuel];
         end
         
