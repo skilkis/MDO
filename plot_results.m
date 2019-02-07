@@ -1,8 +1,8 @@
 
 %% Loading Results of Simulation
 load('data\runs\run_17-Jan-2019_15-22-29.mat')
-set(0,'defaulttextinterpreter','latex') % Setting panel thickness
-
+set(0,'defaulttextinterpreter','latex','DefaultAxesFontSize',18) % Setting panel thickness
+set(groot, 'defaultfigureposition',[200 200 1000 900])
 %% Running Simulations at Start/End (These are not cached to save memory)
 
 n_cores = feature('numcores');
@@ -77,11 +77,12 @@ x_history = run_case.x.fetch_history('normalized', false);
 figure('Name', 'ObjectiveConvergence')
 hold on; grid minor
 plot([run_case.cache.results.W_f], 'DisplayName', 'Calc. Value $W_f$')
-plot(x_history(44, :), 'DisplayName', 'Guess Value $\hat{W}_f$')
+plot(x_history(43, :), 'DisplayName', 'Guess Value $\hat{W}_f$')
 l = legend('Location', 'Best'); set(l, 'Interpreter', 'latex');
 xlabel('Function Calls [-]','Color','k');
 ylabel('Fuel Weight [kg]','Color','k');
 title('Convergence History of Fuel Weight')
+grid('on')
 
 % Inequality Convergence History
 figure('Name', 'IneqConstConvergence')
