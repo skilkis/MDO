@@ -130,7 +130,7 @@ classdef Constraints < handle
             Cd_true = obj.results.C_dw; Cd_guess = obj.aircraft_in.C_d_w;
             
             % Drag Consistency Constraint
-            C_cd = (Cd_guess / sum(Cd_true)) - 1;
+            C_cd = 1 - (Cd_guess / Cd_true);
         end
         
         function handle = plot_moment(obj)
