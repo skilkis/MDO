@@ -183,7 +183,7 @@ classdef Aircraft < handle
                     end
                 end
             catch
-                error(['Input .dat file is corrupted, %s '...
+                error(['Design vector is corrupted, %s '...
                        'could not be updated'], field{:})
             end
             obj.planform = geometry.Planform(obj);

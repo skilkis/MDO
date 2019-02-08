@@ -100,10 +100,12 @@ title('Convergence History of Inequality Constraints')
 figure('Name', 'EqConstConvergence')
 hold on; grid minor
 plot(run_case.cache.const.ceq(:, 1), 'DisplayName', '$\hat{C}_{D_w}$')
-plot(run_case.cache.const.ceq(:, 2), 'DisplayName', '$\hat{A}_L$')
-plot(run_case.cache.const.ceq(:, 3), 'DisplayName', '$\hat{A}_M$')
-plot(run_case.cache.const.ceq(:, 4), 'DisplayName', '$\hat{W}_w$')
-plot(run_case.cache.const.ceq(:, 5), 'DisplayName', '$\hat{W}_f$')
+plot(mean(run_case.cache.const.ceq(:, 2:6), 2),...
+    'DisplayName', '$\hat{A}_L$')
+plot(mean(run_case.cache.const.ceq(:, 7:11), 2),...
+    'DisplayName', '$\hat{A}_M$')
+plot(run_case.cache.const.ceq(:, 12), 'DisplayName', '$\hat{W}_w$')
+plot(run_case.cache.const.ceq(:, 13), 'DisplayName', '$\hat{W}_f$')
 x_lim = xlim;
 axis([x_lim(1), x_lim(2), -1, 1])
 l = legend('Location', 'Best'); set(l, 'Interpreter', 'latex');
