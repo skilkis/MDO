@@ -94,9 +94,7 @@ classdef Constraints < handle
 
             C_fuel = 1-((V_t*aircraft_in.rho_f)/W_f_true);
             
-
-                
-            obj.C_eq = [3*C_cd, 2*C_lift, C_mom, C_ww, C_wf];
+            obj.C_eq = [C_cd, C_lift, C_mom, C_ww, C_wf];
             obj.C_ineq = [C_wl, C_fs, C_fuel];
         end
         
