@@ -30,7 +30,6 @@ options.PlotFcns            = {@optimplotx,...
                        
 %% Initializing a Run-Case for the A320 from data\aircraft\A320.mat
 % Additional aircraft can be supplied by the user w/ template.m
-
 run_case = optimize.RunCase('A320', options);
 run_case.aircraft.planform.plot(); drawnow;
 run_case.aircraft.CST.root.plot(); drawnow;
