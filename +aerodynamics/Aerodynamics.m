@@ -137,11 +137,12 @@ classdef Aerodynamics < handle
         end
     end
 
+    % TODO Fix this duplicate code
     methods (Access = private)
         function make_temp_dir(obj)
             % Creates a temporary directory pertaining to the current
-            % worker_ID for EMWET if parallel processing is enabled.
-            % Otherwise a 'serial_exec' folder is created. The EMWET.p
+            % worker_ID for Q3D if parallel processing is enabled.
+            % Otherwise a 'serial_exec' folder is created. The Q3D.p
             % file is also copied to this directory
             try
                 w = getCurrentWorker;
@@ -157,7 +158,7 @@ classdef Aerodynamics < handle
                         
             mkdir(obj.temp_dir)
 
-            % Copying EMWET to New Worker Directory
+            % Copying Q3D to New Worker Directory
             copyfile([pwd '\bin\Q3D.p'], obj.temp_dir);
             copyfile([pwd '\bin\Storage'], [obj.temp_dir '\Storage']);
         end
