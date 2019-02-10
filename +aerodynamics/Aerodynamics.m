@@ -131,9 +131,6 @@ classdef Aerodynamics < handle
         function Cd = fetch_C_dw(obj)
         % Extracting Drag Coefficient
            Cd = obj.Structs.Res.CDwing;
-           if isnan(Cd)
-               Cd = 1000;
-           end
         end
     end
 

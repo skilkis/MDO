@@ -17,9 +17,10 @@ classdef Constraints < handle
     properties
         C_eq;           %Array containing the values for the equality and consistency const.
         C_ineq;         %Array containing the inequality constraints
+        dist_cst;
     end
     
-    properties (GetAccess = private, SetAccess = private)
+    properties (GetAccess = public, SetAccess = private)
         aircraft_in;    % Current state of the aircraft object
         vector_in;      % Input Design Vector 
         results;        % Results obtained from current discipline runs
@@ -93,9 +94,7 @@ classdef Constraints < handle
 
             C_fuel = 1-((V_t*aircraft_in.rho_f)/W_f_true);
             
-
-                
-            obj.C_eq = [3*C_cd, 2*C_lift, C_mom, C_ww, C_wf];
+            obj.C_eq = [C_cd, C_lift, C_mom, C_ww, C_wf];
             obj.C_ineq = [C_wl, C_fs, C_fuel];
         end
         
@@ -131,7 +130,7 @@ classdef Constraints < handle
             Cd_true = obj.results.C_dw; Cd_guess = obj.aircraft_in.C_d_w;
             
             % Drag Consistency Constraint
-            C_cd = (Cd_guess / sum(Cd_true)) - 1;
+            C_cd = 1 - (Cd_guess / Cd_true);
         end
         
         function handle = plot_moment(obj)
@@ -144,11 +143,16 @@ classdef Constraints < handle
             plot(obj.y_range, M_dist_hat, 'DisplayName', 'Guess Value');
             plot(obj.y_range, M_dist, 'DisplayName', 'Final CST');
             plot(obj.y_range, dist, 'DisplayName', 'Actual');
-            legend('location', 'Best');
+            lgd = legend('location', 'Best');
+            lgd.FontSize = 18;
+            set(gca,'FontSize',18)
+            title('Moment Distribution','FontSize',18)
+            grid('on')
             hold off;
         end
         
         function handle = plot_lift(obj)
+            
             handle = figure('Name', 'LiftDistribution');
             hold on;
             dist = obj.results.Loading.L_distr;
@@ -158,7 +162,13 @@ classdef Constraints < handle
             plot(obj.y_range, L_dist_hat, 'DisplayName', 'Guess Value');
             plot(obj.y_range, L_dist, 'DisplayName', 'Final CST');
             plot(obj.y_range, dist, 'DisplayName', 'Actual');
-            legend('location', 'Best');
+            lgd = legend('location', 'Best');
+            lgd.FontSize = 18;
+            title('Lift Distribution','FontSize',18)
+            xlabel('Semi-spanwise coordinate[-]','FontSize',18)
+            ylabel('Lift[N]','FontSize',18)
+            set(gca,'FontSize',18)
+            grid('on')
             hold off;
         end
             

@@ -38,10 +38,7 @@ classdef Planform < handle
         FS = 0.2;%0.1937     %Front spar position of second trapezoid
         RS = 0.7255;%0.6801  %Rear spar position of second trapezoid
         D_fus = 3.95         %Fuselage diameter
-    end
-    
 
-    properties (Dependent)
         %These properties result from the input variables and can be used
         %as geometry inputs for the analysis blocks.
         

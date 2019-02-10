@@ -165,6 +165,7 @@ classdef RunCase < handle
                     res.W_f = temp{4};
                 else
                     tic;
+                    % TODO consider renaming to C_d_w for consistency
                     res.C_dw = obj.run_aerodynamics();
                     res.Loading = obj.run_loads();
                     res.Struc = obj.run_structures();
@@ -187,7 +188,7 @@ classdef RunCase < handle
                 Aero = aerodynamics.Aerodynamics(obj.aircraft);
                 A = Aero.C_d_w;
             catch
-                A.C_D_w = NaN;
+                A = NaN;
             end
         end
         
@@ -199,7 +200,7 @@ classdef RunCase < handle
                 L.Y_coord = Loads.Y_coord;
             catch
                 L.M_distr = ones(length(obj.x.A_M),1) * NaN;
-                L.L_distr = ones(length(obj.x.A_M),1) * NaN;
+                L.L_distr = ones(length(obj.x.A_L),1) * NaN;
                 L.Y_coord = NaN;
             end
         end
@@ -220,7 +221,7 @@ classdef RunCase < handle
                 perf = performance.Performance(obj.aircraft);
                 P = perf.W_fuel;
             catch
-                P.W_fuel = NaN;
+                P = NaN;
             end
         end
 

@@ -12,11 +12,6 @@ x = XDSM()
 math = XDSM.math
 
 
-def zero(tex):
-    """ Convenience function to format initial values """
-    return r'{}^{{\left(0\right)}}'.format(tex)
-
-
 # Main System Blocks:
 x.add_system('opt', opt, (r'0, 3 $\rightarrow$ 1:', 'Optimization'))
 x.add_system('A', comp, ('1:', 'Aerodynamics'))
@@ -33,15 +28,15 @@ x.add_system('wing', func, ('2: Ineq. Constraint', r'$1 - \frac{\left(W_\text{TO
                                                    r'{\left(W_\text{TO}\left(\overline{x}\right)/'
                                                    r'S\left(\overline{x}\right)^{\left(0\right)}\right)} \leq 0$'))
 x.add_system('spar', func, ('2: Ineq. Constraint', r'$1 - \frac{FS_\text{fus}}{FS_\text{fus,min}}\leq 0$'))
-x.add_system('G_load', func, ('2: Consistency', r'$\sum_{i=1}^{N}\sum_{y=0}^{b/2}\left('
-                                                r'\zeta_i\left(\frac{2y}{b} \right ) - '
-                                                r'\Psi_i\left(y\right )\right )^2 = 0$'))
-x.add_system('G', func, ('2: Consistency', r'$\frac{\hat{x}_i}{x_i} - 1 = 0$'), stack=True)
+x.add_system('G_load', func, ('2: Consistency', r'$1- \frac{\Psi_i}{\zeta_i} = '
+                                                r'0$'),
+             stack=True)
+x.add_system('G', func, ('2: Consistency', r'$1 - \frac{\hat{x}_i}{x_i} = 0$'), stack=True)
 
 # Inputs from Reference Data:
 x.add_input('opt', (r'$\zero{\Lambda_1}, \zero{\Lambda_2}, \zero{b}, \zero{c_r}, \zero{\tau},$',
-                    r'$\zero{A_\text{root}}, \zero{A_\text{tip}}, \zero{\beta_\text{root}},$',
-                    r'$\zero{\beta_\text{kink}}, \zero{\beta_\text{tip}}, \zero{\hat{A}_L}, \zero{\hat{A}_M},$',
+                    r'$\zero{A_\text{root}}, \zero{A_\text{tip}}, \zero{\beta_\text{kink}},$',
+                    r'$\zero{\beta_\text{tip}}, \zero{\hat{A}_L}, \zero{\hat{A}_M},$',
                     r'$\zero{\hat{W}_w}, \zero{\hat{W}_f}, \zero{\hat{C}_{D_w}}$'))
 x.add_input('A', (r'$W_{A\text{-}W}, h_c, M_c, d_\text{TE}$', r'$a_c, \rho_c, \mu_c, N_1, N_2, g$'))
 x.add_input('S', (r'$W_{A\text{-}W}, W_e, \eta_\text{max}, FS, RS,$', r'$\rho_c, N_1, N_2, D_\text{fus}, d_\text{rib},'
@@ -57,14 +52,14 @@ x.add_input('obj', r'$\zero{W_f}$')
 
 # Optimizer Connections
 x.connect('opt', 'A', (r'1: $\Lambda_1, \Lambda_2, b, c_r, \tau,$',
-                       r'$A_\text{root}, A_\text{tip}, \beta_\text{root},$',
-                       r'$\beta_\text{kink}, \beta_\text{tip}, \hat{W}_w, \hat{W}_f$'))
+                       r'$A_\text{root}, A_\text{tip}, \beta_\text{kink},$',
+                       r'$\beta_\text{tip}, \hat{W}_w, \hat{W}_f$'))
 x.connect('opt', 'S', (r'1: $\Lambda_1, \Lambda_2, b, c_r, \tau,$',
-                       r'$A_\text{root}, A_\text{tip}, \hat{W}_w, \hat{W}_f$',
-                       r'$\hat{A}_L, \hat{A}_M, \hat{N}_L, \hat{N}_M$'))
+                       r'$A_\text{root}, A_\text{tip}, \hat{W}_w$',
+                       r'$\hat{W}_f, \hat{A}_L, \hat{A}_M$'))
 x.connect('opt', 'L', (r'1: $\Lambda_1, \Lambda_2, b, c_r, \tau,$',
-                       r'$A_\text{root}, A_\text{tip}, \beta_\text{root},$',
-                       r'$\beta_\text{kink}, \beta_\text{tip}, \hat{W}_w, \hat{W}_f$'))
+                       r'$A_\text{root}, A_\text{tip}, \beta_\text{kink},$',
+                       r'$\beta_\text{tip}, \hat{W}_w, \hat{W}_f$'))
 x.connect('opt', 'P', (r'1: $\Lambda_1, \Lambda_2, b, c_r, \tau,$',
                        r'$\hat{W}_w, \hat{W}_f, \hat{C}_{D_w}$'))
 
@@ -98,9 +93,9 @@ x.add_output('S', r'$V_t^*, W_w^*$', side='left')
 x.add_output('L', (r'$L\left(y\right)^*$', r'$M\left(y\right)^*$'), side='left')
 x.add_output('P', r'$W_f^*$', side='left')
 x.add_output('opt', (r'$\Lambda_1^*, \Lambda_2^*, b^*, c_r^*, \tau^*,$',
-                     r'$A_\text{root}^*, A_\text{tip}^*, \beta_\text{root}^*,$',
+                     r'$A_\text{root}^*, A_\text{tip}^*, $',
                      r'$\beta_\text{kink}^*, \beta_\text{tip}^*$'))
-x.connect('opt', 'S', (r'1: $\Lambda_1, \Lambda_2, b, c_r, \tau,$',))
+# x.connect('opt', 'S', (r'1: $\Lambda_1, \Lambda_2, b, c_r, \tau,$',))
 
 # Process Lines
 x.add_process(['opt', 'A', 'G', 'opt'], arrow=False)

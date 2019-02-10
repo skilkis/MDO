@@ -1,8 +1,8 @@
 
 %% Loading Results of Simulation
 load('data\runs\run_17-Jan-2019_15-22-29.mat')
-set(0,'defaulttextinterpreter','latex') % Setting panel thickness
-
+set(0,'defaulttextinterpreter','latex','DefaultAxesFontSize',18) % Setting panel thickness
+set(groot, 'defaultfigureposition',[200 200 1000 900])
 %% Running Simulations at Start/End (These are not cached to save memory)
 
 n_cores = feature('numcores');
@@ -77,11 +77,12 @@ x_history = run_case.x.fetch_history('normalized', false);
 figure('Name', 'ObjectiveConvergence')
 hold on; grid minor
 plot([run_case.cache.results.W_f], 'DisplayName', 'Calc. Value $W_f$')
-plot(x_history(44, :), 'DisplayName', 'Guess Value $\hat{W}_f$')
+plot(x_history(43, :), 'DisplayName', 'Guess Value $\hat{W}_f$')
 l = legend('Location', 'Best'); set(l, 'Interpreter', 'latex');
 xlabel('Function Calls [-]','Color','k');
 ylabel('Fuel Weight [kg]','Color','k');
 title('Convergence History of Fuel Weight')
+grid('on')
 
 % Inequality Convergence History
 figure('Name', 'IneqConstConvergence')
@@ -99,10 +100,12 @@ title('Convergence History of Inequality Constraints')
 figure('Name', 'EqConstConvergence')
 hold on; grid minor
 plot(run_case.cache.const.ceq(:, 1), 'DisplayName', '$\hat{C}_{D_w}$')
-plot(run_case.cache.const.ceq(:, 2), 'DisplayName', '$\hat{A}_L$')
-plot(run_case.cache.const.ceq(:, 3), 'DisplayName', '$\hat{A}_M$')
-plot(run_case.cache.const.ceq(:, 4), 'DisplayName', '$\hat{W}_w$')
-plot(run_case.cache.const.ceq(:, 5), 'DisplayName', '$\hat{W}_f$')
+plot(mean(run_case.cache.const.ceq(:, 2:6), 2),...
+    'DisplayName', '$\hat{A}_L$')
+plot(mean(run_case.cache.const.ceq(:, 7:11), 2),...
+    'DisplayName', '$\hat{A}_M$')
+plot(run_case.cache.const.ceq(:, 12), 'DisplayName', '$\hat{W}_w$')
+plot(run_case.cache.const.ceq(:, 13), 'DisplayName', '$\hat{W}_f$')
 x_lim = xlim;
 axis([x_lim(1), x_lim(2), -1, 1])
 l = legend('Location', 'Best'); set(l, 'Interpreter', 'latex');
