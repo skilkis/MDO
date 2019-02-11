@@ -390,7 +390,7 @@ switch choice
         for handle = handles'
             i = i + 1;
             waitbar(i/N,b1,sprintf('Saving Figure (%d/%d)',i,N))
-            util.save2pdf(sprintf('%s%s.pdf', new_dir, handle.Name),...
+            util.save2pdf(sprintf('%s/%s.pdf', new_dir, handle.Name),...
                           handle)
         end
         close all
